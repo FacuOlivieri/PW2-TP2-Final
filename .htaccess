@@ -1,0 +1,52 @@
+# ══════════════════════════════════════════════════════
+# SEGURIDAD
+# ══════════════════════════════════════════════════════
+
+# Deshabilita el listado de directorios.
+# Sin esto, navegar a http://localhost/view/ mostraría
+# todos los archivos .mustache como un índice de carpeta.
+Options -Indexes
+
+# Bloquea el acceso HTTP directo a archivos sensibles.
+# config.ini tiene usuario y contraseña de la BD — no debe
+# poder descargarse desde el browser bajo ningún concepto.
+<FilesMatch ".*\.(log|ini|htaccess)$">
+    deny from all
+</FilesMatch>
+
+# ══════════════════════════════════════════════════════
+# URL REWRITING
+# Transforma URLs limpias en la URL real de PHP.
+# El browser pide:  /vikingo/ver
+# Apache convierte: index.php?controller=vikingo&method=ver
+# El browser nunca sabe que existe index.php.
+# ══════════════════════════════════════════════════════
+<IfModule mod_rewrite.c>
+    # Activa el motor de reescritura.
+    RewriteEngine On
+
+    # Raíz desde donde se aplican las reglas (relativo al DocumentRoot).
+    # Si el proyecto no está en la raíz de htdocs, cambiar a /nombre-carpeta/
+    RewriteBase /
+
+    # ── CONDICIONES ── (aplican a las dos reglas de abajo)
+    # Solo reescribir si la URL NO es un archivo real en disco.
+    # Ej: /css/estilo.css NO se reescribe porque el archivo existe.
+    RewriteCond %{REQUEST_FILENAME} !-f
+
+    # Solo reescribir si la URL NO es un directorio real en disco.
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # ── REGLA 1: /controller/method ──────────────────────
+    # ^([^/]+)/([^/]+)$  →  captura dos segmentos separados por /
+    #   $1 = primer segmento  (controller)
+    #   $2 = segundo segmento (method)
+    # [L]   = Last: si esta regla coincide, no evaluar las siguientes.
+    # [QSA] = Query String Append: conserva parámetros adicionales.
+    #   /vikingo/editar?id=5 llega como controller=vikingo&method=editar&id=5
+    RewriteRule ^([^/]+)/([^/]+)$ index.php?controller=$1&method=$2 [L,QSA]
+
+    # ── REGLA 2: /controller (sin method) ────────────────
+    # Si solo viene el controller, el router usa el método default ('ver').
+    RewriteRule ^([^/]+)$         index.php?controller=$1           [L,QSA]
+</IfModule>

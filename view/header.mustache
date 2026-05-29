@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preguntados</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Open+Sans:wght@400;600&display=swap"
+          rel="stylesheet">
+
+    <style>
+        /* --- ESTILOS GENERALES Y FONDO --- */
+        body {
+            font-family: 'Open Sans', sans-serif; /* Fuente legible para textos */
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            /* IMAGEN DE FONDO: Trama de escudos sutil */
+            /* He usado un placeholder que simula madera oscura con textura */
+            background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
+            background-repeat: repeat;
+        }
+
+        h1, h2, th, .btn-add {
+            font-family: 'Cinzel', serif; /* Fuente épica para títulos */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* --- CABECERA ÉPICA (HEADER) --- */
+        header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(26, 26, 26, 1)),
+            url('https://images.unsplash.com/photo-1578130325150-f70915a7702a?q=80&w=1600'); /* Placeholder Drakkar */
+            background-size: cover;
+            background-position: center;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-bottom: 3px solid #d4af37; /* Línea dorada */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        header h1 {
+            color: #d4af37; /* Oro viejo */
+            font-size: 3.5em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        header p {
+            color: #fff;
+            font-size: 1.2em;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: -50px auto 50px auto; /* Sube un poco para pisar el header */
+            background: rgba(30, 30, 30, 0.95);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border: 1px solid #444;
+            position: relative; /* Para el z-index */
+        }
+
+        /* --- BOTÓN DE ALTA (RECLUTAR) --- */
+        .btn-add {
+            display: inline-block;
+            background-color: #c0392b; /* Rojo sangre fuerte */
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            transition: 0.3s;
+            border: 2px solid #a93226;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-add:hover {
+            background-color: #d4af37; /* Cambia a Oro al pasar el mouse */
+            color: #1a1a1a;
+            transform: translateY(-3px);
+        }
+
+        /* --- TABLA VIKINGA --- */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #262626;
+            border: 2px solid #d4af37; /* Borde dorado tabla */
+        }
+
+        th, td {
+            padding: 18px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+
+        th {
+            background-color: #333;
+            color: #d4af37;
+            font-size: 1.1em;
+            border-bottom: 2px solid #d4af37;
+        }
+
+        tr:hover {
+            background-color: #333; /* Resalta fila */
+        }
+
+        /* Icono de fuerza (hacha) */
+        .fuerza-icon {
+            color: #d4af37;
+            margin-right: 5px;
+        }
+
+        /* --- BOTONES DE ACCIÓN DENTRO DE TABLA --- */
+        .actions a {
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 3px;
+            margin-right: 5px;
+            font-size: 0.85em;
+            display: inline-block;
+            transition: 0.2s;
+        }
+
+        .edit {
+            background-color: transparent;
+            color: #3498db;
+            border: 1px solid #3498db;
+        }
+
+        .edit:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .delete {
+            background-color: transparent;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .delete:hover {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        /* --- FORMULARIOS --- */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #d4af37;
+            font-weight: 600;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #2a2a2a;
+            border: 1px solid #555;
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #d4af37;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background-color: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Cinzel', serif;
+            font-size: 1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: #d4af37;
+            color: #1a1a1a;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #d4af37;
+        }
+
+        .welcome-panel {
+            text-align: center;
+            padding: 25px 10px 10px;
+        }
+
+        .welcome-panel h2 {
+            color: #d4af37;
+            font-size: 2em;
+            margin: 0 0 15px;
+        }
+
+        .welcome-panel p {
+            color: #d8d8d8;
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin: 0 auto 30px;
+            max-width: 650px;
+        }
+
+        .home-actions {
+            display: flex;
+            justify-content: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            color: #d4af37;
+            padding: 15px 30px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 5px;
+            border: 2px solid #d4af37;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d4af37;
+            color: #1a1a1a;
+            transform: translateY(-3px);
+        }
+
+        .form-title {
+            color: #d4af37;
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .form-help {
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 600px) {
+            header {
+                height: 230px;
+            }
+
+            header h1 {
+                font-size: 2.4em;
+            }
+
+            .container {
+                margin-top: -35px;
+                padding: 22px;
+            }
+
+            .home-actions a {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Preguntados</h1>
+    <p>Demostrá cuánto sabés y competí con otros jugadores</p>
+</header>

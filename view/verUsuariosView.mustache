@@ -1,0 +1,59 @@
+{{>header}}
+<div class="container">
+    <div class="form-container">
+        <h1 class="title">🎮 Crear Cuenta</h1>
+        <form action="/usuarios/procesarRegistro" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Nombre Completo</label>
+                <input type="text" name="nombre_completo" required>
+            </div>
+            <div class="form-group">
+                <label>Año de Nacimiento</label>
+                <input type="number" name="anio_nacimiento" min="1900" max="2026" required>
+            </div>
+            <div class="form-group">
+                <label>Sexo</label>
+                <select name="sexo" required>
+                    <option value="">Seleccionar</option>
+                    <option value="Masculino">Masculino</option>
+                    <option value="Femenino">Femenino</option>
+                    <option value="Prefiero no cargarlo">
+                        Prefiero no cargarlo
+                    </option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>País</label>
+                <input type="text" name="pais" required>
+            </div>
+            <div class="form-group">
+                <label>Ciudad</label>
+                <input type="text" name="ciudad" required>
+            </div>
+            <div class="form-group">
+                <label>Mail</label>
+                <input type="email" name="mail" required>
+            </div>
+            <div class="form-group">
+                <label>Nombre de Usuario</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label>Repetir Contraseña</label>
+                <input type="password" name="repetir_password" required>
+            </div>
+            <div class="form-group">
+                <label>Foto de Perfil</label>
+                <input type="file" name="foto_perfil" accept="image/*">
+            </div>
+            <button type="submit" class="btn-add">
+                REGISTRARSE
+            </button>
+        </form>
+    </div>
+</div>
+{{>footer}}
