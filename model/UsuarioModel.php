@@ -12,8 +12,14 @@ class UsuarioModel
     public function getUsuarios()
     {
         $sql = "SELECT * FROM usuarios";
-
         return $this->database->query($sql);
+    }
+
+    public function buscarUsuariosPorNombreDeUsuario($nombre)
+    {
+        $sql = "SELECT * FROM usuarios WHERE username = ?";
+        $resultado = $this->database->query($sql, [$nombre]);
+        return $resultado[0] ?? null;
     }
 
     public function alta(
@@ -54,5 +60,29 @@ class UsuarioModel
             $foto
         ]);
     }
+
+    public function mostrarPuntaje($usuario)
+    {
+        $sql = "SELECT puntaje FROM usuarios WHERE username = ?";
+        $resultado = $this->database->query($sql, [$usuario]);
+
+        return $resultado[0]["puntaje"] ?? 0;
+    }
+
+    public function mostrarPuntajesRanking()
+    {
+        $sql = "SELECT username AS nombre, puntaje AS puntajeTotal
+                FROM usuarios
+                ORDER BY puntaje DESC, username ASC";
+
+        $usuarios = $this->database->query($sql);
+
+        foreach ($usuarios as $indice => $usuario) {
+            $usuarios[$indice]["puesto"] = $indice + 1;
+        }
+
+        return $usuarios;
+    }
+
 
 }

@@ -1,0 +1,133 @@
+{{>header}}
+{{>lobbyCss}}
+
+<main class="container lobby-shell">
+    <section class="lobby-hero">
+        <p class="lobby-kicker">Lobby de jugador</p>
+        <h2 class="lobby-title">
+            {{#nombreUsuario}}{{nombreUsuario}}{{/nombreUsuario}}{{^nombreUsuario}}Jugador{{/nombreUsuario}}
+            <span>{{#puntajeRanking}}{{puntajeRanking}}{{/puntajeRanking}}{{^puntajeRanking}}0{{/puntajeRanking}} puntos en ranking</span>
+        </h2>
+
+        <div class="lobby-summary">
+            <article class="lobby-stat">
+                <strong>{{#puntajeRanking}}{{puntajeRanking}}{{/puntajeRanking}}{{^puntajeRanking}}0{{/puntajeRanking}}</strong>
+                <span>Puntos acumulados</span>
+            </article>
+            <article class="lobby-stat">
+                <strong>#{{#puestoRanking}}{{puestoRanking}}{{/puestoRanking}}{{^puestoRanking}}--{{/puestoRanking}}</strong>
+                <span>Posicion en ranking</span>
+            </article>
+            <article class="lobby-stat">
+                <strong>{{#partidasTotales}}{{partidasTotales}}{{/partidasTotales}}{{^partidasTotales}}0{{/partidasTotales}}</strong>
+                <span>Partidas jugadas</span>
+            </article>
+        </div>
+
+        <div class="lobby-actions">
+            <button type="button" class="btn-add">Crear nueva partida</button>
+            <a href="#ranking" class="btn-secondary">Ver ranking</a>
+        </div>
+    </section>
+
+    <section class="lobby-content">
+        <article class="lobby-card">
+            <div class="lobby-card-header">
+                <div>
+                    <h3>Mis partidas</h3>
+                    <p>Listado de partidas jugadas y el resultado obtenido.</p>
+                </div>
+                <span class="lobby-badge">Historial</span>
+            </div>
+
+            <div class="match-list">
+                {{#partidasJugadas}}
+                    <article class="match-item">
+                        <div>
+                            <h4>{{nombrePartida}}</h4>
+                            <p>{{fecha}} &middot; {{puntaje}} puntos</p>
+                        </div>
+                        <span class="match-result {{claseResultado}}">{{resultado}}</span>
+                    </article>
+                {{/partidasJugadas}}
+
+                {{^partidasJugadas}}
+                    <article class="match-item">
+                        <div>
+                            <h4>Partida r&aacute;pida #12</h4>
+                            <p>Hoy &middot; 145 puntos</p>
+                        </div>
+                        <span class="match-result win">Ganada</span>
+                    </article>
+                    <article class="match-item">
+                        <div>
+                            <h4>Duelo de cultura general</h4>
+                            <p>Ayer &middot; 80 puntos</p>
+                        </div>
+                        <span class="match-result loss">Perdida</span>
+                    </article>
+                    <article class="match-item">
+                        <div>
+                            <h4>Ronda de ciencia</h4>
+                            <p>En curso &middot; 0 puntos</p>
+                        </div>
+                        <span class="match-result pending">Pendiente</span>
+                    </article>
+                {{/partidasJugadas}}
+            </div>
+        </article>
+
+        <article class="lobby-card" id="ranking">
+            <div class="lobby-card-header">
+                <div>
+                    <h3>Ranking general</h3>
+                    <p>Puntajes acumulados totales de todos los jugadores.</p>
+                </div>
+                <span class="lobby-badge">Top jugadores</span>
+            </div>
+
+            <table class="ranking-table">
+                <thead>
+                <tr>
+                    <th>Pos.</th>
+                    <th>Jugador</th>
+                    <th>Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{#ranking}}
+                    <tr>
+                        <td class="ranking-position">#{{puesto}}</td>
+                        <td>{{nombre}}</td>
+                        <td>{{puntajeTotal}}</td>
+                    </tr>
+                {{/ranking}}
+
+                {{^ranking}}
+                    <tr>
+                        <td class="ranking-position">#1</td>
+                        <td>Valentina</td>
+                        <td>2.430</td>
+                    </tr>
+                    <tr>
+                        <td class="ranking-position">#2</td>
+                        <td>Mateo</td>
+                        <td>2.110</td>
+                    </tr>
+                    <tr>
+                        <td class="ranking-position">#3</td>
+                        <td>Sofia</td>
+                        <td>1.980</td>
+                    </tr>
+                    <tr>
+                        <td class="ranking-position">#4</td>
+                        <td>Jugador</td>
+                        <td>0</td>
+                    </tr>
+                {{/ranking}}
+                </tbody>
+            </table>
+        </article>
+    </section>
+</main>
+{{>footer}}

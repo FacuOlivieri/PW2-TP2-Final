@@ -28,5 +28,7 @@ CREATE TABLE usuarios (
 
                           foto_perfil VARCHAR(255) DEFAULT NULL,
 
+                          puntaje INT NOT NULL DEFAULT 0,
+
                           fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

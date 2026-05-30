@@ -28,11 +28,49 @@ class UsuarioController
         $this->renderer->render("loginView");
     }
 
+    public function mostrarUsuarioLobby()
+    {
+        $this->lobby();
+    }
+
     public function procesarLogin()
     {
-        $this->renderer->render("loginView", [
-            'mensaje' => 'El inicio de sesión todavía no está implementado.'
+        $usuarioIngresado = $this->request->post("username");
+        $passwordIngresada = $this->request->post("password");
+        $usuarios = $this->model->buscarUsuariosPorNombreDeUsuario($usuarioIngresado);
+        if (empty($usuarios)) {
+            echo "Usuario no encontrado";
+            exit();
+        }
+        if (password_verify($passwordIngresada, $usuarios["password_hash"])) {
+            $_SESSION["usuario"] = $usuarios["username"];
+            $this->renderizarLobby($_SESSION["usuario"]);
+            exit();
+        }
+        echo "Contraseña incorrecta";
+    }
+
+    private function renderizarLobby($usuario)
+    {
+        $ranking = $this->model->mostrarPuntajesRanking();
+
+        $this->renderer->render("lobbyView", [
+            "nombreUsuario" => $usuario,
+            "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
+            "puestoRanking" => $this->buscarPuestoEnRanking($ranking, $usuario),
+            "ranking" => $ranking
         ]);
+    }
+
+    private function buscarPuestoEnRanking($ranking, $usuario)
+    {
+        foreach ($ranking as $fila) {
+            if ($fila["nombre"] === $usuario) {
+                return $fila["puesto"];
+            }
+        }
+
+        return null;
     }
 
     public function ver()
