@@ -80,13 +80,27 @@ class UsuarioController
 
     public function procesarRegistro()
     {
-        $nombre = $this->request->post('nombre_completo');
-        $anio = $this->request->post('anio_nacimiento');
-        $sexo = $this->request->post('sexo');
-        $pais = $this->request->post('pais');
-        $ciudad = $this->request->post('ciudad');
-        $mail = $this->request->post('mail');
-        $username = $this->request->post('username');
+        $nombre = trim($this->request->post('nombre_completo', ''));
+        $anio = trim($this->request->post('anio_nacimiento', ''));
+        $sexo = trim($this->request->post('sexo', ''));
+        $pais = trim($this->request->post('pais', ''));
+        $ciudad = trim($this->request->post('ciudad', ''));
+        $mail = trim($this->request->post('mail', ''));
+        $username = trim($this->request->post('username', ''));
+
+        if ($pais === '' || $ciudad === '') {
+            $this->renderer->render("registroView", $this->datosRegistroConError(
+                "Seleccioná país y ciudad desde el mapa antes de registrarte.",
+                $nombre,
+                $anio,
+                $sexo,
+                $pais,
+                $ciudad,
+                $mail,
+                $username
+            ));
+            return;
+        }
 
         $password = password_hash(
             $this->request->post('password'),
@@ -108,6 +122,22 @@ class UsuarioController
         );
 
         Redirect::to("/usuarios/iniciarSesion");
+    }
+
+    private function datosRegistroConError($error, $nombre, $anio, $sexo, $pais, $ciudad, $mail, $username)
+    {
+        return [
+            "error" => $error,
+            "nombre_completo" => $nombre,
+            "anio_nacimiento" => $anio,
+            "sexo_masculino" => $sexo === "Masculino",
+            "sexo_femenino" => $sexo === "Femenino",
+            "sexo_prefiero_no_cargarlo" => $sexo === "Prefiero no cargarlo",
+            "pais" => $pais,
+            "ciudad" => $ciudad,
+            "mail" => $mail,
+            "username" => $username
+        ];
     }
 
 }
