@@ -18,6 +18,8 @@ class Configurator {
         return new PartidaController($this->getPartida(),
                                      $this->getUsuarios(),
                                      $this->getRenderer(),
+                                     $this->getPreguntas(),
+                                     $this->getEstadoPartida(),
                                      new Request());
         //Para no repetir Request tal vez podriamos compaginarlo en un metodo.
     }
@@ -60,5 +62,15 @@ class Configurator {
     private function getPartida()
     {
         return new PartidaModel($this->getDatabase());
+    }
+
+    private function getPreguntas()
+    {
+        return new PreguntaModel($this->getDatabase());
+    }
+
+    private function getEstadoPartida()
+    {
+        return new EstadoPartidaModel($this->getDatabase());
     }
 }

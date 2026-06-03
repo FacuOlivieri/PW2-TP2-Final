@@ -10,8 +10,26 @@ class PartidaModel
         $this->database = $dataBase;
     }
 
-    public function crearPartida($jugador){
 
+    private function alta($idJugador)
+    {
+        $sql = "INSERT INTO partidas (usuario_id,puntaje_total)
+                VALUES (?, ?)";
 
+        $this->database->execute($sql, [$idJugador, 0]);
     }
+
+    public function obtenerPartidaActual($usuarioId)
+    {
+        $sql = "SELECT id FROM partidas WHERE usuario_id = ?
+        ORDER BY id DESC
+        LIMIT 1
+        ";
+
+        $resultado = $this->database->query($sql, [$usuarioId]);
+
+        return $resultado[0]["id"] ?? null;
+    }
+
+
 }
