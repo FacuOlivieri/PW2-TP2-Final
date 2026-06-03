@@ -20,7 +20,6 @@ class PartidaController{
 
         if(!isset($_SESSION['usuario'])){
             Redirect::to("/usuario/iniciarSesion");
-            return;
         }
 
         $usuario = $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION['usuario']);
