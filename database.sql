@@ -32,3 +32,44 @@ CREATE TABLE usuarios (
 
                           fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE categorias (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            nombre VARCHAR(100) NOT NULL,
+                            color VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE preguntas (
+                           id INT AUTO_INCREMENT PRIMARY KEY,
+                           texto VARCHAR(500) NOT NULL,
+                           categoria_id INT NOT NULL,
+                           estado ENUM('aprobada', 'pendiente', 'rechazada', 'reportada') DEFAULT 'pendiente',
+                           creada_por INT NULL,
+                           fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                           FOREIGN KEY (categoria_id) REFERENCES categorias(id),
+                           FOREIGN KEY (creada_por) REFERENCES usuarios(id)
+);
+
+CREATE TABLE respuestas (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            pregunta_id INT NOT NULL,
+                            texto VARCHAR(255) NOT NULL,
+                            es_correcta BOOLEAN NOT NULL DEFAULT false,
+                            FOREIGN KEY (pregunta_id) REFERENCES preguntas(id)
+);
+
+CREATE TABLE partidas (
+                          id INT AUTO_INCREMENT PRIMARY KEY,
+                          usuario_id INT NOT NULL,
+                          puntaje_total INT NOT NULL DEFAULT 0,
+                          fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                          FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+CREATE TABLE partida_preguntas (
+                                   id INT AUTO_INCREMENT PRIMARY KEY,
+                                   partida_id INT NOT NULL,
+                                   pregunta_id INT NOT NULL,
+                                   FOREIGN KEY (partida_id) REFERENCES partidas(id),
+                                   FOREIGN KEY (pregunta_id) REFERENCES preguntas(id)
+);

@@ -13,6 +13,15 @@ class Configurator {
         return new UsuarioController($this->getUsuarios(), $this->getRenderer(), new Request());
     }
 
+    public function getPartidaController()
+    {
+        return new PartidaController($this->getPartida(),
+                                     $this->getUsuarios(),
+                                     $this->getRenderer(),
+                                     new Request());
+        //Para no repetir Request tal vez podriamos compaginarlo en un metodo.
+    }
+
     private function getDatabase()
     {
         return new MyDatabase(
@@ -46,5 +55,10 @@ class Configurator {
         }
         $defaultGetter = 'get' . ucfirst($defaultControllerName) . 'Controller';
         return $this->{$defaultGetter}();
+    }
+
+    private function getPartida()
+    {
+        return new PartidaModel($this->getDatabase());
     }
 }

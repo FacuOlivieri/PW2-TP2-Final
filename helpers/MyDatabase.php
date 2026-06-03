@@ -12,15 +12,27 @@ class MyDatabase
     public function query($sql, $params = [])
     {
         $stmt = $this->conexion->prepare($sql);
-        $stmt->execute($params);
+        $this->bindParams($stmt, $params);
+        $stmt->execute();
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     public function execute($sql, $params = [])
     {
         $stmt = $this->conexion->prepare($sql);
-        $stmt->execute($params);
+        $this->bindParams($stmt, $params);
+        $stmt->execute();
         return $this->conexion->affected_rows;
+    }
+
+    private function bindParams($stmt, $params)
+    {
+        if (empty($params)) {
+            return;
+        }
+
+        $types = str_repeat('s', count($params));
+        $stmt->bind_param($types, ...$params);
     }
 
     public function __destruct()

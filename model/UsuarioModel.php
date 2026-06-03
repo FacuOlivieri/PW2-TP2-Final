@@ -84,5 +84,4 @@ class UsuarioModel
         return $usuarios;
     }
 
-
 }

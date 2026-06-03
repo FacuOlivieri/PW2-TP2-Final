@@ -55,11 +55,11 @@ class UsuarioController
         $ranking = $this->model->mostrarPuntajesRanking();
 
         $this->renderer->render("lobbyView", [
-            "nombreUsuario" => $usuario,
-            "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
-            "puestoRanking" => $this->buscarPuestoEnRanking($ranking, $usuario),
-            "ranking" => $ranking
-        ]);
+                "nombreUsuario" => $usuario,
+                "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
+                "puestoRanking" => $this->buscarPuestoEnRanking($ranking, $usuario),
+                "ranking" => $ranking
+            ]);
     }
 
     private function buscarPuestoEnRanking($ranking, $usuario)
