@@ -48,12 +48,44 @@ class PartidaController{
         $_SESSION['numero_pregunta'] = 1;
         $_SESSION['puntaje'] = 0;
 
-        //Manejo de Preguntas
+        // Manejo de Preguntas
         $_SESSION['lista_preguntas'] = $this->preguntaModel->buscarTodasLasPreguntas();
         shuffle($_SESSION['lista_preguntas']);
 
         $this->mostrarPregunta();
+    }
 
+    public function partidaTerminada()
+    {
+        $puntajeFinal = $_SESSION["puntaje"] ?? 0;
+        $idPartida = $_SESSION["id_partida"] ?? null;
+        $usuario = $_SESSION["usuario"] ?? null;
+
+        if ($idPartida !== null) {
+            $this->partidaModel->finalizarPartida($idPartida, $puntajeFinal);
+        }
+
+        if ($usuario !== null && $puntajeFinal > 0) {
+            $this->usuarioModel->sumarPuntaje($usuario, $puntajeFinal);
+        }
+
+        $this->renderer->render(
+            "partidaTerminadaView",
+            [
+                'usuarioNombre' => $usuario,
+                'usuarioPuntaje' => $puntajeFinal,
+                'pregunta' => $_SESSION['pregunta_actual'] ?? "",
+                'respuestaCorrecta' => $_SESSION['respuesta_correcta'] ?? "",
+            ]
+        );
+
+        unset($_SESSION["id_partida"]);
+        unset($_SESSION["puntaje"]);
+        unset($_SESSION["numero_pregunta"]);
+        unset($_SESSION["id_pregunta_actual"]);
+        unset($_SESSION["lista_preguntas"]);
+        unset($_SESSION["pregunta_actual"]);
+        unset($_SESSION["respuesta_correcta"]);
     }
 
     private function manejoDeRespuestas($preguntaId)
@@ -82,6 +114,72 @@ class PartidaController{
             "puntaje" => $_SESSION['puntaje'],
             "numeroPregunta" => $_SESSION['numero_pregunta']]
         );
+    }
+
+    public function responder()
+    {
+        $respuestaId = $this->request->post("respuesta_id");
+        $respuesta = $this->respuestasModel->buscarRespuestaPorId($respuestaId);
+
+        if ($respuesta === null) {
+            Redirect::to("/partida/partidaTerminada");
+            return;
+        }
+
+        if ((int)$respuesta["pregunta_id"] !== (int)$_SESSION["id_pregunta_actual"]) {
+            Redirect::to("/partida/partidaTerminada");
+            return;
+        }
+
+        if ((int)$respuesta["es_correcta"] === 1) {
+            $_SESSION['numero_pregunta']++;
+            $_SESSION['puntaje']++;
+            array_shift($_SESSION['lista_preguntas']);
+
+            Redirect::to("/partida/mostrarPregunta");
+            return;
+        }
+
+        Redirect::to("/partida/partidaTerminada");
+    }
+
+
+    //Agarra las preguntas insertadas por BD base y las mezcla
+    private function preguntas(){
+        $preguntas = $this->preguntaModel->buscarTodasLasPreguntas();
+        shuffle($preguntas);
+        $_SESSION['lista_preguntas'] = $preguntas;
+        return $preguntas;
+    }
+
+
+    private function manejoDeRepuestas($pregunta_id): array
+    {
+        $respuestaCorrecta = $this->respuestasModel->buscarRespuestaCorrectaALaPregunta($pregunta_id);
+        $_SESSION['respuesta_correcta'] = $respuestaCorrecta['texto'];
+        $posiblesRespuestasIncorrectasParaPregunta = $this->respuestasModel->buscarRespuestasIncorrectasParaPregunta($pregunta_id);
+        $respuestasIncorrectas = $this->aleatorizarTresRespuestasIncorrectasParaLaPregunta($posiblesRespuestasIncorrectasParaPregunta);
+        return $this->traerRespuestas($respuestaCorrecta, $respuestasIncorrectas);
+    }
+
+
+    //Agarra las respuestas Incorrectas, las mezcla y mete 3 de ellas en un array las opciones incorrectas
+    private function aleatorizarTresRespuestasIncorrectasParaLaPregunta($posiblesRespuestasIncorrectasParaPregunta): array
+    {
+
+        shuffle($posiblesRespuestasIncorrectasParaPregunta);
+        for ($i = 0; $i <= 2; $i++) {
+            $respuestasIncorrectas[] = $posiblesRespuestasIncorrectasParaPregunta[$i];
+        }
+        return $respuestasIncorrectas;
+    }
+
+    //Mezcla las respuestas incorrectas y la correcta en un solo array y lo devuelve
+    private function traerRespuestas(array $respuestaCorrecta, array $respuestasIncorrectas): array {
+        $respuestas = $respuestasIncorrectas;
+        $respuestas[] = $respuestaCorrecta;
+        shuffle($respuestas);
+        return $respuestas;
     }
 
 }

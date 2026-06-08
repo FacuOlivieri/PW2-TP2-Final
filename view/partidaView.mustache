@@ -14,7 +14,7 @@
 
             <form class="answer-grid" action="/partida/responder" method="post">
                 {{#respuestas}}
-                <button class="answer-option" type="submit" name="opcion_elegida" value="{{es_correcta}}">
+                <button class="answer-option" type="submit" name="respuesta_id" value="{{id}}">
                     <span>{{texto}}</span>
                 </button>
                 {{/respuestas}}

@@ -22,5 +22,13 @@ class RespuestaModel
         return $resultado ?? null;
     }
 
+    public function buscarRespuestaPorId($idRespuesta)
+    {
+        $sql = "SELECT * FROM respuestas WHERE id = ?";
+        $resultado = $this->database->query($sql, [$idRespuesta]);
+
+        return $resultado[0] ?? null;
+    }
+
 
 }

@@ -56,29 +56,23 @@
             <div class="match-list">
 
                 {{#partidasJugadas}}
-                <article class="match-item">
-                    <div>
-                        <h4>Partida #{{id}}</h4>
-                        <p>
-                            {{fecha_creacion}}
-                            &middot;
-                            {{puntaje_total}} puntos
-                        </p>
-                    </div>
-
-                    <span class="match-result win"> Finalizada </span>
-                </article>
+                    <article class="match-item">
+                        <div>
+                            <h4>Partida #{{id}}</h4>
+                            <p>{{fecha_creacion}} &middot; {{puntaje_total}} puntos</p>
+                        </div>
+                        <span class="match-result win">Finalizada</span>
+                    </article>
                 {{/partidasJugadas}}
 
                 {{^partidasJugadas}}
-                <article class="match-item">
-                    <div>
-                        <h4>Sin partidas aún</h4>
-                        <p>Comenzá una nueva aventura.</p>
-                    </div>
-
-                    <span class="match-result pending"> Pendiente </span>
-                </article>
+                    <article class="match-item">
+                        <div>
+                            <h4>Sin partidas jugadas</h4>
+                            <p>Todavía no terminaste ninguna partida.</p>
+                        </div>
+                        <span class="match-result pending">Pendiente</span>
+                    </article>
                 {{/partidasJugadas}}
                 
             </div>

@@ -8,7 +8,8 @@ class Configurator {
         $this->config = parse_ini_file("config/config.ini");
     }
 
-    public function getUsuariosController() {
+    public function getUsuariosController()
+    {
         return new UsuarioController(
             $this->getUsuarios(),
             $this->getRenderer(),
