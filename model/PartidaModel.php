@@ -37,5 +37,14 @@ class PartidaModel
         $this->database->execute($sql, [$puntaje, $idPartida]);
     }
 
+    public function obtenerPartidasPorUsuario($usuarioId)
+    {
+        $sql = "SELECT id, puntaje_total, fecha_creacion
+            FROM partidas
+            WHERE usuario_id = ?
+            ORDER BY fecha_creacion DESC";
+
+        return $this->database->query($sql, [$usuarioId]);
+    }
 
 }

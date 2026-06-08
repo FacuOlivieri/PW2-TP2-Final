@@ -10,7 +10,7 @@ class Configurator {
 
     public function getUsuariosController()
     {
-        return new UsuarioController($this->getUsuarios(), $this->getRenderer(), new Request());
+        return new UsuarioController($this->getUsuarios(), $this->getPartida(), $this->getRenderer(), new Request());
     }
 
     public function getPartidaController()

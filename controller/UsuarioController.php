@@ -5,12 +5,14 @@ class UsuarioController
     private $model;
     private $renderer;
     private $request;
+    private $partidaModel;
 
-    public function __construct($model, $renderer, $request)
+    public function __construct($model, $partidaModel, $renderer, $request)
     {
-        $this->model    = $model;
+        $this->model = $model;
+        $this->partidaModel = $partidaModel;
         $this->renderer = $renderer;
-        $this->request  = $request;
+        $this->request = $request;
     }
 
     public function inicio()
@@ -55,12 +57,16 @@ class UsuarioController
         $usuario = $_SESSION["usuario"];
         $ranking = $this->model->mostrarPuntajesRanking();
 
+        $usuarioCompleto = $this->model->buscarUsuariosPorNombreDeUsuario($usuario);
+        $partidas = $this->partidaModel->obtenerPartidasPorUsuario($usuarioCompleto["id"]);
+
         $this->renderer->render("lobbyView", [
-                "nombreUsuario" => $usuario,
-                "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
-                "puestoRanking" => $this->buscarPuestoEnRanking($ranking, $usuario),
-                "ranking" => $ranking
-            ]);
+            "nombreUsuario" => $usuario,
+            "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
+            "puestoRanking" => $this->buscarPuestoEnRanking($ranking, $usuario),
+            "ranking" => $ranking,
+            "partidas" => $partidas
+        ]);
     }
 
     private function buscarPuestoEnRanking($ranking, $usuario)

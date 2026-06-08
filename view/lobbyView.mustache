@@ -41,39 +41,25 @@
             </div>
 
             <div class="match-list">
-                {{#partidasJugadas}}
+                {{#partidas}}
                     <article class="match-item">
                         <div>
-                            <h4>{{nombrePartida}}</h4>
-                            <p>{{fecha}} &middot; {{puntaje}} puntos</p>
+                            <h4>Partida #{{id}}</h4>
+                            <p>{{fecha_creacion}} &middot; {{puntaje_total}} puntos</p>
                         </div>
-                        <span class="match-result {{claseResultado}}">{{resultado}}</span>
+                        <span class="match-result win">Finalizada</span>
                     </article>
-                {{/partidasJugadas}}
+                {{/partidas}}
 
-                {{^partidasJugadas}}
+                {{^partidas}}
                     <article class="match-item">
                         <div>
-                            <h4>Partida r&aacute;pida #12</h4>
-                            <p>Hoy &middot; 145 puntos</p>
-                        </div>
-                        <span class="match-result win">Ganada</span>
-                    </article>
-                    <article class="match-item">
-                        <div>
-                            <h4>Duelo de cultura general</h4>
-                            <p>Ayer &middot; 80 puntos</p>
-                        </div>
-                        <span class="match-result loss">Perdida</span>
-                    </article>
-                    <article class="match-item">
-                        <div>
-                            <h4>Ronda de ciencia</h4>
-                            <p>En curso &middot; 0 puntos</p>
+                            <h4>Sin partidas jugadas</h4>
+                            <p>Todavía no terminaste ninguna partida.</p>
                         </div>
                         <span class="match-result pending">Pendiente</span>
                     </article>
-                {{/partidasJugadas}}
+                {{/partidas}}
             </div>
         </article>
 
