@@ -44,14 +44,15 @@ class UsuarioController
         }
         if (password_verify($passwordIngresada, $usuarios["password_hash"])) {
             $_SESSION["usuario"] = $usuarios["username"];
-            $this->renderizarLobby($_SESSION["usuario"]);
+            $this->renderizarLobby();
             exit();
         }
         echo "Contraseña incorrecta";
     }
 
-    public function renderizarLobby($usuario = null)
+    public function renderizarLobby()
     {
+        $usuario = $_SESSION["usuario"];
         $ranking = $this->model->mostrarPuntajesRanking();
 
         $this->renderer->render("lobbyView", [
