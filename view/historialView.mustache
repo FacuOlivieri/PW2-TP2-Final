@@ -1,0 +1,40 @@
+{{> header}}
+
+<div class="container">
+
+    <div class="welcome-panel">
+        <h2>Historial</h2>
+        <p> Revisá todas tus partidas jugadas </p>
+    </div>
+
+    <table>
+        <tr>
+            <th>Partida</th>
+            <th>Preguntas Respondidas</th>
+            <th>Estado</th>
+        </tr>
+
+        {{#historial}}
+        <tr>
+            <td>#{{id}}</td>
+            <td>{{preguntas_jugadas}}</td>
+            <td>Finalizada</td>
+        </tr>
+        {{/historial}}
+    </table>
+
+    <br>
+
+    <div class="home-actions">
+
+        <a href="/usuario/perfil" class="btn-add">
+            Mi Perfil
+        </a>
+
+        <a href="/usuario/mostrarUsuarioLobby" class="btn-secondary">
+            Volver al Lobby
+        </a>
+    </div>
+</div>
+
+{{>footer}}

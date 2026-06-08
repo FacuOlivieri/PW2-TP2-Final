@@ -30,8 +30,24 @@ class PartidaController{
                 "partida" => $partida]);
 
 
+    }
 
+    public function partidaTerminada() {
+    //Aun no exixte parttida terminada: no se guarda el puntaje
 
+//        if (isset($_SESSION["id_partida"])) {
+//            $this->partidaModel->actualizarPuntajePartida(
+//                $_SESSION["id_partida"],
+//                $_SESSION["puntaje"] ?? 0
+//            );
+//        }
+        $this->renderer->render(
+            "partidaTerminadaView",
+            ['usuarioNombre' => $_SESSION["usuario"],
+            'usuarioPuntaje' => $_SESSION["puntaje"] ?? 0,
+            'pregunta' => $_SESSION['pregunta_actual'] ?? "",
+            'respuestaCorrecta' => $_SESSION['respuesta_correcta'] ?? "",]
+        );
     }
 
 }
