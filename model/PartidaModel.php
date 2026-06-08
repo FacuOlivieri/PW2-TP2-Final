@@ -27,10 +27,15 @@ class PartidaModel {
 
     public function obtenerPartidasPorUsuario($usuarioId)
     {
-        $sql = "SELECT id, puntaje_total, fecha_creacion
-            FROM partidas
-            WHERE usuario_id = ?
-            ORDER BY fecha_creacion DESC";
+        $sql = "SELECT p.id,
+                p.puntaje_total,
+                COUNT(DISTINCT pp.pregunta_id) AS preguntas_jugadas,
+                p.fecha_creacion
+            FROM partidas p
+            LEFT JOIN partida_preguntas pp ON pp.partida_id = p.id
+            WHERE p.usuario_id = ?
+            GROUP BY p.id, p.puntaje_total, p.fecha_creacion
+            ORDER BY p.fecha_creacion DESC";
 
         return $this->database->query($sql, [$usuarioId]);
     }
@@ -45,19 +50,12 @@ class PartidaModel {
     }
 
     public function obtenerPartidaActual($usuarioId) {
-        $sql = "INSERT INTO partidas (usuario_id) VALUES (?)";
-        $this->database->execute($sql, [$jugador["id"]]);
-
         $sql = "SELECT id FROM partidas
                 WHERE usuario_id = ?
                 ORDER BY id DESC
                 LIMIT 1";
 
-        $resultado = $this->database->query($sql, [$jugador["id"]]);
-
-        // aun no exite partida terminada view: para no romper nada, no se guarda
-        //$_SESSION["id_partida"] = $resultado[0]["id"];
-        //$_SESSION["puntaje"] = 0;
+        $resultado = $this->database->query($sql, [$usuarioId]);
 
         return $resultado[0]["id"] ?? null;
     }

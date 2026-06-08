@@ -3,8 +3,8 @@
 <div class="container">
 
     <div class="welcome-panel">
-        <h2> Perfil del Guerrero </h2>
-        <p> Consultá tu información, reputación y desempeño en el reino del conocimiento.</p>
+        <h2> Perfil de {{usuario.username}} </h2>
+        <p> Consultá tu información en el reino del conocimiento.</p>
     </div>
 
     <table>
@@ -41,6 +41,19 @@
             <td>{{usuario.anio_nacimiento}}</td>
         </tr>
     </table>
+
+    <section class="profile-map-card">
+        <div class="profile-map-header">
+            <h3>Ubicación</h3>
+            <p>{{usuario.ciudad}}, {{usuario.pais}}</p>
+        </div>
+        <iframe
+                class="profile-map"
+                src="{{mapaUrl}}"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+    </section>
 
     <br>
 

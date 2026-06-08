@@ -166,11 +166,35 @@ class UsuarioController
             return;
         }
 
-        $usuario = $this->model->obtenerPerfilUsuario($_SESSION["usuario"]);
+        $username = trim($this->request->get("username", $_SESSION["usuario"]));
+        $usuario = $this->model->obtenerPerfilUsuario($username);
+
+        if ($usuario === null) {
+            Redirect::to("/usuario/ranking");
+            return;
+        }
 
         $this->renderer->render("perfilView", [
-            "usuario" => $usuario
+            "usuario" => $usuario,
+            "mapaUrl" => $this->crearUrlMapaUsuario($usuario),
+            "perfilPublico" => $username !== $_SESSION["usuario"]
         ]);
+    }
+
+    private function crearUrlMapaUsuario($usuario)
+    {
+        $latitud = $usuario["latitud"] ?? null;
+        $longitud = $usuario["longitud"] ?? null;
+
+        if ($latitud !== null && $latitud !== "" && $longitud !== null && $longitud !== "") {
+            return "https://maps.google.com/maps?q="
+                . rawurlencode($latitud . "," . $longitud)
+                . "&z=11&output=embed";
+        }
+
+        $ubicacion = trim(($usuario["ciudad"] ?? "") . ", " . ($usuario["pais"] ?? ""));
+
+        return "https://maps.google.com/maps?q=" . rawurlencode($ubicacion) . "&z=11&output=embed";
     }
 
     public function ranking()

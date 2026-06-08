@@ -3,11 +3,19 @@
 
 <main class="container lobby-shell">
     <section class="lobby-hero">
-        <p class="lobby-kicker">Lobby de jugador</p>
-        <h2 class="lobby-title">
-            {{#nombreUsuario}}{{nombreUsuario}}{{/nombreUsuario}}{{^nombreUsuario}}Jugador{{/nombreUsuario}}
-            <span>{{#puntajeRanking}}{{puntajeRanking}}{{/puntajeRanking}}{{^puntajeRanking}}0{{/puntajeRanking}} puntos en ranking</span>
-        </h2>
+        <div class="lobby-hero-top">
+            <div>
+                <p class="lobby-kicker">Lobby de jugador</p>
+                <h2 class="lobby-title">
+                    {{#nombreUsuario}}{{nombreUsuario}}{{/nombreUsuario}}{{^nombreUsuario}}Jugador{{/nombreUsuario}}
+                    <span>{{#puntajeRanking}}{{puntajeRanking}}{{/puntajeRanking}}{{^puntajeRanking}}0{{/puntajeRanking}} puntos en ranking</span>
+                </h2>
+            </div>
+
+            <a href="/partida/iniciarPartida" class="btn-add lobby-primary-action">
+                Crear nueva partida
+            </a>
+        </div>
 
         <div class="lobby-summary">
             <article class="lobby-stat">
@@ -25,11 +33,7 @@
         </div>
 
         <div class="lobby-actions">
-            <a href="/partida/iniciarPartida" class="btn-add">
-                Crear nueva partida
-            </a>
-
-            <a href="#ranking" class="btn-secondary">
+            <a href="/usuario/ranking" class="btn-secondary">
                 Ver ranking
             </a>
 

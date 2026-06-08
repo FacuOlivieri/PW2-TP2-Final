@@ -40,8 +40,7 @@ class PartidaController{
         //Doy el alta inicial de la partida y el estado actual para ir cargando las preguntas a medida que aparecen
         $usuario = $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION['usuario']);
         $usuarioId = $usuario["id"];
-        $this->partidaModel->alta($usuarioId);
-        $idPartidaActual = $this->partidaModel->obtenerPartidaActual($usuarioId);
+        $idPartidaActual = $this->partidaModel->alta($usuarioId);
 
         //Inicializo Contador de puntaje
         $_SESSION['id_partida'] = $idPartidaActual;
