@@ -84,4 +84,10 @@ class UsuarioModel
         return $usuarios;
     }
 
+    public function sumarPuntaje($username, $puntaje)
+    {
+        $sql = "UPDATE usuarios SET puntaje = puntaje + ? WHERE username = ?";
+        $this->database->execute($sql, [$puntaje, $username]);
+    }
+
 }

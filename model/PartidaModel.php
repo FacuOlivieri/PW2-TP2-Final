@@ -31,5 +31,11 @@ class PartidaModel
         return $resultado[0]["id"] ?? null;
     }
 
+    public function finalizarPartida($idPartida, $puntaje)
+    {
+        $sql = "UPDATE partidas SET puntaje_total = ? WHERE id = ?";
+        $this->database->execute($sql, [$puntaje, $idPartida]);
+    }
+
 
 }

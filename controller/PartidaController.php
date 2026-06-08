@@ -81,18 +81,31 @@ class PartidaController{
 
     }
 
-    public function responder(){
-        $respuestaElegida = $this->request->post("opcion_elegida");
-        if ($respuestaElegida == 1) {
+    public function responder()
+    {
+        $respuestaId = $this->request->post("respuesta_id");
+        $respuesta = $this->respuestasModel->buscarRespuestaPorId($respuestaId);
+
+        if ($respuesta === null) {
+            Redirect::to("/partida/partidaTerminada");
+            return;
+        }
+
+        if ((int)$respuesta["pregunta_id"] !== (int)$_SESSION["id_pregunta_actual"]) {
+            Redirect::to("/partida/partidaTerminada");
+            return;
+        }
+
+        if ((int)$respuesta["es_correcta"] === 1) {
             $_SESSION['numero_pregunta']++;
             $_SESSION['puntaje']++;
             array_shift($_SESSION['lista_preguntas']);
+
             Redirect::to("/partida/mostrarPregunta");
-        } else {
-            $_SESSION['numero_pregunta']--;
-            Redirect::to("/partida/partidaTerminada");
+            return;
         }
 
+        Redirect::to("/partida/partidaTerminada");
     }
 
 
@@ -134,25 +147,34 @@ class PartidaController{
         return $respuestas;
     }
 
-
-
     public function partidaTerminada()
     {
+        $puntajeFinal = $_SESSION["puntaje"] ?? 0;
+        $idPartida = $_SESSION["id_partida"] ?? null;
+        $usuario = $_SESSION["usuario"] ?? null;
+
+        if ($idPartida !== null) {
+            $this->partidaModel->finalizarPartida($idPartida, $puntajeFinal);
+        }
+
+        if ($usuario !== null && $puntajeFinal > 0) {
+            $this->usuarioModel->sumarPuntaje($usuario, $puntajeFinal);
+        }
 
         $this->renderer->render("partidaTerminadaView", [
-            'usuarioNombre' => $_SESSION["usuario"],
-            'usuarioPuntaje' => $_SESSION["puntaje"],
-            'pregunta' => $_SESSION['pregunta_actual'],
-            'respuestaCorrecta' => $_SESSION['respuesta_correcta'],
+            'usuarioNombre' => $usuario,
+            'usuarioPuntaje' => $puntajeFinal,
+            'pregunta' => $_SESSION['pregunta_actual'] ?? '',
+            'respuestaCorrecta' => $_SESSION['respuesta_correcta'] ?? '',
         ]);
-
 
         unset($_SESSION["id_partida"]);
         unset($_SESSION["puntaje"]);
         unset($_SESSION["numero_pregunta"]);
         unset($_SESSION["id_pregunta_actual"]);
         unset($_SESSION["lista_preguntas"]);
-
+        unset($_SESSION["pregunta_actual"]);
+        unset($_SESSION["respuesta_correcta"]);
     }
 
 
