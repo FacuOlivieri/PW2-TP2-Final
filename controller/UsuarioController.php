@@ -32,20 +32,20 @@ class UsuarioController
 
     public function mostrarUsuarioLobby()
     {
-        $this->lobby();
+        $this->renderizarLobby();
     }
 
     public function procesarLogin()
     {
         $usuarioIngresado = $this->request->post("username");
         $passwordIngresada = $this->request->post("password");
-        $usuarios = $this->model->buscarUsuariosPorNombreDeUsuario($usuarioIngresado);
-        if (empty($usuarios)) {
+        $usuario = $this->model->buscarUsuariosPorNombreDeUsuario($usuarioIngresado);
+        if (empty($usuario)) {
             echo "Usuario no encontrado";
             exit();
         }
-        if (password_verify($passwordIngresada, $usuarios["password_hash"])) {
-            $_SESSION["usuario"] = $usuarios["username"];
+        if (password_verify($passwordIngresada, $usuario["password_hash"])) {
+            $_SESSION["usuario"] = $usuario["username"];
             $this->renderizarLobby();
             exit();
         }
@@ -64,7 +64,7 @@ class UsuarioController
             "lobbyView", 
             ["nombreUsuario" => $usuario,
             "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
-            "puestoRanking" =>$this->buscarPuestoEnRanking(
+            "puestoRanking" => $this->buscarPuestoEnRanking(
                 $ranking,
                 $usuario
             ),
@@ -135,6 +135,7 @@ class UsuarioController
         );
 
         Redirect::to("/usuario/iniciarSesion");
+        return;
     }
 
     private function datosRegistroConError($error, $nombre, $anio, $sexo, $pais, $ciudad, $mail, $username)

@@ -56,6 +56,11 @@ class PartidaController{
 
     }
 
+    private function manejoDeRespuestas($preguntaId)
+    {
+        return $this->respuestasModel->buscarRespuestasPorPregunta($preguntaId);
+    }
+
 
     public function mostrarPregunta(){
         //Cargar pregunta al estado de la partida en BD
@@ -66,96 +71,17 @@ class PartidaController{
         $this->estadoPartidaModel->cargarPreguntaPartidaActualALaBD($_SESSION['id_partida'], $_SESSION['id_pregunta_actual']);
 
         //Manejamos Respuestas de la pregunta en cuestion
-        $respuestas = $this->manejoDeRepuestas($preguntaActual['id']);
+        $respuestas = $this->manejoDeRespuestas($preguntaActual['id']);
 
 
         //Mostramos la pregunta
-        $this->renderer->render("partidaView", [
-            'usuarioNombre' => $_SESSION["usuario"],
-            'usuarioPuntaje' => $_SESSION['puntaje'],
-            'numeroPregunta' => $_SESSION['numero_pregunta'],
-            'pregunta' => $preguntaActual['texto'],
-            'categoria' => $preguntaActual["categoria_id"], //Aca se tiene que mostrar el nombre de la categoria, no el id. Crear CategoriaModel y buscar con un metodo al que le pases la pregunta
-            'respuestas' => $respuestas
-        ]);
-
+        $this->renderer->render(
+            "partidaView",
+            ["pregunta" => $preguntaActual,
+            "respuestas" => $respuestas,
+            "puntaje" => $_SESSION['puntaje'],
+            "numeroPregunta" => $_SESSION['numero_pregunta']]
+        );
     }
-
-    public function responder(){
-        $respuestaElegida = $this->request->post("opcion_elegida");
-        if ($respuestaElegida == 1) {
-            $_SESSION['numero_pregunta']++;
-            $_SESSION['puntaje']++;
-            array_shift($_SESSION['lista_preguntas']);
-            Redirect::to("/partida/mostrarPregunta");
-        } else {
-            $_SESSION['numero_pregunta']--;
-            Redirect::to("/partida/partidaTerminada");
-        }
-
-    }
-
-
-    //Agarra las preguntas insertadas por BD base y las mezcla
-    private function preguntas(){
-        $preguntas = $this->preguntaModel->buscarTodasLasPreguntas();
-        shuffle($preguntas);
-        $_SESSION['lista_preguntas'] = $preguntas;
-        return $preguntas;
-    }
-
-
-    private function manejoDeRepuestas($pregunta_id): array
-    {
-        $respuestaCorrecta = $this->respuestasModel->buscarRespuestaCorrectaALaPregunta($pregunta_id);
-        $_SESSION['respuesta_correcta'] = $respuestaCorrecta['texto'];
-        $posiblesRespuestasIncorrectasParaPregunta = $this->respuestasModel->buscarRespuestasIncorrectasParaPregunta($pregunta_id);
-        $respuestasIncorrectas = $this->aleatorizarTresRespuestasIncorrectasParaLaPregunta($posiblesRespuestasIncorrectasParaPregunta);
-        return $this->traerRespuestas($respuestaCorrecta, $respuestasIncorrectas);
-    }
-
-
-    //Agarra las respuestas Incorrectas, las mezcla y mete 3 de ellas en un array las opciones incorrectas
-    private function aleatorizarTresRespuestasIncorrectasParaLaPregunta($posiblesRespuestasIncorrectasParaPregunta): array
-    {
-
-        shuffle($posiblesRespuestasIncorrectasParaPregunta);
-        for ($i = 0; $i <= 2; $i++) {
-            $respuestasIncorrectas[] = $posiblesRespuestasIncorrectasParaPregunta[$i];
-        }
-        return $respuestasIncorrectas;
-    }
-
-    //Mezcla las respuestas incorrectas y la correcta en un solo array y lo devuelve
-    private function traerRespuestas(array $respuestaCorrecta, array $respuestasIncorrectas): array {
-        $respuestas = $respuestasIncorrectas;
-        $respuestas[] = $respuestaCorrecta;
-        shuffle($respuestas);
-        return $respuestas;
-    }
-
-
-
-    public function partidaTerminada()
-    {
-
-        $this->renderer->render("partidaTerminadaView", [
-            'usuarioNombre' => $_SESSION["usuario"],
-            'usuarioPuntaje' => $_SESSION["puntaje"],
-            'pregunta' => $_SESSION['pregunta_actual'],
-            'respuestaCorrecta' => $_SESSION['respuesta_correcta'],
-        ]);
-
-
-        unset($_SESSION["id_partida"]);
-        unset($_SESSION["puntaje"]);
-        unset($_SESSION["numero_pregunta"]);
-        unset($_SESSION["id_pregunta_actual"]);
-        unset($_SESSION["lista_preguntas"]);
-
-    }
-
-
-
 
 }
