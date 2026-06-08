@@ -20,6 +20,7 @@ class Configurator {
                                      $this->getRenderer(),
                                      $this->getPreguntas(),
                                      $this->getEstadoPartida(),
+                                     $this->getRespuestaModel(),
                                      new Request());
         //Para no repetir Request tal vez podriamos compaginarlo en un metodo.
     }
@@ -72,5 +73,10 @@ class Configurator {
     private function getEstadoPartida()
     {
         return new EstadoPartidaModel($this->getDatabase());
+    }
+
+    private function getRespuestaModel()
+    {
+        return new RespuestaModel($this->getDatabase());
     }
 }

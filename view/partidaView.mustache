@@ -3,38 +3,26 @@
 <main class="container game-shell">
     <section class="question-stage">
         <div class="game-topbar">
-            <span class="question-pill">Pregunta numero 1 de 10</span>
-            <span class="category-pill">Cultura general</span>
+            <span class="question-pill">Pregunta numero {{numeroPregunta}}</span>
+            <span class="category-pill">{{categoria}}</span>
         </div>
 
         <article class="question-card">
-            <h2>&iquest;Cu&aacute;l es el planeta m&aacute;s grande del sistema solar?</h2>
+            <h2>{{pregunta}}</h2>
             <p class="question-helper">Eleg&iacute; una respuesta para avanzar a la siguiente pregunta.</p>
 
-            <form class="answer-grid" action="#" method="post">
-                <button class="answer-option" type="button">
-                    <span class="answer-letter">A</span>
-                    <span>Marte</span>
-                </button>
 
-                <button class="answer-option" type="button">
-                    <span class="answer-letter">B</span>
-                    <span>J&uacute;piter</span>
+            <form class="answer-grid" action="/partida/responder" method="post">
+                {{#respuestas}}
+                <button class="answer-option" type="submit" name="opcion_elegida" value="{{es_correcta}}">
+                    <span>{{texto}}</span>
                 </button>
-
-                <button class="answer-option" type="button">
-                    <span class="answer-letter">C</span>
-                    <span>Saturno</span>
-                </button>
-
-                <button class="answer-option" type="button">
-                    <span class="answer-letter">D</span>
-                    <span>Neptuno</span>
-                </button>
+                {{/respuestas}}
             </form>
 
+
             <div class="game-footer">
-                <span class="score-preview">Puntaje: 0</span>
+                <span class="score-preview">Puntaje: {{usuarioPuntaje}}</span>
                 <div class="progress-track" aria-label="Progreso de la partida">
                     <div class="progress-fill"></div>
                 </div>

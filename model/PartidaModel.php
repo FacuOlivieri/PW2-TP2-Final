@@ -11,12 +11,12 @@ class PartidaModel
     }
 
 
-    private function alta($idJugador)
+    public function alta($idJugador)
     {
-        $sql = "INSERT INTO partidas (usuario_id,puntaje_total)
-                VALUES (?, ?)";
+        $sql = "INSERT INTO partidas (usuario_id)
+                VALUES (?)";
 
-        $this->database->execute($sql, [$idJugador, 0]);
+        $this->database->execute($sql, [$idJugador]);
     }
 
     public function obtenerPartidaActual($usuarioId)

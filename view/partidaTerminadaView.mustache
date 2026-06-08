@@ -1,0 +1,57 @@
+{{>header}}
+{{>partidaTerminadaCss}}
+
+<main class="container game-shell">
+    <section class="endgame-stage">
+
+        <div class="endgame-header">
+            <div class="result-badge">
+                ❌ Partida terminada
+            </div>
+
+            <h1>¡Buen intento, {{usuarioNombre}}!</h1>
+
+            <p class="endgame-message">
+                Respondiste incorrectamente la última pregunta.
+            </p>
+        </div>
+
+        <article class="result-card">
+
+            <div class="score-section">
+                <span class="score-label">Puntaje final</span>
+                <span class="score-value">{{usuarioPuntaje}}</span>
+            </div>
+
+            <div class="question-section">
+
+                <h2>Pregunta fallada</h2>
+
+                <div class="question-box">
+                    {{pregunta}}
+                </div>
+
+                <h3>Respuesta correcta</h3>
+
+                <div class="correct-answer-box">
+                    ✔ {{respuestaCorrecta}}
+                </div>
+
+            </div>
+
+            <div class="action-buttons">
+                <a href="/partida/iniciarPartida" class="primary-btn">
+                    Jugar nuevamente
+                </a>
+
+                <a href="/usuario/renderizarLobby" class="secondary-btn">
+                    Volver al lobby
+                </a>
+            </div>
+
+        </article>
+
+    </section>
+</main>
+
+{{>footer}}

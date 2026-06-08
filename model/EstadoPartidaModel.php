@@ -10,7 +10,8 @@ class EstadoPartidaModel
         $this->database = $database;
     }
 
-    public function alta($idPartida){
-
+    public function cargarPreguntaPartidaActualALaBD($idPartidaActual, $idPreguntaActual){
+        $sql = "INSERT INTO partida_preguntas (partida_id, pregunta_id) VALUES (?, ?)";
+        $this->database->execute($sql, [$idPartidaActual,$idPreguntaActual]);
     }
 }

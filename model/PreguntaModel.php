@@ -15,6 +15,11 @@ class PreguntaModel
         return $this->database->query($sql);
     }
 
+    public function buscarPreguntaSegunId($idPregunta){
+        $sql = "SELECT * FROM preguntas WHERE id = ?";
+        $resultado = $this->database->query($sql, [$idPregunta]);
+        return $resultado ?? null;
+    }
 
 
 }
