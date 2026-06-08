@@ -75,7 +75,7 @@ class PartidaController{
             'usuarioPuntaje' => $_SESSION['puntaje'],
             'numeroPregunta' => $_SESSION['numero_pregunta'],
             'pregunta' => $preguntaActual['texto'],
-            'categoria' => $preguntaActual["categoria_id"],
+            'categoria' => $preguntaActual["categoria_id"], //Aca se tiene que mostrar el nombre de la categoria, no el id. Crear CategoriaModel y buscar con un metodo al que le pases la pregunta
             'respuestas' => $respuestas
         ]);
 
@@ -88,11 +88,9 @@ class PartidaController{
             $_SESSION['puntaje']++;
             array_shift($_SESSION['lista_preguntas']);
             Redirect::to("/partida/mostrarPregunta");
-            exit();
         } else {
             $_SESSION['numero_pregunta']--;
             Redirect::to("/partida/partidaTerminada");
-            exit();
         }
 
     }
@@ -148,13 +146,13 @@ class PartidaController{
             'respuestaCorrecta' => $_SESSION['respuesta_correcta'],
         ]);
 
-        /*
+
         unset($_SESSION["id_partida"]);
         unset($_SESSION["puntaje"]);
         unset($_SESSION["numero_pregunta"]);
         unset($_SESSION["id_pregunta_actual"]);
         unset($_SESSION["lista_preguntas"]);
-        */
+
     }
 
 

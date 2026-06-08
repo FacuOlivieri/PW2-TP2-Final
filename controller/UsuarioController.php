@@ -50,7 +50,7 @@ class UsuarioController
         echo "Contraseña incorrecta";
     }
 
-    private function renderizarLobby($usuario)
+    public function renderizarLobby($usuario = null)
     {
         $ranking = $this->model->mostrarPuntajesRanking();
 
