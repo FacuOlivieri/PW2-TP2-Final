@@ -1,0 +1,40 @@
+{{> header}}
+
+<div class="container">
+
+    <div class="welcome-panel">
+        <h2> Ranking </h2>
+        <p> Los jugadores con mayor sabiduría del reino </p>
+    </div>
+
+    <table>
+        <tr>
+            <th>Puesto</th>
+            <th>Jugador</th>
+            <th>Puntaje</th>
+        </tr>
+
+        {{#ranking}}
+        <tr>
+            <td>#{{puesto}}</td>
+            <td>{{nombre}}</td>
+            <td>{{puntajeTotal}}</td>
+        </tr>
+        {{/ranking}}
+    </table>
+
+    <br>
+
+    <div class="home-actions">
+
+        <a href="/usuario/perfil" class="btn-add">
+            Mi Perfil
+        </a>
+
+        <a href="/usuario/mostrarUsuarioLobby" class="btn-secondary">
+            Volver al Lobby
+        </a>
+    </div>
+</div>
+
+{{>footer}}

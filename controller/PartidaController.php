@@ -48,12 +48,44 @@ class PartidaController{
         $_SESSION['numero_pregunta'] = 1;
         $_SESSION['puntaje'] = 0;
 
-        //Manejo de Preguntas
+        // Manejo de Preguntas
         $_SESSION['lista_preguntas'] = $this->preguntaModel->buscarTodasLasPreguntas();
         shuffle($_SESSION['lista_preguntas']);
 
         $this->mostrarPregunta();
+    }
 
+    public function partidaTerminada()
+    {
+        $puntajeFinal = $_SESSION["puntaje"] ?? 0;
+        $idPartida = $_SESSION["id_partida"] ?? null;
+        $usuario = $_SESSION["usuario"] ?? null;
+
+        if ($idPartida !== null) {
+            $this->partidaModel->finalizarPartida($idPartida, $puntajeFinal);
+        }
+
+        if ($usuario !== null && $puntajeFinal > 0) {
+            $this->usuarioModel->sumarPuntaje($usuario, $puntajeFinal);
+        }
+
+        $this->renderer->render(
+            "partidaTerminadaView",
+            [
+                'usuarioNombre' => $usuario,
+                'usuarioPuntaje' => $puntajeFinal,
+                'pregunta' => $_SESSION['pregunta_actual'] ?? "",
+                'respuestaCorrecta' => $_SESSION['respuesta_correcta'] ?? "",
+            ]
+        );
+
+        unset($_SESSION["id_partida"]);
+        unset($_SESSION["puntaje"]);
+        unset($_SESSION["numero_pregunta"]);
+        unset($_SESSION["id_pregunta_actual"]);
+        unset($_SESSION["lista_preguntas"]);
+        unset($_SESSION["pregunta_actual"]);
+        unset($_SESSION["respuesta_correcta"]);
     }
 
 
@@ -146,38 +178,5 @@ class PartidaController{
         shuffle($respuestas);
         return $respuestas;
     }
-
-    public function partidaTerminada()
-    {
-        $puntajeFinal = $_SESSION["puntaje"] ?? 0;
-        $idPartida = $_SESSION["id_partida"] ?? null;
-        $usuario = $_SESSION["usuario"] ?? null;
-
-        if ($idPartida !== null) {
-            $this->partidaModel->finalizarPartida($idPartida, $puntajeFinal);
-        }
-
-        if ($usuario !== null && $puntajeFinal > 0) {
-            $this->usuarioModel->sumarPuntaje($usuario, $puntajeFinal);
-        }
-
-        $this->renderer->render("partidaTerminadaView", [
-            'usuarioNombre' => $usuario,
-            'usuarioPuntaje' => $puntajeFinal,
-            'pregunta' => $_SESSION['pregunta_actual'] ?? '',
-            'respuestaCorrecta' => $_SESSION['respuesta_correcta'] ?? '',
-        ]);
-
-        unset($_SESSION["id_partida"]);
-        unset($_SESSION["puntaje"]);
-        unset($_SESSION["numero_pregunta"]);
-        unset($_SESSION["id_pregunta_actual"]);
-        unset($_SESSION["lista_preguntas"]);
-        unset($_SESSION["pregunta_actual"]);
-        unset($_SESSION["respuesta_correcta"]);
-    }
-
-
-
 
 }

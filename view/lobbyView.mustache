@@ -25,8 +25,21 @@
         </div>
 
         <div class="lobby-actions">
-            <a href="/partida/iniciarPartida" type="button" class="btn-add">Crear nueva partida</a>
-            <a href="#ranking" class="btn-secondary">Ver ranking</a>
+            <a href="/partida/iniciarPartida" class="btn-add">
+                Crear nueva partida
+            </a>
+
+            <a href="#ranking" class="btn-secondary">
+                Ver ranking
+            </a>
+
+            <a href="/usuario/perfil" class="btn-secondary">
+                Mi perfil
+            </a>
+
+            <a href="/usuario/historial" class="btn-secondary">
+                Historial
+            </a>
         </div>
     </section>
 
@@ -41,7 +54,7 @@
             </div>
 
             <div class="match-list">
-                {{#partidas}}
+                {{#partidasJugadas}}
                     <article class="match-item">
                         <div>
                             <h4>Partida #{{id}}</h4>
@@ -49,9 +62,9 @@
                         </div>
                         <span class="match-result win">Finalizada</span>
                     </article>
-                {{/partidas}}
+                {{/partidasJugadas}}
 
-                {{^partidas}}
+                {{^partidasJugadas}}
                     <article class="match-item">
                         <div>
                             <h4>Sin partidas jugadas</h4>
@@ -59,7 +72,7 @@
                         </div>
                         <span class="match-result pending">Pendiente</span>
                     </article>
-                {{/partidas}}
+                {{/partidasJugadas}}
             </div>
         </article>
 

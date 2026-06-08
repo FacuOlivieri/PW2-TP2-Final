@@ -7,12 +7,12 @@ class UsuarioController
     private $request;
     private $partidaModel;
 
-    public function __construct($model, $partidaModel, $renderer, $request)
+    public function __construct($model, $renderer, $request, $partidaModel)
     {
         $this->model = $model;
-        $this->partidaModel = $partidaModel;
         $this->renderer = $renderer;
         $this->request = $request;
+        $this->partidaModel = $partidaModel;
     }
 
     public function inicio()
@@ -32,40 +32,52 @@ class UsuarioController
 
     public function mostrarUsuarioLobby()
     {
-        $this->lobby();
+        $this->renderizarLobby();
     }
 
     public function procesarLogin()
     {
         $usuarioIngresado = $this->request->post("username");
         $passwordIngresada = $this->request->post("password");
-        $usuarios = $this->model->buscarUsuariosPorNombreDeUsuario($usuarioIngresado);
-        if (empty($usuarios)) {
+
+        $usuario = $this->model->buscarUsuariosPorNombreDeUsuario($usuarioIngresado);
+
+        if (empty($usuario)) {
             echo "Usuario no encontrado";
             exit();
         }
-        if (password_verify($passwordIngresada, $usuarios["password_hash"])) {
-            $_SESSION["usuario"] = $usuarios["username"];
+
+        if (password_verify($passwordIngresada, $usuario["password_hash"])) {
+            $_SESSION["usuario"] = $usuario["username"];
+            $_SESSION["usuario_id"] = $usuario["id"];
             $this->renderizarLobby();
             exit();
         }
+
         echo "Contraseña incorrecta";
     }
 
     public function renderizarLobby()
     {
+        if (!isset($_SESSION["usuario"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
         $usuario = $_SESSION["usuario"];
         $ranking = $this->model->mostrarPuntajesRanking();
 
-        $usuarioCompleto = $this->model->buscarUsuariosPorNombreDeUsuario($usuario);
-        $partidas = $this->partidaModel->obtenerPartidasPorUsuario($usuarioCompleto["id"]);
+        $usuarioData = $this->model->buscarUsuariosPorNombreDeUsuario($usuario);
+        $partidas = $this->partidaModel->obtenerPartidasPorUsuario($usuarioData["id"]);
 
         $this->renderer->render("lobbyView", [
             "nombreUsuario" => $usuario,
             "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
             "puestoRanking" => $this->buscarPuestoEnRanking($ranking, $usuario),
             "ranking" => $ranking,
-            "partidas" => $partidas
+            "partidas" => $partidas,
+            "partidasJugadas" => $partidas,
+            "partidasTotales" => count($partidas)
         ]);
     }
 
@@ -128,7 +140,7 @@ class UsuarioController
             $foto
         );
 
-        Redirect::to("/usuarios/iniciarSesion");
+        Redirect::to("/usuario/iniciarSesion");
     }
 
     private function datosRegistroConError($error, $nombre, $anio, $sexo, $pais, $ciudad, $mail, $username)
@@ -147,4 +159,48 @@ class UsuarioController
         ];
     }
 
+    public function perfil()
+    {
+        if (!isset($_SESSION["usuario"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $usuario = $this->model->obtenerPerfilUsuario($_SESSION["usuario"]);
+
+        $this->renderer->render("perfilView", [
+            "usuario" => $usuario
+        ]);
+    }
+
+    public function ranking()
+    {
+        if (!isset($_SESSION["usuario"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $ranking = $this->model->mostrarPuntajesRanking();
+
+        $this->renderer->render("rankingView", [
+            "ranking" => $ranking,
+            "usuarioActual" => $_SESSION["usuario"]
+        ]);
+    }
+
+    public function historial()
+    {
+        if (!isset($_SESSION["usuario"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $usuario = $this->model->buscarUsuariosPorNombreDeUsuario($_SESSION["usuario"]);
+        $historial = $this->partidaModel->obtenerPartidasPorUsuario($usuario["id"]);
+
+        $this->renderer->render("historialView", [
+            "historial" => $historial,
+            "usuario" => $usuario
+        ]);
+    }
 }

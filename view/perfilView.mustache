@@ -1,0 +1,63 @@
+{{>header}}
+
+<div class="container">
+
+    <div class="welcome-panel">
+        <h2> Perfil del Guerrero </h2>
+        <p> Consultá tu información, reputación y desempeño en el reino del conocimiento.</p>
+    </div>
+
+    <table>
+        <tr>
+            <th>Dato</th>
+            <th>Información</th>
+        </tr>
+        <tr>
+            <td>Usuario</td>
+            <td>{{usuario.username}}</td>
+        </tr>
+        <tr>
+            <td>Nombre completo</td>
+            <td>{{usuario.nombre_completo}}</td>
+        </tr>
+        <tr>
+            <td>Mail</td>
+            <td>{{usuario.mail}}</td>
+        </tr>
+        <tr>
+            <td>País</td>
+            <td>{{usuario.pais}}</td>
+        </tr>
+        <tr>
+            <td>Ciudad</td>
+            <td>{{usuario.ciudad}}</td>
+        </tr>
+        <tr>
+            <td>Puntaje total</td>
+            <td>{{usuario.puntaje}}</td>
+        </tr>
+        <tr>
+            <td>Año nacimiento</td>
+            <td>{{usuario.anio_nacimiento}}</td>
+        </tr>
+    </table>
+
+    <br>
+
+    <div class="home-actions">
+
+        <a href="/usuario/historial" class="btn-add">
+            Historial de Partidas
+        </a>
+
+        <a href="/usuario/ranking" class="btn-secondary">
+            Ranking
+        </a>
+
+        <a href="/usuario/mostrarUsuarioLobby" class="btn-secondary">
+            Volver al Lobby
+        </a>
+    </div>
+</div>
+
+{{>footer}}
