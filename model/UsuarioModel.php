@@ -84,4 +84,21 @@ class UsuarioModel
         return $usuarios;
     }
 
+    public function obtenerPerfilUsuario($username) {
+        $sql = "SELECT * FROM usuarios WHERE username = ?";
+
+        $resultado = $this->database->query($sql, [$username]);
+
+        return $resultado[0] ?? null;
+    }
+
+    public function obtenerTopRanking($limite = 10)
+    {
+        $sql = "SELECT username, puntaje FROM usuarios
+                ORDER BY puntaje DESC
+                LIMIT ?";
+
+        return $this->database->query($sql, [$limite]);
+    }
+
 }
