@@ -10,16 +10,25 @@ class RespuestaModel
         $this->database = $database;
     }
 
-    public function buscarRespuestaCorrectaALaPregunta($idPregunta){
-        $sql = "SELECT * FROM respuestas WHERE pregunta_id = ? AND es_correcta = ?";
-        $resultado = $this->database->query($sql, [$idPregunta, 1]);
-        return !empty($resultado) ? $resultado[0] : null;
+    public function buscarRespuestaCorrectaALaPregunta($idPregunta)
+    {
+        $sql = "SELECT * FROM respuestas 
+            WHERE pregunta_id = ? AND es_correcta = 1
+            LIMIT 1";
+
+        $resultado = $this->database->query($sql, [$idPregunta]);
+
+        return $resultado[0] ?? null;
     }
 
-    public function buscarRespuestasIncorrectasParaPregunta($idPregunta){
-        $sql = "SELECT * FROM respuestas WHERE pregunta_id = ? AND es_correcta = ?";
-        $resultado = $this->database->query($sql, [$idPregunta, 0]);
-        return $resultado ?? null;
+    public function buscarRespuestasIncorrectasParaPregunta($idPregunta)
+    {
+        $sql = "SELECT * FROM respuestas 
+            WHERE pregunta_id = ? AND es_correcta = 0
+            ORDER BY RAND()
+            LIMIT 3";
+
+        return $this->database->query($sql, [$idPregunta]);
     }
 
     public function buscarRespuestaPorId($idRespuesta)
@@ -30,5 +39,12 @@ class RespuestaModel
         return $resultado[0] ?? null;
     }
 
+    public function buscarRespuestasPorPregunta($idPregunta)
+    {
+        $sql = "SELECT *
+            FROM respuestas
+            WHERE pregunta_id = ?";
 
+        return $this->database->query($sql, [$idPregunta]);
+    }
 }

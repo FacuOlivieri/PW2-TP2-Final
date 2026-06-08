@@ -1,7 +1,7 @@
 <?php
 
-class PartidaController{
-
+class PartidaController
+{
     private $partidaModel;
     private $usuarioModel;
     private $renderer;
@@ -10,16 +10,15 @@ class PartidaController{
     private $estadoPartidaModel;
     private $respuestasModel;
 
-
-    public function __construct($partidaModel,
-                                $usuarioModel,
-                                $renderer,
-                                $preguntaModel,
-                                $estadoPartidaModel,
-                                $respuestasModel,
-                                $request
-                                ){
-
+    public function __construct(
+        $partidaModel,
+        $usuarioModel,
+        $renderer,
+        $preguntaModel,
+        $estadoPartidaModel,
+        $respuestasModel,
+        $request
+    ) {
         $this->partidaModel = $partidaModel;
         $this->usuarioModel = $usuarioModel;
         $this->renderer = $renderer;
@@ -29,90 +28,61 @@ class PartidaController{
         $this->respuestasModel = $respuestasModel;
     }
 
-
-    public function iniciarPartida(){
-
-        if(!isset($_SESSION['usuario'])){
+    public function iniciarPartida()
+    {
+        if (!isset($_SESSION['usuario'])) {
             Redirect::to("/usuario/iniciarSesion");
+            return;
         }
 
-
-        //Doy el alta inicial de la partida y el estado actual para ir cargando las preguntas a medida que aparecen
         $usuario = $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION['usuario']);
         $usuarioId = $usuario["id"];
+
         $idPartidaActual = $this->partidaModel->alta($usuarioId);
 
-        //Inicializo Contador de puntaje
         $_SESSION['id_partida'] = $idPartidaActual;
         $_SESSION['numero_pregunta'] = 1;
         $_SESSION['puntaje'] = 0;
 
-        // Manejo de Preguntas
         $_SESSION['lista_preguntas'] = $this->preguntaModel->buscarTodasLasPreguntas();
         shuffle($_SESSION['lista_preguntas']);
 
         $this->mostrarPregunta();
     }
 
-    public function partidaTerminada()
+    public function mostrarPregunta()
     {
-        $puntajeFinal = $_SESSION["puntaje"] ?? 0;
-        $idPartida = $_SESSION["id_partida"] ?? null;
-        $usuario = $_SESSION["usuario"] ?? null;
-
-        if ($idPartida !== null) {
-            $this->partidaModel->finalizarPartida($idPartida, $puntajeFinal);
+        if (!isset($_SESSION['lista_preguntas']) || empty($_SESSION['lista_preguntas'])) {
+            Redirect::to("/partida/partidaTerminada");
+            return;
         }
 
-        if ($usuario !== null && $puntajeFinal > 0) {
-            $this->usuarioModel->sumarPuntaje($usuario, $puntajeFinal);
-        }
+        $preguntaActual = $_SESSION['lista_preguntas'][0];
 
-        $this->renderer->render(
-            "partidaTerminadaView",
-            [
-                'usuarioNombre' => $usuario,
-                'usuarioPuntaje' => $puntajeFinal,
-                'pregunta' => $_SESSION['pregunta_actual'] ?? "",
-                'respuestaCorrecta' => $_SESSION['respuesta_correcta'] ?? "",
-            ]
-        );
-
-        unset($_SESSION["id_partida"]);
-        unset($_SESSION["puntaje"]);
-        unset($_SESSION["numero_pregunta"]);
-        unset($_SESSION["id_pregunta_actual"]);
-        unset($_SESSION["lista_preguntas"]);
-        unset($_SESSION["pregunta_actual"]);
-        unset($_SESSION["respuesta_correcta"]);
-    }
-
-    private function manejoDeRespuestas($preguntaId)
-    {
-        return $this->respuestasModel->buscarRespuestasPorPregunta($preguntaId);
-    }
-
-
-    public function mostrarPregunta(){
-        //Cargar pregunta al estado de la partida en BD
-        $preguntas = $_SESSION['lista_preguntas'];
-        $preguntaActual = $preguntas[0];
         $_SESSION['id_pregunta_actual'] = $preguntaActual['id'];
         $_SESSION['pregunta_actual'] = $preguntaActual['texto'];
-        $this->estadoPartidaModel->cargarPreguntaPartidaActualALaBD($_SESSION['id_partida'], $_SESSION['id_pregunta_actual']);
 
-        //Manejamos Respuestas de la pregunta en cuestion
+        $this->estadoPartidaModel->cargarPreguntaPartidaActualALaBD(
+            $_SESSION['id_partida'],
+            $_SESSION['id_pregunta_actual']
+        );
+
         $respuestas = $this->manejoDeRespuestas($preguntaActual['id']);
 
+        if (count($respuestas) < 4) {
+            array_shift($_SESSION['lista_preguntas']);
+            Redirect::to("/partida/mostrarPregunta");
+            return;
+        }
 
-        //Mostramos la pregunta
-        $this->renderer->render(
-            "partidaView",
-            ["pregunta" => $preguntaActual,
+        $this->renderer->render("partidaView", [
+            "pregunta" => $preguntaActual["texto"],
+            "categoria" => $preguntaActual["categoria_id"] ?? "",
             "respuestas" => $respuestas,
             "puntaje" => $_SESSION['puntaje'],
-            "numeroPregunta" => $_SESSION['numero_pregunta']]
-        );
+            "usuarioPuntaje" => $_SESSION['puntaje'],
+            "numeroPregunta" => $_SESSION['numero_pregunta']
+        ]);
     }
 
     public function responder()
@@ -142,43 +112,57 @@ class PartidaController{
         Redirect::to("/partida/partidaTerminada");
     }
 
-
-    //Agarra las preguntas insertadas por BD base y las mezcla
-    private function preguntas(){
-        $preguntas = $this->preguntaModel->buscarTodasLasPreguntas();
-        shuffle($preguntas);
-        $_SESSION['lista_preguntas'] = $preguntas;
-        return $preguntas;
-    }
-
-
-    private function manejoDeRepuestas($pregunta_id): array
+    public function partidaTerminada()
     {
-        $respuestaCorrecta = $this->respuestasModel->buscarRespuestaCorrectaALaPregunta($pregunta_id);
-        $_SESSION['respuesta_correcta'] = $respuestaCorrecta['texto'];
-        $posiblesRespuestasIncorrectasParaPregunta = $this->respuestasModel->buscarRespuestasIncorrectasParaPregunta($pregunta_id);
-        $respuestasIncorrectas = $this->aleatorizarTresRespuestasIncorrectasParaLaPregunta($posiblesRespuestasIncorrectasParaPregunta);
-        return $this->traerRespuestas($respuestaCorrecta, $respuestasIncorrectas);
-    }
+        $puntajeFinal = $_SESSION["puntaje"] ?? 0;
+        $idPartida = $_SESSION["id_partida"] ?? null;
+        $usuario = $_SESSION["usuario"] ?? null;
 
-
-    //Agarra las respuestas Incorrectas, las mezcla y mete 3 de ellas en un array las opciones incorrectas
-    private function aleatorizarTresRespuestasIncorrectasParaLaPregunta($posiblesRespuestasIncorrectasParaPregunta): array
-    {
-
-        shuffle($posiblesRespuestasIncorrectasParaPregunta);
-        for ($i = 0; $i <= 2; $i++) {
-            $respuestasIncorrectas[] = $posiblesRespuestasIncorrectasParaPregunta[$i];
+        if ($idPartida !== null) {
+            $this->partidaModel->finalizarPartida($idPartida, $puntajeFinal);
         }
-        return $respuestasIncorrectas;
+
+        if ($usuario !== null && $puntajeFinal > 0) {
+            $this->usuarioModel->sumarPuntaje($usuario, $puntajeFinal);
+        }
+
+        $this->renderer->render("partidaTerminadaView", [
+            'usuarioNombre' => $usuario,
+            'usuarioPuntaje' => $puntajeFinal,
+            'pregunta' => $_SESSION['pregunta_actual'] ?? "",
+            'respuestaCorrecta' => $_SESSION['respuesta_correcta'] ?? "",
+        ]);
+
+        unset($_SESSION["id_partida"]);
+        unset($_SESSION["puntaje"]);
+        unset($_SESSION["numero_pregunta"]);
+        unset($_SESSION["id_pregunta_actual"]);
+        unset($_SESSION["lista_preguntas"]);
+        unset($_SESSION["pregunta_actual"]);
+        unset($_SESSION["respuesta_correcta"]);
     }
 
-    //Mezcla las respuestas incorrectas y la correcta en un solo array y lo devuelve
-    private function traerRespuestas(array $respuestaCorrecta, array $respuestasIncorrectas): array {
+    private function manejoDeRespuestas($preguntaId): array
+    {
+        $respuestaCorrecta = $this->respuestasModel->buscarRespuestaCorrectaALaPregunta($preguntaId);
+
+        if ($respuestaCorrecta === null) {
+            return [];
+        }
+
+        $_SESSION['respuesta_correcta'] = $respuestaCorrecta['texto'];
+
+        $respuestasIncorrectas = $this->respuestasModel->buscarRespuestasIncorrectasParaPregunta($preguntaId);
+
+        if (count($respuestasIncorrectas) < 3) {
+            return [];
+        }
+
         $respuestas = $respuestasIncorrectas;
         $respuestas[] = $respuestaCorrecta;
+
         shuffle($respuestas);
+
         return $respuestas;
     }
-
 }
