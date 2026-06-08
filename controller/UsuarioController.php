@@ -5,12 +5,14 @@ class UsuarioController
     private $model;
     private $renderer;
     private $request;
+    private $partidaModel;
 
-    public function __construct($model, $renderer, $request)
+    public function __construct($model, $renderer, $request, $partidaModel)
     {
         $this->model    = $model;
         $this->renderer = $renderer;
         $this->request  = $request;
+        $this->partidaModel = $partidaModel;
     }
 
     public function inicio()
@@ -55,12 +57,22 @@ class UsuarioController
         $usuario = $_SESSION["usuario"];
         $ranking = $this->model->mostrarPuntajesRanking();
 
-        $this->renderer->render("lobbyView", [
-                "nombreUsuario" => $usuario,
-                "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
-                "puestoRanking" => $this->buscarPuestoEnRanking($ranking, $usuario),
-                "ranking" => $ranking
-            ]);
+        $usuarioData = $this->model->buscarUsuariosPorNombreDeUsuario($usuario);
+        $partidas = $this->partidaModel->obtenerHistorialPorUsuario($usuarioData["id"]);
+        
+        $this->renderer->render(
+            "lobbyView", 
+            ["nombreUsuario" => $usuario,
+            "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
+            "puestoRanking" =>$this->buscarPuestoEnRanking(
+                $ranking,
+                $usuario
+            ),
+            "ranking" => $ranking,
+            "partidasJugadas" => $partidas,
+            "partidasTotales" => count($partidas)]
+        );
+    
     }
 
     private function buscarPuestoEnRanking($ranking, $usuario)
@@ -122,7 +134,7 @@ class UsuarioController
             $foto
         );
 
-        Redirect::to("/usuarios/iniciarSesion");
+        Redirect::to("/usuario/iniciarSesion");
     }
 
     private function datosRegistroConError($error, $nombre, $anio, $sexo, $pais, $ciudad, $mail, $username)
@@ -141,4 +153,53 @@ class UsuarioController
         ];
     }
 
+    public function perfil() {
+        if (!isset($_SESSION["usuario"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $usuario = $this->model->obtenerPerfilUsuario($_SESSION["usuario"]);
+
+        $this->renderer->render(
+            "perfilView", 
+            ["usuario" => $usuario]
+        );
+    }
+
+    public function ranking() {
+        if (!isset($_SESSION["usuario"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $ranking = $this->model->mostrarPuntajesRanking();
+
+        $this->renderer->render(
+            "rankingView", 
+            ["ranking" => $ranking,
+            "usuarioActual" => $_SESSION["usuario"]]
+        );
+    }
+
+    public function historial() {
+        if (!isset($_SESSION["usuario"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $usuario = $this->model ->buscarUsuariosPorNombreDeUsuario(
+            $_SESSION["usuario"]
+        );
+
+        $historial = $this->partidaModel->obtenerHistorialPorUsuario(
+            $usuario["id"]
+        );
+
+        $this->renderer->render(
+            "historialView", 
+            ["historial" => $historial,
+            "usuario" => $usuario]
+        );
+    }
 }
