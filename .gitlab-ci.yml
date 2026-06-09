@@ -8,11 +8,6 @@ deploy_to_infinityfree:
   - apt-get update -qq && apt-get install -y lftp
  script:
    - echo "Iniciando deploy a InfinityFree..."
-   - lftp -e "
-      set ftp:ssl-allow no;
-      open -u $FTP_USER,$FTP_PASS $FTP_HOST;
-      mirror -R ./ /htdocs/ --exclude .git* --exclude .gitlab-ci.yml --exclude config/config.ini;
-    bye
-    "
+   - lftp -c "set ftp:ssl-allow no; set ftp:use-chmod no; open -u $FTP_USER,$FTP_PASS $FTP_HOST; mirror -v -R --no-perms ./ htdocs --exclude .git* --exclude .gitlab-ci.yml  --exclude config/config.ini"
  only:
   - main
