@@ -1,24 +1,17 @@
-#
 stages:
- - deploy
+  - deploy
 
 deploy_to_infinityfree:
- stage: deploy
- image: debian:stable-slim # Imagen con apt disponible
+  stage: deploy
+  image: debian:stable-slim
 
- before_script:
- - apt-get update -qq
- - apt-get install -y lftp
- script:
- - echo "Iniciando deploy a InfinityFree..."
- - lftp -e "
-    set ftp:ssl-allow no;
-    open -u $FTP_USER,$FTP_PASS $FTP_HOST;
-    mirror -R ./ /htdocs/
-      --exclude .git*
-      --exclude .gitlab-ci.yml
-      --exclude config/config.ini;
-    bye
-  "
- only:
- - main
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y lftp
+
+  script:
+    - echo "Iniciando deploy a InfinityFree..."
+    - lftp -c "set ftp:ssl-allow no; open -u $FTP_USER,$FTP_PASS $FTP_HOST; mirror -v -R ./ htdocs --exclude .git* --exclude .gitlab-ci.yml --exclude config/config.ini"
+
+  only:
+    - main
