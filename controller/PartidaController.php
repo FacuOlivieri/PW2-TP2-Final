@@ -9,6 +9,7 @@ class PartidaController
     private $preguntaModel;
     private $estadoPartidaModel;
     private $respuestasModel;
+    private $categoriaModel;
 
     public function __construct(
         $partidaModel,
@@ -17,6 +18,7 @@ class PartidaController
         $preguntaModel,
         $estadoPartidaModel,
         $respuestasModel,
+        $categoriaModel,
         $request
     ) {
         $this->partidaModel = $partidaModel;
@@ -26,6 +28,7 @@ class PartidaController
         $this->preguntaModel = $preguntaModel;
         $this->estadoPartidaModel = $estadoPartidaModel;
         $this->respuestasModel = $respuestasModel;
+        $this->categoriaModel = $categoriaModel;
     }
 
     public function iniciarPartida()
@@ -43,8 +46,48 @@ class PartidaController
         $_SESSION['id_partida'] = $idPartidaActual;
         $_SESSION['numero_pregunta'] = 1;
         $_SESSION['puntaje'] = 0;
+        $_SESSION['preguntas_respondidas'] = [];
 
-        $_SESSION['lista_preguntas'] = $this->preguntaModel->buscarTodasLasPreguntas();
+        $this->mostrarRuleta();
+    }
+
+    public function mostrarRuleta()
+    {
+        if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_partida'])) {
+            Redirect::to("/partida/iniciarPartida");
+            return;
+        }
+
+        $this->renderer->render("ruletaView", [
+            "categorias" => $this->categoriaModel->obtenerTodas()
+        ]);
+    }
+
+    public function jugarCategoria()
+    {
+        if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_partida'])) {
+            Redirect::to("/partida/iniciarPartida");
+            return;
+        }
+
+        $categoriaId = $this->request->post("categoria_id");
+        $categoria = $this->categoriaModel->obtenerPorId($categoriaId);
+
+        if ($categoria === null) {
+            Redirect::to("/partida/iniciarPartida");
+            return;
+        }
+
+        $_SESSION['categoria_id'] = $categoria['id'];
+        $_SESSION['categoria_nombre'] = $categoria['nombre'];
+
+        $preguntas = $this->preguntaModel->buscarPreguntasPorCategoria($categoria['id']);
+        $preguntasRespondidas = $_SESSION['preguntas_respondidas'] ?? [];
+
+        $_SESSION['lista_preguntas'] = array_values(array_filter($preguntas, function ($pregunta) use ($preguntasRespondidas) {
+            return !in_array((int)$pregunta['id'], $preguntasRespondidas, true);
+        }));
+
         shuffle($_SESSION['lista_preguntas']);
 
         $this->mostrarPregunta();
@@ -70,14 +113,15 @@ class PartidaController
         $respuestas = $this->manejoDeRespuestas($preguntaActual['id']);
 
         if (count($respuestas) < 4) {
+            $_SESSION['preguntas_respondidas'][] = (int)$preguntaActual['id'];
             array_shift($_SESSION['lista_preguntas']);
-            Redirect::to("/partida/mostrarPregunta");
+            Redirect::to("/partida/mostrarRuleta");
             return;
         }
 
         $this->renderer->render("partidaView", [
             "pregunta" => $preguntaActual["texto"],
-            "categoria" => $preguntaActual["categoria_id"] ?? "",
+            "categoria" => $_SESSION['categoria_nombre'] ?? "",
             "respuestas" => $respuestas,
             "puntaje" => $_SESSION['puntaje'],
             "usuarioPuntaje" => $_SESSION['puntaje'],
@@ -103,9 +147,10 @@ class PartidaController
         if ((int)$respuesta["es_correcta"] === 1) {
             $_SESSION['numero_pregunta']++;
             $_SESSION['puntaje']++;
+            $_SESSION['preguntas_respondidas'][] = (int)$_SESSION["id_pregunta_actual"];
             array_shift($_SESSION['lista_preguntas']);
 
-            Redirect::to("/partida/mostrarPregunta");
+            Redirect::to("/partida/mostrarRuleta");
             return;
         }
 
@@ -140,6 +185,9 @@ class PartidaController
         unset($_SESSION["lista_preguntas"]);
         unset($_SESSION["pregunta_actual"]);
         unset($_SESSION["respuesta_correcta"]);
+        unset($_SESSION["categoria_id"]);
+        unset($_SESSION["categoria_nombre"]);
+        unset($_SESSION["preguntas_respondidas"]);
     }
 
     private function manejoDeRespuestas($preguntaId): array

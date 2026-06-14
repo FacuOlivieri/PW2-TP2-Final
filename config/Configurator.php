@@ -26,6 +26,7 @@ class Configurator {
                                      $this->getPreguntas(),
                                      $this->getEstadoPartida(),
                                      $this->getRespuestaModel(),
+                                     $this->getCategoria(),
                                      new Request());
         //Para no repetir Request tal vez podriamos compaginarlo en un metodo.
     }
@@ -83,5 +84,10 @@ class Configurator {
     private function getRespuestaModel()
     {
         return new RespuestaModel($this->getDatabase());
+    }
+
+    private function getCategoria()
+    {
+        return new CategoriaModel($this->getDatabase());
     }
 }

@@ -21,5 +21,10 @@ class PreguntaModel
         return $resultado ?? null;
     }
 
+    public function buscarPreguntasPorCategoria($categoriaId){
+        $sql = "SELECT * FROM preguntas WHERE categoria_id = ?";
+        return $this->database->query($sql, [$categoriaId]);
+    }
+
 
 }
