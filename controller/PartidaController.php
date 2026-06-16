@@ -140,11 +140,43 @@ class PartidaController
         $this->renderer->render("partidaView", [
             "pregunta" => $preguntaActual["texto"],
             "categoria" => $_SESSION['categoria_nombre'] ?? "",
+            "dificultad" => $this->formatearDificultadPregunta($preguntaActual["dificultad"] ?? "media"),
+            "dificultadClase" => $this->crearClaseDificultadPregunta($preguntaActual["dificultad"] ?? "media"),
             "respuestas" => $respuestas,
             "puntaje" => $_SESSION['puntaje'],
             "usuarioPuntaje" => $_SESSION['puntaje'],
             "numeroPregunta" => $_SESSION['numero_pregunta']
         ]);
+    }
+
+    private function formatearDificultadPregunta($dificultad)
+    {
+        $dificultad = strtolower((string)$dificultad);
+
+        if ($dificultad === "facil") {
+            return "Fácil";
+        }
+
+        if ($dificultad === "dificil") {
+            return "Difícil";
+        }
+
+        return "Media";
+    }
+
+    private function crearClaseDificultadPregunta($dificultad)
+    {
+        $dificultad = strtolower((string)$dificultad);
+
+        if ($dificultad === "facil") {
+            return "facil";
+        }
+
+        if ($dificultad === "dificil") {
+            return "dificil";
+        }
+
+        return "media";
     }
 
     public function responder()
