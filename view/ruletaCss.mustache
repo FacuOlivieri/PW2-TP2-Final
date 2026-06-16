@@ -1,0 +1,112 @@
+<style>
+    .ruleta-shell {
+        overflow: hidden;
+        padding: 0;
+    }
+
+    .ruleta-stage {
+        align-items: center;
+        background:
+                radial-gradient(circle at 18% 16%, rgba(124, 58, 237, 0.08), transparent 24%),
+                linear-gradient(135deg, #ffffff 0%, #f5f3ff 58%, #eef2ff 100%);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: clamp(24px, 5vw, 40px);
+        text-align: center;
+    }
+
+    .ruleta-title {
+        color: #1f2937;
+        font-size: clamp(1.6rem, 4vw, 2.6rem);
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .ruleta-subtitle {
+        color: #6b7280;
+        margin: 0 0 8px;
+        max-width: 520px;
+    }
+
+    .ruleta-wrapper {
+        height: clamp(280px, 70vw, 420px);
+        margin-top: 8px;
+        position: relative;
+        width: clamp(280px, 70vw, 420px);
+    }
+
+    .ruleta-pointer {
+        border-left: 18px solid transparent;
+        border-right: 18px solid transparent;
+        border-top: 30px solid #1f2937;
+        filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.25));
+        left: 50%;
+        position: absolute;
+        top: -6px;
+        transform: translateX(-50%);
+        z-index: 5;
+    }
+
+    .ruleta-canvas {
+        background: #ffffff;
+        border-radius: 50%;
+        box-shadow: 0 18px 40px rgba(31, 41, 55, 0.18), inset 0 0 0 8px #ffffff;
+        height: 100%;
+        transform: rotate(0deg);
+        transition: transform 5s cubic-bezier(0.16, 1, 0.3, 1);
+        width: 100%;
+    }
+
+    .ruleta-hub {
+        background: #ffffff;
+        border: 5px solid #e5e7eb;
+        border-radius: 50%;
+        height: 56px;
+        left: 50%;
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 56px;
+        z-index: 4;
+    }
+
+    .ruleta-btn {
+        background: linear-gradient(135deg, #7c3aed, #4f46e5);
+        border: none;
+        border-radius: 999px;
+        box-shadow: 0 12px 24px rgba(124, 58, 237, 0.3);
+        color: #fff;
+        cursor: pointer;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 800;
+        letter-spacing: 0.03em;
+        margin-top: 14px;
+        padding: 14px 34px;
+        text-transform: uppercase;
+        transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    }
+
+    .ruleta-btn:hover:not(:disabled) {
+        box-shadow: 0 16px 30px rgba(124, 58, 237, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .ruleta-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .ruleta-result {
+        color: #4338ca;
+        font-size: 1.15rem;
+        font-weight: 800;
+        margin: 6px 0 0;
+        min-height: 28px;
+    }
+
+    .ruleta-data {
+        display: none;
+    }
+</style>

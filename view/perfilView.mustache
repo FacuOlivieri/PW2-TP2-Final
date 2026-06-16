@@ -4,8 +4,33 @@
 
     <div class="welcome-panel">
         <h2> Perfil de {{usuario.username}} </h2>
-        <p> Consultá tu información en el reino del conocimiento.</p>
+        <p>Consultá su desempeño, ubicación y partidas jugadas.</p>
     </div>
+
+    <section class="profile-public-grid">
+        <article class="profile-summary-card">
+            {{#tieneFotoPerfil}}
+                <img class="profile-photo" src="{{fotoPerfilUrl}}" alt="Foto de perfil de {{usuario.username}}">
+            {{/tieneFotoPerfil}}
+            {{^tieneFotoPerfil}}
+                <div class="profile-photo profile-photo-placeholder">{{usuario.username}}</div>
+            {{/tieneFotoPerfil}}
+
+            <div>
+                <span class="profile-label">Jugador</span>
+                <h3>{{usuario.username}}</h3>
+                <p>{{usuario.nombre_completo}}</p>
+            </div>
+        </article>
+
+        <article class="profile-qr-card">
+            <img src="{{qrUrl}}" alt="QR del perfil de {{usuario.username}}">
+            <div>
+                <span class="profile-label">Perfil público</span>
+                <p>Escaneá el QR para abrir este perfil.</p>
+            </div>
+        </article>
+    </section>
 
     <table>
         <tr>
@@ -20,10 +45,12 @@
             <td>Nombre completo</td>
             <td>{{usuario.nombre_completo}}</td>
         </tr>
+        {{^perfilPublico}}
         <tr>
             <td>Mail</td>
             <td>{{usuario.mail}}</td>
         </tr>
+        {{/perfilPublico}}
         <tr>
             <td>País</td>
             <td>{{usuario.pais}}</td>
@@ -31,6 +58,10 @@
         <tr>
             <td>Ciudad</td>
             <td>{{usuario.ciudad}}</td>
+        </tr>
+        <tr>
+            <td>Sexo</td>
+            <td>{{usuario.sexo}}</td>
         </tr>
         <tr>
             <td>Puntaje total</td>
@@ -53,6 +84,37 @@
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade">
         </iframe>
+    </section>
+
+    <section class="profile-matches-card">
+        <div class="profile-map-header">
+            <h3>Partidas realizadas</h3>
+            <p>Resumen de partidas jugadas por {{usuario.username}}.</p>
+        </div>
+
+        <div class="profile-match-list">
+            {{#partidas}}
+                <article class="profile-match-item">
+                    <div>
+                        <h4>Partida #{{id}}</h4>
+                        <p>{{fecha_creacion}}</p>
+                    </div>
+                    <div class="profile-match-stats">
+                        <span>{{puntaje_total}} puntos</span>
+                        <span>{{preguntas_jugadas}} preguntas</span>
+                    </div>
+                </article>
+            {{/partidas}}
+
+            {{^partidas}}
+                <article class="profile-match-item">
+                    <div>
+                        <h4>Sin partidas registradas</h4>
+                        <p>Este jugador todavía no tiene partidas finalizadas.</p>
+                    </div>
+                </article>
+            {{/partidas}}
+        </div>
     </section>
 
     <br>

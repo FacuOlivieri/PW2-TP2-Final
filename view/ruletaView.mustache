@@ -1,0 +1,140 @@
+{{>header}}
+{{>ruletaCss}}
+
+<main class="container ruleta-shell">
+    <section class="ruleta-stage">
+        <h1 class="ruleta-title">Gir&aacute; la ruleta</h1>
+        <p class="ruleta-subtitle">
+            La categor&iacute;a en la que caiga la ruleta definir&aacute; las preguntas de tu partida.
+        </p>
+
+        <div class="ruleta-wrapper">
+            <div class="ruleta-pointer"></div>
+            <canvas id="ruletaCanvas" class="ruleta-canvas" width="420" height="420"></canvas>
+            <div class="ruleta-hub"></div>
+        </div>
+
+        <button id="spinBtn" class="ruleta-btn" type="button">Girar ruleta</button>
+        <p id="ruletaResult" class="ruleta-result"></p>
+
+        <div class="ruleta-data">
+            {{#categorias}}
+            <span class="ruleta-cat" data-id="{{id}}" data-nombre="{{nombre}}" data-color="{{color}}"></span>
+            {{/categorias}}
+        </div>
+
+        <form id="categoriaForm" action="/partida/jugarCategoria" method="post">
+            <input type="hidden" name="categoria_id" id="categoriaIdInput">
+        </form>
+    </section>
+</main>
+
+<script>
+    (function () {
+        var COLORS = {
+            azul: "#3b82f6",
+            rojo: "#ef4444",
+            amarillo: "#f59e0b",
+            verde: "#22c55e",
+            rosa: "#ec4899",
+            naranja: "#f97316"
+        };
+        var FALLBACK = ["#7c3aed", "#0ea5e9", "#10b981", "#f43f5e", "#eab308", "#6366f1"];
+
+        var nodos = Array.prototype.slice.call(document.querySelectorAll(".ruleta-cat"));
+        var categorias = nodos.map(function (n, i) {
+            var color = n.getAttribute("data-color");
+            return {
+                id: n.getAttribute("data-id"),
+                nombre: n.getAttribute("data-nombre"),
+                color: COLORS[color] || FALLBACK[i % FALLBACK.length]
+            };
+        });
+
+        var canvas = document.getElementById("ruletaCanvas");
+        var boton = document.getElementById("spinBtn");
+        var resultado = document.getElementById("ruletaResult");
+        var input = document.getElementById("categoriaIdInput");
+        var form = document.getElementById("categoriaForm");
+
+        if (!categorias.length) {
+            resultado.textContent = "No hay categorias cargadas en la base de datos.";
+            boton.disabled = true;
+            return;
+        }
+
+        var ctx = canvas.getContext("2d");
+        var N = categorias.length;
+        var segAng = (2 * Math.PI) / N;
+        var base = -Math.PI / 2; // segmento 0 arranca arriba
+        var radio = canvas.width / 2;
+
+        function dibujar() {
+            for (var i = 0; i < N; i++) {
+                var ini = base + i * segAng;
+                var fin = ini + segAng;
+
+                ctx.beginPath();
+                ctx.moveTo(radio, radio);
+                ctx.arc(radio, radio, radio, ini, fin);
+                ctx.closePath();
+                ctx.fillStyle = categorias[i].color;
+                ctx.fill();
+                ctx.strokeStyle = "#ffffff";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(radio, radio);
+                ctx.rotate(ini + segAng / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 16px 'Open Sans', sans-serif";
+                ctx.fillText(categorias[i].nombre, radio - 18, 6);
+                ctx.restore();
+            }
+        }
+
+        dibujar();
+
+        var girando = false;
+
+        function girar() {
+            if (girando) {
+                return;
+            }
+            girando = true;
+            boton.disabled = true;
+            resultado.textContent = "";
+
+            var indice = Math.floor(Math.random() * N);
+            var segDeg = 360 / N;
+            var vueltas = 5;
+            var rotacion = 360 * vueltas - (indice + 0.5) * segDeg;
+
+            canvas.style.transform = "rotate(" + rotacion + "deg)";
+
+            var elegida = categorias[indice];
+            var yaTermino = false;
+
+            var terminar = function () {
+                if (yaTermino) {
+                    return;
+                }
+                yaTermino = true;
+                resultado.textContent = "Categoria: " + elegida.nombre;
+                input.value = elegida.id;
+                setTimeout(function () {
+                    form.submit();
+                }, 900);
+            };
+
+            canvas.addEventListener("transitionend", terminar, { once: true });
+            setTimeout(terminar, 5600); // respaldo por si no dispara transitionend
+        }
+
+        boton.addEventListener("click", girar);
+    })();
+</script>
+
+{{>footer}}
