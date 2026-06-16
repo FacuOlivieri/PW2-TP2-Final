@@ -394,6 +394,83 @@
             overflow: hidden;
         }
 
+        .profile-public-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: minmax(0, 1fr) minmax(260px, 0.45fr);
+            margin-bottom: 22px;
+        }
+
+        .profile-summary-card,
+        .profile-qr-card,
+        .profile-matches-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .profile-summary-card,
+        .profile-qr-card {
+            align-items: center;
+            display: flex;
+            gap: 16px;
+            padding: 18px;
+        }
+
+        .profile-photo {
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            flex: 0 0 auto;
+            height: 96px;
+            object-fit: cover;
+            width: 96px;
+        }
+
+        .profile-photo-placeholder {
+            align-items: center;
+            background: linear-gradient(135deg, var(--soft-purple), var(--soft-indigo));
+            color: var(--primary-dark);
+            display: flex;
+            font-size: 0.9rem;
+            font-weight: 800;
+            justify-content: center;
+            overflow: hidden;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .profile-label {
+            color: var(--primary);
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .profile-summary-card h3 {
+            color: var(--text);
+            font-size: clamp(1.35rem, 3vw, 2rem);
+            line-height: 1.1;
+            margin: 0 0 6px;
+        }
+
+        .profile-summary-card p,
+        .profile-qr-card p {
+            color: var(--muted);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .profile-qr-card img {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            height: 112px;
+            width: 112px;
+        }
+
         .profile-map-header {
             padding: 16px 18px 12px;
         }
@@ -415,6 +492,55 @@
             display: block;
             height: 300px;
             width: 100%;
+        }
+
+        .profile-matches-card {
+            margin-top: 22px;
+            overflow: hidden;
+        }
+
+        .profile-match-list {
+            display: grid;
+            gap: 12px;
+            padding: 0 18px 18px;
+        }
+
+        .profile-match-item {
+            align-items: center;
+            background: #fbfbff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            display: flex;
+            gap: 14px;
+            justify-content: space-between;
+            padding: 14px;
+        }
+
+        .profile-match-item h4 {
+            color: var(--text);
+            margin: 0 0 5px;
+        }
+
+        .profile-match-item p {
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .profile-match-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .profile-match-stats span {
+            background: var(--soft-indigo);
+            border: 1px solid #c7d2fe;
+            border-radius: 999px;
+            color: #4338ca;
+            font-size: 0.82rem;
+            font-weight: 800;
+            padding: 7px 10px;
         }
 
         .edit {
@@ -576,6 +702,21 @@
 
             .profile-map {
                 height: 260px;
+            }
+
+            .profile-public-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-summary-card,
+            .profile-qr-card,
+            .profile-match-item {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .profile-match-stats {
+                justify-content: flex-start;
             }
 
             table {

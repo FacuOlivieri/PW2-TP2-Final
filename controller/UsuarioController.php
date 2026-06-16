@@ -174,11 +174,46 @@ class UsuarioController
             return;
         }
 
+        $perfilUrl = $this->crearUrlPerfilPublico($usuario["username"]);
+
         $this->renderer->render("perfilView", [
             "usuario" => $usuario,
             "mapaUrl" => $this->crearUrlMapaUsuario($usuario),
-            "perfilPublico" => $username !== $_SESSION["usuario"]
+            "perfilUrl" => $perfilUrl,
+            "qrUrl" => $this->crearUrlQr($perfilUrl),
+            "fotoPerfilUrl" => $this->crearUrlFotoPerfil($usuario),
+            "tieneFotoPerfil" => !empty($usuario["foto_perfil"]),
+            "perfilPublico" => $username !== $_SESSION["usuario"],
+            "partidas" => $this->partidaModel->obtenerPartidasPorUsuario($usuario["id"])
         ]);
+    }
+
+    private function crearUrlPerfilPublico($username)
+    {
+        $scheme = (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off") ? "https" : "http";
+        $host = $_SERVER["HTTP_HOST"] ?? "localhost";
+
+        return $scheme . "://" . $host . "/usuario/perfil?username=" . rawurlencode($username);
+    }
+
+    private function crearUrlQr($url)
+    {
+        return "https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" . rawurlencode($url);
+    }
+
+    private function crearUrlFotoPerfil($usuario)
+    {
+        $foto = trim($usuario["foto_perfil"] ?? "");
+
+        if ($foto === "") {
+            return "";
+        }
+
+        if (preg_match('/^https?:\/\//', $foto) === 1 || strpos($foto, '/') === 0) {
+            return $foto;
+        }
+
+        return "/" . ltrim($foto, "/");
     }
 
     private function crearUrlMapaUsuario($usuario)
