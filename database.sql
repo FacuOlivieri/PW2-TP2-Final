@@ -502,3 +502,12 @@ INSERT INTO respuestas (pregunta_id, texto, es_correcta) VALUES
 (@pregunta_id, 'Francia', false),
 (@pregunta_id, 'España', false),
 (@pregunta_id, 'Chile', false);
+
+ALTER TABLE preguntas
+ADD veces_entregada INT DEFAULT 0,
+ADD veces_correcta INT DEFAULT 0,
+ADD dificultad ENUM(
+    'facil',
+    'media',
+    'dificil'
+) DEFAULT 'media';

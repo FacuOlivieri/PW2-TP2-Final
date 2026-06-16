@@ -44,8 +44,8 @@ class PartidaController
         $_SESSION['numero_pregunta'] = 1;
         $_SESSION['puntaje'] = 0;
 
-        $_SESSION['lista_preguntas'] = $this->preguntaModel->buscarTodasLasPreguntas();
-        shuffle($_SESSION['lista_preguntas']);
+        $dificultad = $this->obtenerDificultadJugador();
+        $_SESSION['lista_preguntas'] = $this->preguntaModel->buscarPreguntasPorDificultad($dificultad);
 
         $this->mostrarPregunta();
     }
@@ -61,6 +61,9 @@ class PartidaController
 
         $_SESSION['id_pregunta_actual'] = $preguntaActual['id'];
         $_SESSION['pregunta_actual'] = $preguntaActual['texto'];
+        $_SESSION['inicio_pregunta'] = time();
+
+        $this->preguntaModel->sumarEntrega($preguntaActual['id']);
 
         $this->estadoPartidaModel->cargarPreguntaPartidaActualALaBD(
             $_SESSION['id_partida'],
@@ -87,6 +90,13 @@ class PartidaController
 
     public function responder()
     {
+        $tiempoLimite = 15;
+        
+        if(time() - $_SESSION["inicio_pregunta"] > $tiempoLimite) {
+            Redirect::to("/partida/partidaTerminada");
+            return;
+        }
+
         $respuestaId = $this->request->post("respuesta_id");
         $respuesta = $this->respuestasModel->buscarRespuestaPorId($respuestaId);
 
@@ -101,6 +111,9 @@ class PartidaController
         }
 
         if ((int)$respuesta["es_correcta"] === 1) {
+            $this->preguntaModel->sumarCorrecta($_SESSION["id_pregunta_actual"]);
+            $this->preguntaModel->recalcularDificultad($_SESSION["id_pregunta_actual"]);
+
             $_SESSION['numero_pregunta']++;
             $_SESSION['puntaje']++;
             array_shift($_SESSION['lista_preguntas']);
@@ -108,6 +121,7 @@ class PartidaController
             Redirect::to("/partida/mostrarPregunta");
             return;
         }
+        $this->preguntaModel->recalcularDificultad($_SESSION["id_pregunta_actual"]);
 
         Redirect::to("/partida/partidaTerminada");
     }
@@ -164,5 +178,20 @@ class PartidaController
         shuffle($respuestas);
 
         return $respuestas;
+    }
+
+    public function timeout() {
+        Redirect::to("/partida/partidaTerminada");
+    }
+
+    private function obtenerDificultadJugador(){
+        $puntaje = $_SESSION["puntaje"] ?? 0;
+        
+        if ($puntaje < 3) {
+            return "facil";
+        }else if($puntaje < 6) {
+            return "medio";
+        }
+        return "dificil";
     }
 }
