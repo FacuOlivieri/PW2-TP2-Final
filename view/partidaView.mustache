@@ -41,10 +41,10 @@
         tiempo--;
         time.innerText = tiempo;
 
-        if(tiempo <= 0) {
+        if (tiempo <= 0) {
             clearInterval(intervalo);
+            window.location.href = "/partida/timeout";
         }
-        window.location.href = "/partida/timeout";
     }, 1000);
 </script>
 
