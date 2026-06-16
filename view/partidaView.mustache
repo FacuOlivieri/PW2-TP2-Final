@@ -11,6 +11,10 @@
             <h2>{{pregunta}}</h2>
             <p class="question-helper">Eleg&iacute; una respuesta para avanzar a la siguiente pregunta.</p>
 
+            <div class="time-box">
+                Tiempo restante: 
+                <span id="time">15</span>
+            </div>
 
             <form class="answer-grid" action="/partida/responder" method="post">
                 {{#respuestas}}
@@ -28,5 +32,20 @@
         </article>
     </section>
 </main>
+
+<script>
+    let tiempo = 15;
+    const time = document.getElementById("time");
+
+    const intervalo = setInterval(() => {
+        tiempo--;
+        time.innerText = tiempo;
+
+        if(tiempo <= 0) {
+            clearInterval(intervalo);
+        }
+        window.location.href = "/partida/timeout";
+    }, 1000);
+</script>
 
 {{>footer}}
