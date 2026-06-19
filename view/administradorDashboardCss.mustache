@@ -1,0 +1,318 @@
+
+<style>
+.dashboard-shell {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+color: #1e1b4b;
+background-color: #fbfbff;
+padding: 0;
+margin: 0;
+overflow: hidden;
+}
+
+/* --- HERO ENCABEZADO --- */
+.dashboard-hero {
+background: radial-gradient(circle at 12% 18%, rgba(124, 58, 237, 0.08), transparent 24%),
+linear-gradient(135deg, #ffffff 0%, #f5f3ff 58%, #eef2ff 100%);
+border-bottom: 1px solid #e2e8f0;
+padding: 32px 40px;
+position: relative;
+}
+
+.dashboard-hero::after {
+background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+bottom: 0;
+content: "";
+height: 5px;
+left: 0;
+opacity: 0.75;
+position: absolute;
+right: 0;
+}
+
+.dashboard-hero-top {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+gap: 24px;
+}
+
+.dashboard-kicker {
+color: #6366f1;
+font-size: 0.82rem;
+font-weight: 800;
+letter-spacing: 0.08em;
+margin: 0 0 12px;
+text-transform: uppercase;
+}
+
+.dashboard-title {
+color: #0f172a;
+font-size: 2.5rem;
+font-weight: 800;
+line-height: 1.1;
+margin: 0;
+}
+
+.dashboard-title span {
+color: #64748b;
+display: block;
+font-size: 1rem;
+font-weight: 500;
+letter-spacing: 0;
+margin-top: 8px;
+}
+
+/* --- BOTONES Y ACCIONES --- */
+.btn-print {
+background-color: #6366f1;
+color: #ffffff;
+border: none;
+border-radius: 14px;
+font-size: 1rem;
+font-weight: 700;
+padding: 16px 28px;
+cursor: pointer;
+transition: background-color 0.2s;
+}
+
+.btn-print:hover {
+background-color: #4f46e5;
+}
+
+.dashboard-actions {
+display: flex;
+gap: 12px;
+margin-top: 26px;
+}
+
+.btn-filter {
+display: inline-block;
+text-decoration: none;
+background-color: #ffffff;
+color: #64748b;
+border: 1px solid #e2e8f0;
+border-radius: 12px;
+padding: 10px 24px;
+font-size: 0.9rem;
+font-weight: 700;
+transition: all 0.2s;
+}
+
+.btn-filter:hover {
+background-color: #f8fafc;
+}
+
+.btn-filter.active {
+background-color: #6366f1;
+color: #ffffff;
+border-color: #4f46e5;
+}
+
+.btn-view-users {
+display: block;
+width: 100%;
+box-sizing: border-box;
+text-align: center;
+text-decoration: none;
+background-color: #ffffff;
+color: #0f172a;
+border: 1px solid #e2e8f0;
+border-radius: 12px;
+padding: 14px;
+font-size: 0.9rem;
+font-weight: 700;
+transition: background-color 0.2s;
+}
+
+.btn-view-users:hover {
+background-color: #f8fafc;
+}
+
+/* --- CONTENIDO Y GRID --- */
+.dashboard-content {
+padding: 32px 40px;
+}
+
+.dashboard-section {
+margin-bottom: 40px;
+}
+
+.section-title {
+color: #0f172a;
+font-size: 1.25rem;
+font-weight: 800;
+margin-bottom: 20px;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+}
+
+/* Métricas Rápidas (3 columnas) */
+.metrics-summary {
+display: grid;
+gap: 20px;
+grid-template-columns: repeat(3, 1fr);
+margin-bottom: 24px;
+}
+
+.metric-stat {
+background: #ffffff;
+border: 1px solid #e2e8f0;
+border-radius: 16px;
+padding: 24px;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.metric-stat strong {
+color: #0f172a;
+display: block;
+font-size: 2.25rem;
+font-weight: 800;
+line-height: 1;
+margin-bottom: 8px;
+}
+
+.metric-stat span {
+color: #64748b;
+font-size: 0.85rem;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+}
+
+.metric-stat-action {
+display: flex;
+align-items: center;
+}
+
+/* Grilla de Tablas (Auto-ajustable) */
+.tables-grid {
+display: grid;
+gap: 20px;
+grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+/* --- TARJETAS DE DATOS / CARDS --- */
+.data-card {
+background: #ffffff;
+border: 1px solid #e2e8f0;
+border-radius: 16px;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+overflow: hidden;
+}
+
+.data-card-header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+padding: 24px 24px 16px;
+}
+
+.data-card-header h3 {
+color: #0f172a;
+font-size: 1.1rem;
+font-weight: 800;
+margin: 0;
+}
+
+.data-card-header p {
+color: #64748b;
+font-size: 0.85rem;
+margin: 4px 0 0;
+}
+
+.data-badge {
+background-color: #f5f3ff;
+border: 1px solid #ddd6fe;
+border-radius: 999px;
+color: #6d28d9;
+font-size: 0.75rem;
+font-weight: 700;
+padding: 6px 12px;
+text-transform: uppercase;
+}
+
+/* --- TABLAS DE DATOS --- */
+.data-table {
+width: 100%;
+border-collapse: collapse;
+}
+
+.data-table th {
+background-color: #f8fafc;
+color: #64748b;
+font-size: 0.75rem;
+font-weight: 800;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+padding: 12px 24px;
+text-align: left;
+border-bottom: 1px solid #e2e8f0;
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+text-align: right;
+}
+
+.data-table td {
+padding: 14px 24px;
+font-size: 0.95rem;
+color: #334155;
+border-bottom: 1px solid #f1f5f9;
+}
+
+.data-table tbody tr:last-child td {
+border-bottom: none;
+}
+
+.row-highlight {
+color: #6366f1;
+font-weight: 700;
+}
+
+/* --- RESPONSIVE DESIGN --- */
+@media (max-width: 900px) {
+.dashboard-hero-top {
+flex-direction: column;
+}
+.btn-print {
+width: 100%;
+}
+.metrics-summary {
+grid-template-columns: 1fr;
+}
+}
+
+/* --- REGLAS DE IMPRESIÓN --- */
+@media print {
+.dashboard-shell {
+background: #ffffff;
+}
+.dashboard-actions,
+.btn-print,
+.metric-stat-action {
+display: none !important;
+}
+.dashboard-content {
+padding: 0;
+}
+.metrics-summary {
+display: flex;
+gap: 15px;
+}
+.metric-stat, .data-card {
+flex: 1;
+border: 1px solid #000000;
+box-shadow: none;
+}
+.tables-grid {
+display: block;
+}
+
+.data-card {
+margin-bottom: 20px;
+page-break-inside: avoid;
+}
+}
+
+</style>

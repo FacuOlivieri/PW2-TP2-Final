@@ -528,7 +528,8 @@ ADD dificultad ENUM('facil','medio','dificil') DEFAULT 'medio';
 
 ALTER TABLE usuarios 
 ADD nivel ENUM('facil','medio','dificil') DEFAULT 'facil',
-ADD es_editor TINYINT(1) NOT NULL DEFAULT 0;
+ADD es_editor TINYINT(1) NOT NULL DEFAULT 0,
+ADD es_administrador TINYINT(1) NOT NULL DEFAULT 0;
 
 ALTER TABLE preguntas
 ADD estado ENUM('activa','pendiente','rechazada') DEFAULT 'activa',
