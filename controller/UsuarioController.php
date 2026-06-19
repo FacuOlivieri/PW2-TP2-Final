@@ -42,16 +42,17 @@ class UsuarioController
 
         $usuario = $this->model->buscarUsuariosPorNombreDeUsuario($usuarioIngresado);
 
-        if (empty($usuario)) {
+        if (!$usuario) {
             echo "Usuario no encontrado";
-            exit();
+            return;
         }
 
         if (password_verify($passwordIngresada, $usuario["password_hash"])) {
             $_SESSION["usuario"] = $usuario["username"];
             $_SESSION["usuario_id"] = $usuario["id"];
+
             $this->renderizarLobby();
-            exit();
+            return;
         }
 
         echo "Contraseña incorrecta";
@@ -65,10 +66,19 @@ class UsuarioController
         }
 
         $usuario = $_SESSION["usuario"];
+
         $ranking = $this->model->mostrarPuntajesRanking();
 
-        $usuarioData = $this->model->buscarUsuariosPorNombreDeUsuario($usuario);
-        $partidas = $this->partidaModel->obtenerPartidasPorUsuario($usuarioData["id"]);
+        $usuarioData =
+            $this->model->buscarUsuariosPorNombreDeUsuario($usuario);
+
+        if (!$usuarioData) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $partidas =
+            $this->partidaModel->obtenerPartidasPorUsuario($usuarioData["id"]);
 
         $this->renderer->render("lobbyView", [
             "nombreUsuario" => $usuario,
@@ -107,17 +117,25 @@ class UsuarioController
         $mail = trim($this->request->post('mail', ''));
         $username = trim($this->request->post('username', ''));
 
+        $nivel = "facil";
+        $esEditor = 0;
+
+        $foto = $_FILES['foto_perfil']['name'] ?? null;
+
         if ($pais === '' || $ciudad === '') {
-            $this->renderer->render("registroView", $this->datosRegistroConError(
-                "Seleccioná país y ciudad desde el mapa antes de registrarte.",
-                $nombre,
-                $anio,
-                $sexo,
-                $pais,
-                $ciudad,
-                $mail,
-                $username
-            ));
+            $this->renderer->render(
+                "registroView",
+                $this->datosRegistroConError(
+                    "Seleccioná país y ciudad desde el mapa antes de registrarte.",
+                    $nombre,
+                    $anio,
+                    $sexo,
+                    $pais,
+                    $ciudad,
+                    $mail,
+                    $username
+                )
+            );
             return;
         }
 
@@ -125,8 +143,6 @@ class UsuarioController
             $this->request->post('password'),
             PASSWORD_DEFAULT
         );
-
-        $foto = $_FILES['foto_perfil']['name'];
 
         $this->model->alta(
             $nombre,
@@ -137,14 +153,24 @@ class UsuarioController
             $mail,
             $password,
             $username,
-            $foto
+            $foto,
+            $nivel,
+            $esEditor
         );
 
         Redirect::to("/usuario/iniciarSesion");
     }
 
-    private function datosRegistroConError($error, $nombre, $anio, $sexo, $pais, $ciudad, $mail, $username)
-    {
+    private function datosRegistroConError(
+        $error,
+        $nombre,
+        $anio,
+        $sexo,
+        $pais,
+        $ciudad,
+        $mail,
+        $username
+    ) {
         return [
             "error" => $error,
             "nombre_completo" => $nombre,
@@ -166,10 +192,13 @@ class UsuarioController
             return;
         }
 
-        $username = trim($this->request->get("username", $_SESSION["usuario"]));
-        $usuario = $this->model->obtenerPerfilUsuario($username);
+        $username =
+            trim($this->request->get("username", $_SESSION["usuario"]));
 
-        if ($usuario === null) {
+        $usuario =
+            $this->model->obtenerPerfilUsuario($username);
+
+        if (!$usuario) {
             Redirect::to("/usuario/ranking");
             return;
         }
@@ -186,15 +215,19 @@ class UsuarioController
         $latitud = $usuario["latitud"] ?? null;
         $longitud = $usuario["longitud"] ?? null;
 
-        if ($latitud !== null && $latitud !== "" && $longitud !== null && $longitud !== "") {
+        if ($latitud && $longitud) {
             return "https://maps.google.com/maps?q="
                 . rawurlencode($latitud . "," . $longitud)
                 . "&z=11&output=embed";
         }
 
-        $ubicacion = trim(($usuario["ciudad"] ?? "") . ", " . ($usuario["pais"] ?? ""));
+        $ubicacion = trim(
+            ($usuario["ciudad"] ?? "") . ", " . ($usuario["pais"] ?? "")
+        );
 
-        return "https://maps.google.com/maps?q=" . rawurlencode($ubicacion) . "&z=11&output=embed";
+        return "https://maps.google.com/maps?q="
+            . rawurlencode($ubicacion)
+            . "&z=11&output=embed";
     }
 
     public function ranking()
@@ -219,8 +252,16 @@ class UsuarioController
             return;
         }
 
-        $usuario = $this->model->buscarUsuariosPorNombreDeUsuario($_SESSION["usuario"]);
-        $historial = $this->partidaModel->obtenerPartidasPorUsuario($usuario["id"]);
+        $usuario =
+            $this->model->buscarUsuariosPorNombreDeUsuario($_SESSION["usuario"]);
+
+        if (!$usuario) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $historial =
+            $this->partidaModel->obtenerPartidasPorUsuario($usuario["id"]);
 
         $this->renderer->render("historialView", [
             "historial" => $historial,
