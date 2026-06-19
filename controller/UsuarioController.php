@@ -51,6 +51,12 @@ class UsuarioController
             $_SESSION["usuario"] = $usuario["username"];
             $_SESSION["usuario_id"] = $usuario["id"];
 
+
+            if ($usuario["es_administrador"] == 1) {
+                $this->renderizarAdminDashboard();
+                return;
+            }
+
             $this->renderizarLobby();
             return;
         }
@@ -266,6 +272,20 @@ class UsuarioController
         $this->renderer->render("historialView", [
             "historial" => $historial,
             "usuario" => $usuario
+        ]);
+    }
+
+    private function renderizarAdminDashboard()
+    {
+        if (!isset($_SESSION["usuario"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $this->model->requireAdministrador($_SESSION["usuario"]);
+
+        $this->renderer->render("administradorDashboardView", [
+
         ]);
     }
 }

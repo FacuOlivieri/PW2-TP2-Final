@@ -135,4 +135,21 @@ class UsuarioModel
             exit();
         }
     }
+
+    public function esAdministrador($username)
+    {
+        $sql = "SELECT es_administrador FROM usuarios WHERE username = ?";
+        $rol = $this->database->query($sql, [$username]);
+
+        return !empty($rol) && (int)$rol[0]["es_administrador"] === 1;
+    }
+
+    public function requireAdministrador($username)
+    {
+        if (!$this->esAdministrador($username)) {
+            Redirect::to("/usuario/lobby");
+            exit();
+        }
+    }
+
 }
