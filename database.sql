@@ -74,6 +74,24 @@ CREATE TABLE partida_preguntas (
                                    FOREIGN KEY (pregunta_id) REFERENCES preguntas(id)
 );
 
+CREATE TABLE preguntas_reportadas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pregunta_id INT,
+    usuario_id INT,
+    motivo TEXT,
+    estado ENUM('pendiente','aprobada','rechazada') DEFAULT 'pendiente',
+    fecha DATETIME DEFAULT NOW()
+);
+
+CREATE TABLE preguntas_sugeridas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT,
+    texto_pregunta TEXT,
+    categoria_id INT,
+    estado ENUM('pendiente','aprobada','rechazada') DEFAULT 'pendiente',
+    fecha DATETIME DEFAULT NOW()
+);
+
 -- Datos iniciales
 INSERT INTO categorias (nombre, color) VALUES
 ('Geografia', 'azul'),
@@ -504,10 +522,14 @@ INSERT INTO respuestas (pregunta_id, texto, es_correcta) VALUES
 (@pregunta_id, 'Chile', false);
 
 ALTER TABLE preguntas
-ADD veces_entregada INT DEFAULT 0,
-ADD veces_correcta INT DEFAULT 0,
-ADD dificultad ENUM(
-    'facil',
-    'media',
-    'dificil'
-) DEFAULT 'media';
+ADD veces_entregada INT NOT NULL DEFAULT 0,
+ADD veces_correcta INT NOT NULL DEFAULT 0,
+ADD dificultad ENUM('facil','medio','dificil') DEFAULT 'medio';
+
+ALTER TABLE usuarios 
+ADD nivel ENUM('facil','medio','dificil') DEFAULT 'facil',
+ADD es_editor TINYINT(1) NOT NULL DEFAULT 0;
+
+ALTER TABLE preguntas
+ADD estado ENUM('activa','pendiente','rechazada') DEFAULT 'activa',
+ADD creada_por INT NULL;
