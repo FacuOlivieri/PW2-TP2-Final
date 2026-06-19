@@ -53,8 +53,7 @@ class UsuarioController
 
 
             if ($usuario["es_administrador"] == 1) {
-                $this->renderizarAdminDashboard();
-                return;
+                $_SESSION["rol"] = "administrador";
             }
 
             $this->renderizarLobby();
@@ -86,6 +85,8 @@ class UsuarioController
         $partidas =
             $this->partidaModel->obtenerPartidasPorUsuario($usuarioData["id"]);
 
+        $rol = $_SESSION["rol"];
+
         $this->renderer->render("lobbyView", [
             "nombreUsuario" => $usuario,
             "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
@@ -93,7 +94,8 @@ class UsuarioController
             "ranking" => $ranking,
             "partidas" => $partidas,
             "partidasJugadas" => $partidas,
-            "partidasTotales" => count($partidas)
+            "partidasTotales" => count($partidas),
+            "es_admin" => ($rol === "administrador")
         ]);
     }
 
@@ -275,17 +277,4 @@ class UsuarioController
         ]);
     }
 
-    private function renderizarAdminDashboard()
-    {
-        if (!isset($_SESSION["usuario"])) {
-            Redirect::to("/usuario/iniciarSesion");
-            return;
-        }
-
-        $this->model->requireAdministrador($_SESSION["usuario"]);
-
-        $this->renderer->render("administradorDashboardView", [
-
-        ]);
-    }
 }

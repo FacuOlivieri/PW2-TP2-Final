@@ -17,6 +17,17 @@ class Configurator {
             $this->getPartida()
         );
     }
+    public function getAdministradorController()
+    {
+        return new AdministradorController(
+            $this->getRenderer(),
+            new Request(),
+            $this->getUsuarios(),
+            $this->getPartida(),
+            $this->getPreguntas(),
+            $this->getRespuestaModel()
+        );
+    }
 
     public function getPartidaController()
     {

@@ -314,5 +314,41 @@ margin-bottom: 20px;
 page-break-inside: avoid;
 }
 }
+/* --- FOOTER Y BOTÓN DE VOLVER --- */
+.dashboard-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px 40px 48px; /* Padding extra abajo para dar aire al diseño */
+    background-color: #fbfbff;
+}
 
+.btn-back {
+    display: inline-block;
+    text-decoration: none;
+    background-color: #ffffff;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-back:hover {
+    background-color: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+
+@media print {
+
+    .dashboard-footer,
+    .btn-back {
+        display: none !important;
+    }
+}
 </style>
