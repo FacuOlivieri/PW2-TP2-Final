@@ -80,6 +80,8 @@ class PreguntaCreadaController
             return;
         }
 
+        $texto = $this->normalizarSignosPregunta($texto);
+
         $usuario = $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION["usuario"]);
 
         $preguntaCreadaId = $this->preguntaCreadaModel->crear($texto, $categoriaId, $usuario["id"]);
@@ -98,6 +100,21 @@ class PreguntaCreadaController
             "categorias" => $this->categoriaModel->obtenerTodas(),
             "exito" => "Tu pregunta fue enviada y quedó pendiente de revisión. ¡Gracias por colaborar!"
         ]);
+    }
+
+    private function normalizarSignosPregunta($texto)
+    {
+        $texto = trim($texto);
+
+        if (substr($texto, 0, 2) !== '¿') {
+            $texto = '¿' . $texto;
+        }
+
+        if (substr($texto, -1) !== '?') {
+            $texto .= '?';
+        }
+
+        return $texto;
     }
 
     public function propuestas()
