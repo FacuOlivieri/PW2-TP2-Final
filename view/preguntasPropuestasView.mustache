@@ -1,0 +1,133 @@
+{{>header}}
+<main class="container">
+    <h2 class="form-title">Preguntas Propuestas</h2>
+    <p class="form-help">Revisá las preguntas enviadas por los usuarios y aprobalas o rechazalas.</p>
+
+    <div class="proposal-filters">
+        <a href="/preguntaCreada/propuestas?estado=pendiente"
+           class="btn-secondary {{#filtroPendiente}}filter-active{{/filtroPendiente}}">
+            Pendientes
+        </a>
+        <a href="/preguntaCreada/propuestas?estado=aceptada"
+           class="btn-secondary {{#filtroAceptada}}filter-active{{/filtroAceptada}}">
+            Aceptadas
+        </a>
+        <a href="/preguntaCreada/propuestas?estado=rechazada"
+           class="btn-secondary {{#filtroRechazada}}filter-active{{/filtroRechazada}}">
+            Rechazadas
+        </a>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Pregunta</th>
+            <th>Categoría</th>
+            <th>Usuario</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#propuestas}}
+            <tr>
+                <td>{{texto}}</td>
+                <td>{{categoria}}</td>
+                <td>{{usuario}}</td>
+                <td>{{fecha_creacion}}</td>
+                <td><span class="estado-badge estado-{{estado}}">{{estado}}</span></td>
+                <td>
+                    <a href="/preguntaCreada/ver?id={{id}}" class="btn-secondary proposal-view-button">
+                        Ver pregunta
+                    </a>
+                </td>
+            </tr>
+        {{/propuestas}}
+
+        {{^propuestas}}
+            <tr>
+                <td colspan="6">No hay preguntas en este estado.</td>
+            </tr>
+        {{/propuestas}}
+        </tbody>
+    </table>
+
+    <a href="/usuario/renderizarLobby" class="back-link">Volver al lobby</a>
+</main>
+
+<style>
+    .proposal-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .proposal-filters .filter-active {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-color: transparent;
+        color: #ffffff;
+    }
+
+    .proposal-view-button {
+        display: inline-flex;
+        white-space: nowrap;
+    }
+
+    .proposal-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .proposal-actions form {
+        margin: 0;
+    }
+
+    .proposal-actions button {
+        cursor: pointer;
+        font-size: 0.85rem;
+        padding: 8px 14px;
+    }
+
+    .btn-aprobar {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: var(--success);
+    }
+
+    .btn-rechazar {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: var(--danger);
+    }
+
+    .estado-badge {
+        border-radius: 999px;
+        display: inline-block;
+        font-size: 0.78rem;
+        font-weight: 800;
+        padding: 5px 12px;
+        text-transform: capitalize;
+    }
+
+    .estado-pendiente {
+        background: var(--soft-amber);
+        border: 1px solid #fde68a;
+        color: #92400e;
+    }
+
+    .estado-aceptada {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: var(--success);
+    }
+
+    .estado-rechazada {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: var(--danger);
+    }
+</style>
+{{>footer}}

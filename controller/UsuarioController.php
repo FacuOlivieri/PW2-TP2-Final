@@ -30,6 +30,28 @@ class UsuarioController
         $this->renderer->render("loginView");
     }
 
+    public function cerrarSesion()
+    {
+        $_SESSION = [];
+
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
+
+        session_destroy();
+
+        Redirect::to("/usuario/iniciarSesion");
+    }
+
     public function mostrarUsuarioLobby()
     {
         $this->renderizarLobby();
@@ -85,7 +107,7 @@ class UsuarioController
         $partidas =
             $this->partidaModel->obtenerPartidasPorUsuario($usuarioData["id"]);
 
-        $rol = $_SESSION["rol"];
+        $rol = $_SESSION["rol"] ?? null;
 
         $this->renderer->render("lobbyView", [
             "nombreUsuario" => $usuario,

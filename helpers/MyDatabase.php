@@ -26,6 +26,11 @@ class MyDatabase
         return $this->conexion->affected_rows;
     }
 
+    public function lastInsertId()
+    {
+        return $this->conexion->insert_id;
+    }
+
     private function bindParams($stmt, $params)
     {
         if (empty($params)) {

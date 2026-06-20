@@ -1,0 +1,144 @@
+{{>header}}
+<main class="container">
+    <div class="form-container">
+        <h2 class="form-title">Crear Pregunta</h2>
+        <p class="form-help">Proponé una nueva pregunta para el juego.</p>
+
+        <div class="proposal-notice">
+            Tené en cuenta que esta pregunta pasará por un proceso de revisión.
+            El administrador podrá aprobarla o rechazarla antes de que forme parte del juego.
+        </div>
+
+        {{#error}}
+            <p class="form-error">{{error}}</p>
+        {{/error}}
+
+        {{#exito}}
+            <p class="form-success">{{exito}}</p>
+        {{/exito}}
+
+        <form action="/preguntaCreada/guardar" method="POST">
+            <div class="form-group">
+                <label>Pregunta</label>
+                <textarea name="texto" rows="3" required>{{texto}}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Categoría</label>
+                <select name="categoria_id" required>
+                    <option value="">Seleccionar categoría</option>
+                    {{#categorias}}
+                        <option value="{{id}}">{{nombre}}</option>
+                    {{/categorias}}
+                </select>
+            </div>
+
+            <p class="form-help proposal-answers-help">
+                Escribí las 4 respuestas y marcá cuál es la correcta.
+            </p>
+
+            <div class="form-group">
+                <label>Respuesta 1</label>
+                <div class="answer-row">
+                    <input type="radio" name="respuesta_correcta" value="1" required>
+                    <input type="text" name="respuesta_1" value="{{respuesta_1}}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Respuesta 2</label>
+                <div class="answer-row">
+                    <input type="radio" name="respuesta_correcta" value="2">
+                    <input type="text" name="respuesta_2" value="{{respuesta_2}}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Respuesta 3</label>
+                <div class="answer-row">
+                    <input type="radio" name="respuesta_correcta" value="3">
+                    <input type="text" name="respuesta_3" value="{{respuesta_3}}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Respuesta 4</label>
+                <div class="answer-row">
+                    <input type="radio" name="respuesta_correcta" value="4">
+                    <input type="text" name="respuesta_4" value="{{respuesta_4}}" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Enviar pregunta</button>
+            <a href="/usuario/renderizarLobby" class="back-link">Volver al lobby</a>
+        </form>
+    </div>
+</main>
+
+<style>
+    .proposal-notice {
+        background: var(--soft-amber);
+        border: 1px solid #fde68a;
+        border-radius: var(--radius-sm);
+        color: #92400e;
+        font-weight: 700;
+        line-height: 1.55;
+        margin: 0 0 22px;
+        padding: 14px 16px;
+        text-align: center;
+    }
+
+    .form-success {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        border-radius: var(--radius-sm);
+        color: var(--success);
+        font-weight: 700;
+        margin: 0 0 20px;
+        padding: 13px 16px;
+        text-align: center;
+    }
+
+    .proposal-answers-help {
+        margin-bottom: 12px;
+        text-align: left;
+    }
+
+    .form-group textarea {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 11px 14px;
+        resize: vertical;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        width: 100%;
+    }
+
+    .form-group textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12);
+        outline: none;
+        transform: translateY(-1px);
+    }
+
+    .answer-row {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+    }
+
+    .answer-row input[type="radio"] {
+        accent-color: var(--primary);
+        flex: 0 0 auto;
+        height: 20px;
+        width: 20px;
+    }
+
+    .answer-row input[type="text"] {
+        flex: 1 1 auto;
+    }
+</style>
+{{>footer}}

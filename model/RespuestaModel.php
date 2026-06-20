@@ -51,4 +51,12 @@ class RespuestaModel
 
         return $this->database->query($sql, [$idPregunta]);
     }
+
+    public function crear($preguntaId, $texto, $esCorrecta)
+    {
+        $sql = "INSERT INTO respuestas (pregunta_id, texto, es_correcta)
+                VALUES (?, ?, ?)";
+
+        $this->database->execute($sql, [$preguntaId, $texto, $esCorrecta ? 1 : 0]);
+    }
 }

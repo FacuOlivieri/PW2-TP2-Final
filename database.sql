@@ -30,6 +30,10 @@ CREATE TABLE usuarios (
 
                           puntaje INT NOT NULL DEFAULT 0,
 
+                          nivel ENUM('facil','medio','dificil') DEFAULT 'facil',
+                          es_editor TINYINT(1) NOT NULL DEFAULT 0,
+                          es_administrador TINYINT(1) NOT NULL DEFAULT 0,
+
                           fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -46,6 +50,9 @@ CREATE TABLE preguntas (
                            estado ENUM('aprobada', 'pendiente', 'rechazada', 'reportada') DEFAULT 'pendiente',
                            creada_por INT NULL,
                            fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                           veces_entregada INT NOT NULL DEFAULT 0,
+                           veces_correcta INT NOT NULL DEFAULT 0,
+                           dificultad ENUM('facil','medio','dificil') DEFAULT 'medio',
                            FOREIGN KEY (categoria_id) REFERENCES categorias(id),
                            FOREIGN KEY (creada_por) REFERENCES usuarios(id)
 );
@@ -90,6 +97,27 @@ CREATE TABLE preguntas_sugeridas (
     categoria_id INT,
     estado ENUM('pendiente','aprobada','rechazada') DEFAULT 'pendiente',
     fecha DATETIME DEFAULT NOW()
+);
+
+-- Preguntas propuestas por los usuarios (espejo de `preguntas`, pendientes de revisión)
+CREATE TABLE preguntas_creadas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    texto VARCHAR(500) NOT NULL,
+    categoria_id INT NOT NULL,
+    usuario_id INT NOT NULL,
+    estado ENUM('pendiente', 'aceptada', 'rechazada') NOT NULL DEFAULT 'pendiente',
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (categoria_id) REFERENCES categorias(id),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+-- Respuestas de las preguntas propuestas (espejo de `respuestas`)
+CREATE TABLE respuestas_creadas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    pregunta_creada_id INT NOT NULL,
+    texto VARCHAR(255) NOT NULL,
+    es_correcta BOOLEAN NOT NULL DEFAULT false,
+    FOREIGN KEY (pregunta_creada_id) REFERENCES preguntas_creadas(id)
 );
 
 -- Datos iniciales

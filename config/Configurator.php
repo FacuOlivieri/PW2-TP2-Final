@@ -42,6 +42,19 @@ class Configurator {
         //Para no repetir Request tal vez podriamos compaginarlo en un metodo.
     }
 
+    public function getPreguntaCreadaController()
+    {
+        return new PreguntaCreadaController(
+            $this->getPreguntaCreada(),
+            $this->getCategoria(),
+            $this->getUsuarios(),
+            $this->getPreguntas(),
+            $this->getRespuestaModel(),
+            $this->getRenderer(),
+            new Request()
+        );
+    }
+
     private function getDatabase()
     {
         return new MyDatabase(
@@ -100,5 +113,10 @@ class Configurator {
     private function getCategoria()
     {
         return new CategoriaModel($this->getDatabase());
+    }
+
+    private function getPreguntaCreada()
+    {
+        return new PreguntaCreadaModel($this->getDatabase());
     }
 }

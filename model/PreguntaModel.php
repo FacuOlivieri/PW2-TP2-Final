@@ -29,6 +29,16 @@ class PreguntaModel
         return $this->database->query($sql, [$categoriaId]);
     }
 
+    public function crear($texto, $categoriaId, $creadaPor = null)
+    {
+        $sql = "INSERT INTO preguntas (texto, categoria_id, estado, creada_por)
+                VALUES (?, ?, 'aprobada', ?)";
+
+        $this->database->execute($sql, [$texto, $categoriaId, $creadaPor]);
+
+        return $this->database->lastInsertId();
+    }
+
     public function sumarPreguntasEntregadas($idPregunta)
     {
         $sql = "UPDATE preguntas
