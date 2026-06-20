@@ -13,7 +13,7 @@
             </div>
 
             <a href="/partida/iniciarPartida" class="btn-add lobby-primary-action">
-                Crear nueva partida (prueba de CD 2)
+                Crear nueva partida
             </a>
         </div>
 
@@ -44,6 +44,12 @@
             <a href="/usuario/historial" class="btn-secondary">
                 Historial
             </a>
+
+            {{#es_admin}}
+                <a href="/administrador/verDashboard" class="btn-secondary">
+                    Ver Analíticas
+                </a>
+            {{/es_admin}}
         </div>
     </section>
 

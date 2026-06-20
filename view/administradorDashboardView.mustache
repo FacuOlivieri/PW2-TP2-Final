@@ -1,0 +1,146 @@
+{{>administradorDashboardCss}}
+<main class="dashboard-shell">
+
+    <header class="dashboard-hero">
+        <div class="dashboard-hero-top">
+            <div class="dashboard-branding">
+                <p class="dashboard-kicker">Panel de Control</p>
+                <h1 class="dashboard-title">
+                    Dashboard de Administración
+                    <span>Monitoreo global de métricas y rendimiento</span>
+                </h1>
+            </div>
+            <button class="btn-print" onclick="window.print()">
+                🖨️ Imprimir Reporte
+            </button>
+        </div>
+
+        <div class="dashboard-actions">
+            <a href="?filtrar=dia" class="btn-filter active">Día</a>
+            <a href="?filtrar=semana" class="btn-filter">Semana</a>
+            <a href="?filtrar=anio" class="btn-filter">Año</a>
+        </div>
+    </header>
+
+    <div class="dashboard-content">
+
+        <section class="dashboard-section">
+            <h2 class="section-title">Gestión de Jugadores</h2>
+
+            <div class="metrics-summary">
+                <div class="metric-stat">
+                    <strong>1,250</strong>
+                    <span>Total Jugadores</span>
+                </div>
+                <div class="metric-stat">
+                    <strong>45</strong>
+                    <span>Jugadores Nuevos</span>
+                </div>
+                <div class="metric-stat-action">
+                    <a href="#" class="btn-view-users">Ver Usuarios</a>
+                </div>
+            </div>
+
+            <div class="tables-grid">
+
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div>
+                            <h3>Jugadores por País</h3>
+                            <p>Distribución geográfica</p>
+                        </div>
+                        <span class="data-badge">Países</span>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>País</th>
+                            <th>Usuarios</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr><td class="row-highlight">Argentina</td><td>600</td></tr>
+                        <tr><td class="row-highlight">Brasil</td><td>350</td></tr>
+                        <tr><td class="row-highlight">Chile</td><td>200</td></tr>
+                        <tr><td class="row-highlight">Otros</td><td>100</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div>
+                            <h3>Jugadores por Sexo</h3>
+                            <p>Identificación de género</p>
+                        </div>
+                        <span class="data-badge">Demografía</span>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Sexo</th>
+                            <th>Usuarios</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr><td class="row-highlight">Masculino</td><td>700</td></tr>
+                        <tr><td class="row-highlight">Femenino</td><td>500</td></tr>
+                        <tr><td class="row-highlight">Prefiero no cargarlo</td><td>50</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="data-card">
+                    <div class="data-card-header">
+                        <div>
+                            <h3>Grupo de Edad</h3>
+                            <p>Segmentación por rangos</p>
+                        </div>
+                        <span class="data-badge">Edades</span>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>Grupo</th>
+                            <th>Usuarios</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr><td class="row-highlight">Menores (&lt; 18)</td><td>300</td></tr>
+                        <tr><td class="row-highlight">Medio (18 - 65)</td><td>800</td></tr>
+                        <tr><td class="row-highlight">Jubilados (&gt; 65)</td><td>150</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="dashboard-section">
+            <h2 class="section-title">Partidas y Preguntas</h2>
+
+            <div class="metrics-summary">
+                <div class="metric-stat">
+                    <strong>3,420</strong>
+                    <span>🎮 Partidas Jugadas</span>
+                </div>
+                <div class="metric-stat">
+                    <strong>150</strong>
+                    <span>📚 Preguntas Activas</span>
+                </div>
+                <div class="metric-stat">
+                    <strong>28</strong>
+                    <span>✍️ Preguntas Creadas</span>
+                </div>
+            </div>
+        </section>
+
+    </div>
+    <footer class="dashboard-footer">
+    <a href="/usuario/renderizarLobby" class="btn-back">
+        ⬅️ Volver al Lobby
+    </a>
+    </footer>
+
+    </div>
+</main>

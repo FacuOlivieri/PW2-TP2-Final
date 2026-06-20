@@ -39,6 +39,14 @@ class PartidaController
         }
 
         $usuario = $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION['usuario']);
+
+        if (!$usuario) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $_SESSION["nivel_usuario"] = $usuario["nivel"];
+
         $usuarioId = $usuario["id"];
 
         $idPartidaActual = $this->partidaModel->alta($usuarioId);
@@ -121,7 +129,7 @@ class PartidaController
         $_SESSION['pregunta_actual'] = $preguntaActual['texto'];
         $_SESSION['inicio_pregunta'] = time();
 
-        $this->preguntaModel->sumarEntrega($preguntaActual['id']);
+        $this->preguntaModel->sumarPreguntasEntregadas($preguntaActual['id']);
 
         $this->estadoPartidaModel->cargarPreguntaPartidaActualALaBD(
             $_SESSION['id_partida'],
@@ -181,9 +189,14 @@ class PartidaController
 
     public function responder()
     {
+        if (!isset($_SESSION["inicio_pregunta"])) {
+            Redirect::to("/partida/partidaTerminada");
+            return;
+        }
+
         $tiempoLimite = 15;
-        
-        if(time() - $_SESSION["inicio_pregunta"] > $tiempoLimite) {
+
+        if (time() - $_SESSION["inicio_pregunta"] > $tiempoLimite) {
             Redirect::to("/partida/partidaTerminada");
             return;
         }
@@ -202,8 +215,9 @@ class PartidaController
         }
 
         if ((int)$respuesta["es_correcta"] === 1) {
-            $this->preguntaModel->sumarCorrecta($_SESSION["id_pregunta_actual"]);
-            $this->preguntaModel->recalcularDificultad($_SESSION["id_pregunta_actual"]);
+
+            $this->preguntaModel->sumarPreguntasCorrectas($_SESSION["id_pregunta_actual"]);
+            $this->preguntaModel->calcularDificultad($_SESSION["id_pregunta_actual"]);
 
             $_SESSION['numero_pregunta']++;
             $_SESSION['puntaje']++;
@@ -213,7 +227,6 @@ class PartidaController
             Redirect::to("/partida/mostrarRuleta");
             return;
         }
-        $this->preguntaModel->recalcularDificultad($_SESSION["id_pregunta_actual"]);
 
         Redirect::to("/partida/partidaTerminada");
     }
@@ -228,8 +241,23 @@ class PartidaController
             $this->partidaModel->finalizarPartida($idPartida, $puntajeFinal);
         }
 
-        if ($usuario !== null && $puntajeFinal > 0) {
-            $this->usuarioModel->sumarPuntaje($usuario, $puntajeFinal);
+        if ($usuario !== null) {
+
+            if ($puntajeFinal > 0) {
+                $this->usuarioModel->sumarPuntaje($usuario, $puntajeFinal);
+            }
+
+            $usuarioData =
+                $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($usuario);
+
+            if ($usuarioData) {
+                $totalPuntaje =
+                    ($usuarioData["puntaje"] ?? 0) + $puntajeFinal;
+
+                $nivelActual = $this->calcularNivelGlobal($totalPuntaje);
+
+                $this->usuarioModel->actualizarNivel($usuario, $nivelActual);
+            }
         }
 
         $this->renderer->render("partidaTerminadaView", [
@@ -239,21 +267,13 @@ class PartidaController
             'respuestaCorrecta' => $_SESSION['respuesta_correcta'] ?? "",
         ]);
 
-        unset($_SESSION["id_partida"]);
-        unset($_SESSION["puntaje"]);
-        unset($_SESSION["numero_pregunta"]);
-        unset($_SESSION["id_pregunta_actual"]);
-        unset($_SESSION["lista_preguntas"]);
-        unset($_SESSION["pregunta_actual"]);
-        unset($_SESSION["respuesta_correcta"]);
-        unset($_SESSION["categoria_id"]);
-        unset($_SESSION["categoria_nombre"]);
-        unset($_SESSION["preguntas_respondidas"]);
+        session_unset();
     }
 
     private function manejoDeRespuestas($preguntaId): array
     {
-        $respuestaCorrecta = $this->respuestasModel->buscarRespuestaCorrectaALaPregunta($preguntaId);
+        $respuestaCorrecta =
+            $this->respuestasModel->buscarRespuestaCorrectaALaPregunta($preguntaId);
 
         if ($respuestaCorrecta === null) {
             return [];
@@ -261,7 +281,8 @@ class PartidaController
 
         $_SESSION['respuesta_correcta'] = $respuestaCorrecta['texto'];
 
-        $respuestasIncorrectas = $this->respuestasModel->buscarRespuestasIncorrectasParaPregunta($preguntaId);
+        $respuestasIncorrectas =
+            $this->respuestasModel->buscarRespuestasIncorrectasParaPregunta($preguntaId);
 
         if (count($respuestasIncorrectas) < 3) {
             return [];
@@ -275,18 +296,57 @@ class PartidaController
         return $respuestas;
     }
 
-    public function timeout() {
+    public function timeout()
+    {
         Redirect::to("/partida/partidaTerminada");
     }
 
-    private function obtenerDificultadJugador(){
-        $puntaje = $_SESSION["puntaje"] ?? 0;
-        
-        if ($puntaje < 3) {
+    private function obtenerDificultadJugador()
+    {
+        if (!isset($_SESSION['usuario'])) {
             return "facil";
-        }else if($puntaje < 6) {
+        }
+
+        $usuario =
+            $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION['usuario']);
+
+        if (!$usuario) {
+            return "facil";
+        }
+
+        $base = $usuario["nivel"] ?? "facil";
+        $puntaje = $_SESSION["puntaje"] ?? 0;
+
+        if ($base === "facil" && $puntaje >= 5) {
+            return "medio";
+        }
+
+        if ($base === "medio" && $puntaje >= 8) {
+            return "dificil";
+        }
+
+        return $base;
+    }
+
+    private function calcularNivelGlobal($puntajeTotal)
+    {
+        if ($puntajeTotal < 10) {
+            return "facil";
+        }
+        if ($puntajeTotal < 25) {
             return "medio";
         }
         return "dificil";
+    }
+
+    public function reportar()
+    {
+        $usuario = $_SESSION["usuario_id"];
+        $preguntaId = $_SESSION["id_pregunta_actual"];
+        $motivo = $this->request->post("motivo");
+
+        $this->preguntaModel->reportarPregunta($usuario, $preguntaId, $motivo);
+
+        Redirect::to("/partida/mostrarPregunta");
     }
 }

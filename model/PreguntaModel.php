@@ -19,6 +19,7 @@ class PreguntaModel
     {
         $sql = "SELECT * FROM preguntas WHERE id = ?";
         $resultado = $this->database->query($sql, [$idPregunta]);
+
         return $resultado[0] ?? null;
     }
 
@@ -28,7 +29,7 @@ class PreguntaModel
         return $this->database->query($sql, [$categoriaId]);
     }
 
-    public function sumarEntrega($idPregunta)
+    public function sumarPreguntasEntregadas($idPregunta)
     {
         $sql = "UPDATE preguntas
                 SET veces_entregada = veces_entregada + 1
@@ -37,7 +38,7 @@ class PreguntaModel
         $this->database->execute($sql, [$idPregunta]);
     }
 
-    public function sumarCorrecta($idPregunta)
+    public function sumarPreguntasCorrectas($idPregunta)
     {
         $sql = "UPDATE preguntas
                 SET veces_correcta = veces_correcta + 1
@@ -46,11 +47,11 @@ class PreguntaModel
         $this->database->execute($sql, [$idPregunta]);
     }
 
-    public function recalcularDificultad($idPregunta)
+    public function calcularDificultad($idPregunta)
     {
         $pregunta = $this->buscarPreguntaSegunId($idPregunta);
 
-        if ($pregunta === null) {
+        if (!$pregunta) {
             return;
         }
 
@@ -80,10 +81,7 @@ class PreguntaModel
 
     public function buscarPreguntasPorDificultad($dificultad)
     {
-        $sql = "SELECT * FROM preguntas
-                WHERE dificultad = ?
-                ORDER BY RAND()";
-
+        $sql = "SELECT * FROM preguntas WHERE dificultad = ? ORDER BY RAND()";
         return $this->database->query($sql, [$dificultad]);
     }
 }

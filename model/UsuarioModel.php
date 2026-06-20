@@ -19,6 +19,7 @@ class UsuarioModel
     {
         $sql = "SELECT * FROM usuarios WHERE username = ?";
         $resultado = $this->database->query($sql, [$nombre]);
+
         return $resultado[0] ?? null;
     }
 
@@ -31,22 +32,25 @@ class UsuarioModel
         $mail,
         $password,
         $username,
-        $foto
-    )
-    {
+        $foto,
+        $nivel = "facil",
+        $esEditor = 0
+    ) {
         $sql = "INSERT INTO usuarios
-    (
-        nombre_completo,
-        anio_nacimiento,
-        sexo,
-        pais,
-        ciudad,
-        mail,
-        password_hash,
-        username,
-        foto_perfil
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        (
+            nombre_completo,
+            anio_nacimiento,
+            sexo,
+            pais,
+            ciudad,
+            mail,
+            password_hash,
+            username,
+            foto_perfil,
+            nivel,
+            es_editor
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         $this->database->execute($sql, [
             $nombre,
@@ -57,7 +61,9 @@ class UsuarioModel
             $mail,
             $password,
             $username,
-            $foto
+            $foto,
+            $nivel,
+            $esEditor
         ]);
     }
 
@@ -77,8 +83,8 @@ class UsuarioModel
 
         $usuarios = $this->database->query($sql);
 
-        foreach ($usuarios as $indice => $usuario) {
-            $usuarios[$indice]["puesto"] = $indice + 1;
+        foreach ($usuarios as $i => $usuario) {
+            $usuarios[$i]["puesto"] = $i + 1;
         }
 
         return $usuarios;
@@ -93,7 +99,6 @@ class UsuarioModel
     public function obtenerPerfilUsuario($username)
     {
         $sql = "SELECT * FROM usuarios WHERE username = ?";
-
         $resultado = $this->database->query($sql, [$username]);
 
         return $resultado[0] ?? null;
@@ -101,10 +106,50 @@ class UsuarioModel
 
     public function obtenerTopRanking($limite = 10)
     {
-        $sql = "SELECT username, puntaje FROM usuarios
-            ORDER BY puntaje DESC
-            LIMIT ?";
+        $sql = "SELECT username, puntaje 
+                FROM usuarios
+                ORDER BY puntaje DESC
+                LIMIT $limite";
 
-        return $this->database->query($sql, [$limite]);
+        return $this->database->query($sql);
     }
+
+    public function actualizarNivel($username, $nivel)
+    {
+        $sql = "UPDATE usuarios SET nivel = ? WHERE username = ?";
+        $this->database->execute($sql, [$nivel, $username]);
+    }
+
+    public function esEditor($username)
+    {
+        $sql = "SELECT es_editor FROM usuarios WHERE username = ?";
+        $rol = $this->database->query($sql, [$username]);
+
+        return !empty($rol) && (int)$rol[0]["es_editor"] === 1;
+    }
+
+    public function requireEditor($username)
+    {
+        if (!$this->esEditor($username)) {
+            Redirect::to("/usuario/lobby");
+            exit();
+        }
+    }
+
+    public function esAdministrador($username)
+    {
+        $sql = "SELECT es_administrador FROM usuarios WHERE username = ?";
+        $rol = $this->database->query($sql, [$username]);
+
+        return !empty($rol) && (int)$rol[0]["es_administrador"] === 1;
+    }
+
+    public function requireAdministrador($username)
+    {
+        if (!$this->esAdministrador($username)) {
+            Redirect::to("/usuario/lobby");
+            exit();
+        }
+    }
+
 }
