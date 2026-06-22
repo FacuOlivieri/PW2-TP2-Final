@@ -1,0 +1,21 @@
+{{>header}}
+<main class="container">
+    <div class="form-container">
+        <h2 class="form-title">Verificar correo electrónico</h2>
+        <p class="form-help">Enviamos un código de verificación a <strong>{{mail}}</strong>. Ingresalo abajo para completar tu registro.</p>
+
+        {{#error}}
+            <p class="form-error">{{error}}</p>
+        {{/error}}
+
+        <form action="/usuario/procesarVerificacion" method="POST">
+            <div class="form-group">
+                <label>Código de verificación</label>
+                <input type="text" name="codigo" placeholder="Ej: A1b2C3" maxlength="6" required autofocus>
+            </div>
+
+            <button type="submit" class="btn-submit">Verificar</button>
+            <a href="/usuario/iniciarSesion" class="back-link">Volver al inicio de sesión</a>
+        </form>
+    </div>
+</main>

@@ -6,13 +6,17 @@ class UsuarioController
     private $renderer;
     private $request;
     private $partidaModel;
+    private $codigoModel;
+    private $mailHelper;
 
-    public function __construct($model, $renderer, $request, $partidaModel)
+    public function __construct($model, $renderer, $request, $partidaModel, $codigoModel, $mailHelper = null)
     {
         $this->model = $model;
         $this->renderer = $renderer;
         $this->request = $request;
         $this->partidaModel = $partidaModel;
+        $this->codigoModel = $codigoModel;
+        $this->mailHelper = $mailHelper;
     }
 
     public function inicio()
@@ -48,6 +52,61 @@ class UsuarioController
         }
 
         session_destroy();
+
+        Redirect::to("/usuario/iniciarSesion");
+    }
+
+    public function verificarCodigo()
+    {
+        if (!isset($_SESSION["usuario_id_pendiente"]) || !isset($_SESSION["mail_pendiente"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $this->renderer->render("verificarCodigoView", [
+            "mail" => $_SESSION["mail_pendiente"]
+        ]);
+    }
+
+    public function procesarVerificacion()
+    {
+        if (!isset($_SESSION["usuario_id_pendiente"]) || !isset($_SESSION["mail_pendiente"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        $codigoIngresado = trim($this->request->post("codigo", ""));
+        $usuarioId = $_SESSION["usuario_id_pendiente"];
+
+        $codigo = $this->codigoModel->obtenerPendientePorUsuarioYCodigo($usuarioId, $codigoIngresado);
+
+        if ($codigo === null) {
+            $this->renderer->render("verificarCodigoView", [
+                "mail" => $_SESSION["mail_pendiente"],
+                "error" => "Código incorrecto o expirado."
+            ]);
+            return;
+        }
+
+        $this->codigoModel->marcarComoUsado($codigo["id"]);
+        $this->model->verificarMail($usuarioId);
+
+        unset($_SESSION["usuario_id_pendiente"]);
+        unset($_SESSION["mail_pendiente"]);
+
+        $usuario = $this->model->buscarUsuariosPorNombreDeUsuario($_SESSION["usuario"] ?? "");
+
+        if ($usuario) {
+            $_SESSION["usuario"] = $usuario["username"];
+            $_SESSION["usuario_id"] = $usuario["id"];
+
+            if ($usuario["es_administrador"] == 1) {
+                $_SESSION["rol"] = "administrador";
+            }
+
+            $this->renderizarLobby();
+            return;
+        }
 
         Redirect::to("/usuario/iniciarSesion");
     }
@@ -169,12 +228,29 @@ class UsuarioController
             return;
         }
 
+        if ($this->model->buscarPorMail($mail)) {
+            $this->renderer->render(
+                "registroView",
+                $this->datosRegistroConError(
+                    "Este email ya está registrado. Usá otro o iniciá sesión.",
+                    $nombre,
+                    $anio,
+                    $sexo,
+                    $pais,
+                    $ciudad,
+                    $mail,
+                    $username
+                )
+            );
+            return;
+        }
+
         $password = password_hash(
             $this->request->post('password'),
             PASSWORD_DEFAULT
         );
 
-        $this->model->alta(
+        $usuarioId = $this->model->alta(
             $nombre,
             $anio,
             $sexo,
@@ -188,7 +264,25 @@ class UsuarioController
             $esEditor
         );
 
-        Redirect::to("/usuario/iniciarSesion");
+        $codigo = $this->codigoModel->generarCodigoUnico();
+        $this->codigoModel->crear($usuarioId, $codigo);
+
+        $logMensaje = "[" . date('Y-m-d H:i:s') . "] Código generado para usuario $usuarioId: $codigo\n";
+        file_put_contents(__DIR__ . '/../log/email_debug.log', $logMensaje, FILE_APPEND);
+
+        if ($this->mailHelper) {
+            $enviado = $this->mailHelper->enviarCodigoVerificacion($mail, $codigo);
+            $logResultado = "[" . date('Y-m-d H:i:s') . "] Email enviado a $mail: " . ($enviado ? 'EXITOSO' : 'FALLÓ') . "\n";
+            file_put_contents(__DIR__ . '/../log/email_debug.log', $logResultado, FILE_APPEND);
+        } else {
+            $logError = "[" . date('Y-m-d H:i:s') . "] MailHelper no está disponible\n";
+            file_put_contents(__DIR__ . '/../log/email_debug.log', $logError, FILE_APPEND);
+        }
+
+        $_SESSION["usuario_id_pendiente"] = $usuarioId;
+        $_SESSION["mail_pendiente"] = $mail;
+
+        Redirect::to("/usuario/verificarCodigo");
     }
 
     private function datosRegistroConError(

@@ -33,8 +33,18 @@ CREATE TABLE usuarios (
                           nivel ENUM('facil','medio','dificil') DEFAULT 'facil',
                           es_editor TINYINT(1) NOT NULL DEFAULT 0,
                           es_administrador TINYINT(1) NOT NULL DEFAULT 0,
+                          mail_verificado TINYINT(1) NOT NULL DEFAULT 0,
 
                           fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE codigos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    codigo VARCHAR(6) NOT NULL UNIQUE,
+    usado TINYINT(1) NOT NULL DEFAULT 0,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 );
 
 CREATE TABLE categorias (

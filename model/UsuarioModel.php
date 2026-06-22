@@ -23,6 +23,14 @@ class UsuarioModel
         return $resultado[0] ?? null;
     }
 
+    public function buscarPorMail($mail)
+    {
+        $sql = "SELECT * FROM usuarios WHERE mail = ?";
+        $resultado = $this->database->query($sql, [$mail]);
+
+        return $resultado[0] ?? null;
+    }
+
     public function alta(
         $nombre,
         $anio,
@@ -65,6 +73,14 @@ class UsuarioModel
             $nivel,
             $esEditor
         ]);
+
+        return $this->database->lastInsertId();
+    }
+
+    public function verificarMail($usuarioId)
+    {
+        $sql = "UPDATE usuarios SET mail_verificado = 1 WHERE id = ?";
+        $this->database->execute($sql, [$usuarioId]);
     }
 
     public function mostrarPuntaje($usuario)

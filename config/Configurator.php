@@ -10,11 +10,14 @@ class Configurator {
 
     public function getUsuariosController()
     {
+        $mailHelper = class_exists('MailHelper') ? new MailHelper() : null;
         return new UsuarioController(
             $this->getUsuarios(),
             $this->getRenderer(),
             new Request(),
-            $this->getPartida()
+            $this->getPartida(),
+            $this->getCodigo(),
+            $mailHelper
         );
     }
     public function getAdministradorController()
@@ -118,5 +121,10 @@ class Configurator {
     private function getPreguntaCreada()
     {
         return new PreguntaCreadaModel($this->getDatabase());
+    }
+
+    private function getCodigo()
+    {
+        return new CodigoModel($this->getDatabase());
     }
 }
