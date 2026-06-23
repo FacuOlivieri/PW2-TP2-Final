@@ -27,7 +27,32 @@ class AdministradorController{
 
         $this->usuariosModel->requireAdministrador($_SESSION["usuario"]);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         $this->renderer->render("administradorDashboardView", [
+            "filtro_dia"     => ($filtroSeleccionado === 'dia'),
+            "filtro_semana"  => ($filtroSeleccionado === 'semana'),
+            "filtro_anio"    => ($filtroSeleccionado === 'anio'),
+
+
+            "totalJugadores" => $totalJugadores,
+            "jugadoresNuevos" => $totalJugadoresNuevos,
+            "jugadoresPorPais" => $jugadoresPorPais,
+            "partidasJugadas" => $partidasJugadas,
+            "totalPreguntas" => $totalPreguntas,
+            "totalPreguntasCreadas" => $totalPreguntasCreadas,
 
         ]);
     }
