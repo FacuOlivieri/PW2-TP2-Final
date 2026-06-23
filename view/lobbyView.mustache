@@ -45,11 +45,11 @@
                 Historial
             </a>
 
-            {{^es_admin}}
                 <a href="/preguntaCreada/crear" class="btn-secondary">
-                    Crear Pregunta
+                     Crear Pregunta
                 </a>
-            {
+
+                {{#es_admin}}
                 <a href="/administrador/verDashboard" class="btn-secondary">
                     Ver Analíticas
                 </a>
@@ -57,7 +57,7 @@
                 <a href="/preguntaCreada/propuestas" class="btn-secondary">
                     Preguntas Propuestas
                 </a>
-            {{/es_admin}}
+                {{/es_admin}}
 
             <a href="/usuario/cerrarSesion" class="btn-secondary">
                 Cerrar sesión
