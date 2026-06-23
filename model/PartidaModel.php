@@ -65,4 +65,32 @@ class PartidaModel
 
         return $resultado[0]["id"] ?? null;
     }
+
+
+    public function cantidadTotalPartidas($filtroSeleccionado)
+    {
+        $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_creacion');
+
+        $sql = "SELECT COUNT(*) as cantidad 
+            FROM partidas 
+            WHERE 1=1 $condicionFecha";
+
+        $resultado = $this->database->query($sql);
+        return $resultado[0]['cantidad'] ?? 0;
+    }
+
+
+    private function obtenerCondicionFecha($filtro, $campoFecha)
+    {
+        switch ($filtro) {
+            case 'dia':
+                return " AND $campoFecha >= DATE(NOW())";
+            case 'semana':
+                return " AND $campoFecha >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+            case 'anio':
+                return " AND YEAR($campoFecha) = YEAR(NOW())";
+            default:
+                return "";
+        }
+    }
 }

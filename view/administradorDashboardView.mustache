@@ -11,14 +11,14 @@
                 </h1>
             </div>
             <button class="btn-print" onclick="window.print()">
-                🖨️ Imprimir Reporte
+                Imprimir Reporte
             </button>
         </div>
 
         <div class="dashboard-actions">
-            <a href="?filtrar=dia" class="btn-filter active">Día</a>
-            <a href="?filtrar=semana" class="btn-filter">Semana</a>
-            <a href="?filtrar=anio" class="btn-filter">Año</a>
+            <a href="?filtrar=dia" class="btn-filter {{#filtro_dia}}active{{/filtro_dia}}">Día</a>
+            <a href="?filtrar=semana" class="btn-filter {{#filtro_semana}}active{{/filtro_semana}}">Semana</a>
+            <a href="?filtrar=anio" class="btn-filter {{#filtro_anio}}active{{/filtro_anio}}">Año</a>
         </div>
     </header>
 
@@ -29,11 +29,11 @@
 
             <div class="metrics-summary">
                 <div class="metric-stat">
-                    <strong>1,250</strong>
+                    <strong>{{totalJugadores}}</strong>
                     <span>Total Jugadores</span>
                 </div>
                 <div class="metric-stat">
-                    <strong>45</strong>
+                    <strong>{{jugadoresNuevos}}</strong>
                     <span>Jugadores Nuevos</span>
                 </div>
                 <div class="metric-stat-action">
@@ -59,10 +59,9 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr><td class="row-highlight">Argentina</td><td>600</td></tr>
-                        <tr><td class="row-highlight">Brasil</td><td>350</td></tr>
-                        <tr><td class="row-highlight">Chile</td><td>200</td></tr>
-                        <tr><td class="row-highlight">Otros</td><td>100</td></tr>
+                        {{#jugadoresPorPais}}
+                            <tr><td class="row-highlight">{{pais}}</td><td>{{cantidad}}</td></tr>
+                        {{/jugadoresPorPais}}
                         </tbody>
                     </table>
                 </div>
@@ -83,9 +82,9 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr><td class="row-highlight">Masculino</td><td>700</td></tr>
-                        <tr><td class="row-highlight">Femenino</td><td>500</td></tr>
-                        <tr><td class="row-highlight">Prefiero no cargarlo</td><td>50</td></tr>
+                        {{#jugadoresPorSexo}}
+                            <tr><td class="row-highlight">{{sexo}}</td><td>{{cantidad}}</td></tr>
+                        {{/jugadoresPorSexo}}
                         </tbody>
                     </table>
                 </div>
@@ -106,9 +105,9 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr><td class="row-highlight">Menores (&lt; 18)</td><td>300</td></tr>
-                        <tr><td class="row-highlight">Medio (18 - 65)</td><td>800</td></tr>
-                        <tr><td class="row-highlight">Jubilados (&gt; 65)</td><td>150</td></tr>
+                        {{#jugadoresPorEdad}}
+                            <tr><td class="row-highlight">{{rango}}</td><td>{{cantidad}}</td></tr>
+                        {{/jugadoresPorEdad}}
                         </tbody>
                     </table>
                 </div>
@@ -121,15 +120,15 @@
 
             <div class="metrics-summary">
                 <div class="metric-stat">
-                    <strong>3,420</strong>
+                    <strong>{{partidasJugadas}}</strong>
                     <span>🎮 Partidas Jugadas</span>
                 </div>
                 <div class="metric-stat">
-                    <strong>150</strong>
+                    <strong>{{totalPreguntas}}</strong>
                     <span>📚 Preguntas Activas</span>
                 </div>
                 <div class="metric-stat">
-                    <strong>28</strong>
+                    <strong>{{totalPreguntasCreadas}}</strong>
                     <span>✍️ Preguntas Creadas</span>
                 </div>
             </div>
@@ -137,10 +136,9 @@
 
     </div>
     <footer class="dashboard-footer">
-    <a href="/usuario/renderizarLobby" class="btn-back">
-        ⬅️ Volver al Lobby
-    </a>
+        <a href="/usuario/renderizarLobby" class="btn-back">
+            Volver al Lobby
+        </a>
     </footer>
-
     </div>
 </main>

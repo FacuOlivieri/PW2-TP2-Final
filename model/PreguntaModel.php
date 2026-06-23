@@ -94,4 +94,46 @@ class PreguntaModel
         $sql = "SELECT * FROM preguntas WHERE dificultad = ? ORDER BY RAND()";
         return $this->database->query($sql, [$dificultad]);
     }
+
+
+
+    public function cantidadTotalPreguntas($filtroSeleccionado)
+    {
+        $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_creacion');
+
+        $sql = "SELECT COUNT(*) as cantidad 
+                FROM preguntas 
+                WHERE estado IN ('activa', 'aprobada') $condicionFecha";
+
+        $resultado = $this->database->query($sql);
+        return $resultado[0]['cantidad'] ?? 0;
+    }
+
+    // 2. Cantidad de preguntas sugeridas o enviadas al sistema (independientemente de su estado actual)
+    public function cantidadPreguntasCreadas($filtroSeleccionado)
+    {
+        $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_creacion');
+
+
+        $sql = "SELECT COUNT(*) as cantidad 
+                FROM preguntas 
+                WHERE 1=1 $condicionFecha";
+
+        $resultado = $this->database->query($sql);
+        return $resultado[0]['cantidad'] ?? 0;
+    }
+
+    private function obtenerCondicionFecha($filtro, $campoFecha)
+    {
+        switch ($filtro) {
+            case 'dia':
+                return " AND $campoFecha >= DATE(NOW())";
+            case 'semana':
+                return " AND $campoFecha >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+            case 'anio':
+                return " AND YEAR($campoFecha) = YEAR(NOW())";
+            default:
+                return "";
+        }
+    }
 }

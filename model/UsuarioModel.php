@@ -168,4 +168,83 @@ class UsuarioModel
         }
     }
 
+
+    public function cantidadJugadores($filtroSeleccionado)
+    {
+        $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_registro');
+        $sql = "SELECT COUNT(*) as cantidad FROM usuarios WHERE 1=1 $condicionFecha";
+
+        $resultado = $this->database->query($sql);
+        return $resultado[0]['cantidad'] ?? 0;
+    }
+
+
+    public function cantidadJugadoresNuevos($filtroSeleccionado)
+    {
+        $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_registro');
+        $sql = "SELECT COUNT(*) as cantidad FROM usuarios WHERE 1=1 $condicionFecha";
+
+        $resultado = $this->database->query($sql);
+        return $resultado[0]['cantidad'] ?? 0;
+    }
+
+    public function jugadoresPorPais($filtroSeleccionado)
+    {
+        $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_registro');
+
+        $sql = "SELECT pais, COUNT(*) as cantidad 
+            FROM usuarios 
+            WHERE 1=1 $condicionFecha 
+            GROUP BY pais 
+            ORDER BY cantidad DESC";
+
+        return $this->database->query($sql);
+    }
+
+    public function jugadoresPorSexo($filtroSeleccionado)
+    {
+        $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_registro');
+
+        $sql = "SELECT sexo, COUNT(*) as cantidad 
+            FROM usuarios 
+            WHERE 1=1 $condicionFecha 
+            GROUP BY sexo 
+            ORDER BY cantidad DESC";
+
+        return $this->database->query($sql);
+    }
+
+    public function jugadoresPorEdad($filtroSeleccionado)
+    {
+        $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_registro');
+
+        $sql = "SELECT 
+                CASE 
+                    WHEN (YEAR(NOW()) - anio_nacimiento) < 18 THEN 'Menores (< 18)'
+                    WHEN (YEAR(NOW()) - anio_nacimiento) BETWEEN 18 AND 65 THEN 'Medio (18 - 65)'
+                    ELSE 'Jubilados (> 65)'
+                END as rango,
+                COUNT(*) as cantidad
+            FROM usuarios
+            WHERE 1=1 $condicionFecha
+            GROUP BY rango
+            ORDER BY FIELD(rango, 'Menores (< 18)', 'Medio (18 - 65)', 'Jubilados (> 65)')";
+
+        return $this->database->query($sql);
+    }
+
+
+    private function obtenerCondicionFecha($filtroSeleccionado, $campoFecha)
+    {
+        switch ($filtroSeleccionado) {
+            case 'dia':
+                return " AND $campoFecha >= DATE(NOW())";
+            case 'semana':
+                return " AND $campoFecha >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+            case 'anio':
+                return " AND YEAR($campoFecha) = YEAR(NOW())";
+            default:
+                return "";
+        }
+    }
 }
