@@ -124,11 +124,20 @@ class UsuarioController
         $usuario = $this->model->buscarUsuariosPorNombreDeUsuario($usuarioIngresado);
 
         if (!$usuario) {
-            echo "Usuario no encontrado";
+            $this->renderer->render("loginView", [
+                "mensaje" => "Usuario no encontrado"
+            ]);
             return;
         }
 
         if (password_verify($passwordIngresada, $usuario["password_hash"])) {
+            if (isset($usuario["mail_verificado"]) && (int)$usuario["mail_verificado"] === 0 && (int)$usuario["es_administrador"] !== 1) {
+                $this->renderer->render("loginView", [
+                    "mensaje" => "Usuario no verificado"
+                ]);
+                return;
+            }
+
             $_SESSION["usuario"] = $usuario["username"];
             $_SESSION["usuario_id"] = $usuario["id"];
 
@@ -141,7 +150,9 @@ class UsuarioController
             return;
         }
 
-        echo "Contraseña incorrecta";
+        $this->renderer->render("loginView", [
+            "mensaje" => "Contraseña incorrecta"
+        ]);
     }
 
     public function renderizarLobby()

@@ -5,7 +5,7 @@
         <p class="form-help">Ingresá con tu usuario y contraseña.</p>
 
         {{#mensaje}}
-            <p class="form-help">{{mensaje}}</p>
+            <p class="form-error"><strong>{{mensaje}}</strong></p>
         {{/mensaje}}
 
         <form action="/usuarios/procesarLogin" method="POST">

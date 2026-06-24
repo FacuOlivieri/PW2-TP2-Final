@@ -10,7 +10,10 @@ class Configurator {
 
     public function getUsuariosController()
     {
-        $mailHelper = class_exists('MailHelper') ? new MailHelper() : null;
+        $mailHelper = null;
+        if (class_exists('PHPMailer\\PHPMailer\\PHPMailer') && class_exists('MailHelper')) {
+            $mailHelper = new MailHelper();
+        }
         return new UsuarioController(
             $this->getUsuarios(),
             $this->getRenderer(),
