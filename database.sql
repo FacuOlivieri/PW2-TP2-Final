@@ -47,6 +47,10 @@ CREATE TABLE usuarios (
         FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
     );
 
+    ALTER TABLE usuarios
+    ADD mail_verificado TINYINT(1) NOT NULL DEFAULT 0;
+
+
 CREATE TABLE categorias (
                             id INT AUTO_INCREMENT PRIMARY KEY,
                             nombre VARCHAR(100) NOT NULL,

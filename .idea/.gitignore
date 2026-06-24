@@ -16,6 +16,3 @@
 # Ignorar entorno y herramientas del IDE
 /.idea/
 /composer.phar
-
-# Ignorar archivos locales de Base de Datos
-/*.sql
