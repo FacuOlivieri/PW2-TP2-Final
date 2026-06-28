@@ -35,7 +35,7 @@ class PreguntaCreadaController
         }
 
         if ($this->esAdmin()) {
-            Redirect::to("/preguntaCreada/propuestas");
+            Redirect::to("/administrador/verDashboard");
             return;
         }
 
@@ -54,7 +54,7 @@ class PreguntaCreadaController
         }
 
         if ($this->esAdmin()) {
-            Redirect::to("/preguntaCreada/propuestas");
+            Redirect::to("/administrador/verDashboard");
             return;
         }
 
@@ -85,11 +85,23 @@ class PreguntaCreadaController
 
         $texto = $this->normalizarSignosPregunta($texto);
 
-        $usuario = $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION["usuario"]);
-
-        $preguntaCreadaId = $this->preguntaCreadaModel->crear($texto, $categoriaId, $usuario["id"]);
-
         $indiceCorrecta = (int)$correcta;
+
+        if ($this->esEditor()) {
+            $usuario = $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION["usuario"]);
+            $preguntaId = $this->preguntaModel->crear($texto, $categoriaId, $usuario["id"]);
+
+            foreach ($respuestas as $indice => $textoRespuesta) {
+                $this->respuestaModel->crear($preguntaId, $textoRespuesta, ($indice + 1) === $indiceCorrecta);
+            }
+
+            $_SESSION["pregunta_creada_exito"] = "Pregunta creada y aprobada correctamente.";
+            Redirect::to("/preguntaCreada/crear");
+            return;
+        }
+
+        $usuario = $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION["usuario"]);
+        $preguntaCreadaId = $this->preguntaCreadaModel->crear($texto, $categoriaId, $usuario["id"]);
 
         foreach ($respuestas as $indice => $textoRespuesta) {
             $this->preguntaCreadaModel->guardarRespuesta(
@@ -121,7 +133,7 @@ class PreguntaCreadaController
 
     public function propuestas()
     {
-        if (!$this->requiereAdmin()) {
+        if (!$this->requiereEditor()) {
             return;
         }
 
@@ -143,7 +155,7 @@ class PreguntaCreadaController
 
     public function ver()
     {
-        if (!$this->requiereAdmin()) {
+        if (!$this->requiereEditor()) {
             return;
         }
 
@@ -170,7 +182,7 @@ class PreguntaCreadaController
 
     public function aprobar()
     {
-        if (!$this->requiereAdmin()) {
+        if (!$this->requiereEditor()) {
             return;
         }
 
@@ -205,7 +217,7 @@ class PreguntaCreadaController
 
     public function rechazar()
     {
-        if (!$this->requiereAdmin()) {
+        if (!$this->requiereEditor()) {
             return;
         }
 
@@ -255,13 +267,13 @@ class PreguntaCreadaController
         return true;
     }
 
-    private function requiereAdmin()
+    private function requiereEditor()
     {
         if (!$this->requiereLogin()) {
             return false;
         }
 
-        if (!$this->esAdmin()) {
+        if (!$this->esEditor()) {
             Redirect::to("/usuario/renderizarLobby");
             return false;
         }
@@ -272,5 +284,10 @@ class PreguntaCreadaController
     private function esAdmin()
     {
         return $this->usuarioModel->esAdministrador($_SESSION["usuario"]);
+    }
+
+    private function esEditor()
+    {
+        return $this->usuarioModel->esEditor($_SESSION["usuario"]);
     }
 }

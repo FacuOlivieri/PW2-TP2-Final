@@ -33,8 +33,7 @@ class PartidaController
 
     public function iniciarPartida()
     {
-        if (!isset($_SESSION['usuario'])) {
-            Redirect::to("/usuario/iniciarSesion");
+        if (!$this->requiereUsuarioComun()) {
             return;
         }
 
@@ -63,6 +62,10 @@ class PartidaController
 
     public function mostrarRuleta()
     {
+        if (!$this->requiereUsuarioComun()) {
+            return;
+        }
+
         if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_partida'])) {
             Redirect::to("/partida/iniciarPartida");
             return;
@@ -78,6 +81,10 @@ class PartidaController
 
     public function jugarCategoria()
     {
+        if (!$this->requiereUsuarioComun()) {
+            return;
+        }
+
         if (!isset($_SESSION['usuario']) || !isset($_SESSION['id_partida'])) {
             Redirect::to("/partida/iniciarPartida");
             return;
@@ -128,6 +135,10 @@ class PartidaController
 
     public function mostrarPregunta()
     {
+        if (!$this->requiereUsuarioComun()) {
+            return;
+        }
+
         if (!isset($_SESSION['lista_preguntas']) || empty($_SESSION['lista_preguntas'])) {
             Redirect::to("/partida/partidaTerminada");
             return;
@@ -199,6 +210,10 @@ class PartidaController
 
     public function responder()
     {
+        if (!$this->requiereUsuarioComun()) {
+            return;
+        }
+
         if (!isset($_SESSION["id_partida"]) || !isset($_SESSION["id_pregunta_actual"]) || !isset($_SESSION["inicio_pregunta"])) {
             Redirect::to("/partida/partidaTerminada");
             return;
@@ -243,6 +258,10 @@ class PartidaController
 
     public function partidaTerminada()
     {
+        if (!$this->requiereUsuarioComun()) {
+            return;
+        }
+
         $puntajeFinal = $_SESSION["puntaje"] ?? 0;
         $idPartida = $_SESSION["id_partida"] ?? null;
         $usuario = $_SESSION["usuario"] ?? null;
@@ -285,8 +304,7 @@ class PartidaController
 
     public function resultado()
     {
-        if (!isset($_SESSION['usuario'])) {
-            Redirect::to("/usuario/iniciarSesion");
+        if (!$this->requiereUsuarioComun()) {
             return;
         }
 
@@ -342,8 +360,7 @@ class PartidaController
 
     public function timeout()
     {
-        if (!isset($_SESSION['usuario'])) {
-            Redirect::to("/usuario/iniciarSesion");
+        if (!$this->requiereUsuarioComun()) {
             return;
         }
 
@@ -395,6 +412,10 @@ class PartidaController
 
     public function reportar()
     {
+        if (!$this->requiereUsuarioComun()) {
+            return;
+        }
+
         if (!isset($_SESSION["usuario_id"])) {
             Redirect::to("/usuario/iniciarSesion");
             return;
@@ -412,5 +433,20 @@ class PartidaController
         $this->preguntaModel->reportarPregunta($usuario, $preguntaId, $motivo);
 
         Redirect::to("/partida/mostrarPregunta");
+    }
+
+    private function requiereUsuarioComun()
+    {
+        if (!isset($_SESSION['usuario'])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return false;
+        }
+
+        if (($_SESSION["rol"] ?? "usuario") !== "usuario") {
+            Redirect::to("/usuario/renderizarLobby");
+            return false;
+        }
+
+        return true;
     }
 }

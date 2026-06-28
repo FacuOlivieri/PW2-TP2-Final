@@ -1,144 +1,270 @@
 {{>administradorDashboardCss}}
-<main class="dashboard-shell">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<main class="dashboard-shell">
     <header class="dashboard-hero">
         <div class="dashboard-hero-top">
             <div class="dashboard-branding">
                 <p class="dashboard-kicker">Panel de Control</p>
                 <h1 class="dashboard-title">
                     Dashboard de Administración
-                    <span>Monitoreo global de métricas y rendimiento</span>
+                    <span>Reportes estadísticos filtrados por {{filtroSeleccionado}}</span>
                 </h1>
             </div>
+
             <button class="btn-print" onclick="window.print()">
-                Imprimir Reporte
+                Imprimir reportes
             </button>
         </div>
 
-        <div class="dashboard-actions">
+        <nav class="dashboard-actions" aria-label="Filtros de reportes">
             <a href="?filtrar=dia" class="btn-filter {{#filtro_dia}}active{{/filtro_dia}}">Día</a>
             <a href="?filtrar=semana" class="btn-filter {{#filtro_semana}}active{{/filtro_semana}}">Semana</a>
+            <a href="?filtrar=mes" class="btn-filter {{#filtro_mes}}active{{/filtro_mes}}">Mes</a>
             <a href="?filtrar=anio" class="btn-filter {{#filtro_anio}}active{{/filtro_anio}}">Año</a>
-        </div>
+        </nav>
     </header>
 
-    <div class="dashboard-content">
+    <section class="dashboard-content">
+        <section class="dashboard-section print-section">
+            <h2 class="section-title">Resumen general</h2>
 
-        <section class="dashboard-section">
-            <h2 class="section-title">Gestión de Jugadores</h2>
-
-            <div class="metrics-summary">
-                <div class="metric-stat">
+            <div class="metrics-summary metrics-summary-wide">
+                <article class="metric-stat">
                     <strong>{{totalJugadores}}</strong>
-                    <span>Total Jugadores</span>
-                </div>
-                <div class="metric-stat">
+                    <span>Jugadores</span>
+                </article>
+                <article class="metric-stat">
+                    <strong>{{partidasJugadas}}</strong>
+                    <span>Partidas jugadas</span>
+                </article>
+                <article class="metric-stat">
+                    <strong>{{totalPreguntas}}</strong>
+                    <span>Preguntas en juego</span>
+                </article>
+                <article class="metric-stat">
+                    <strong>{{totalPreguntasCreadas}}</strong>
+                    <span>Preguntas creadas</span>
+                </article>
+                <article class="metric-stat">
                     <strong>{{jugadoresNuevos}}</strong>
-                    <span>Jugadores Nuevos</span>
-                </div>
-                <div class="metric-stat-action">
-                    <a href="#" class="btn-view-users">Ver Usuarios</a>
-                </div>
+                    <span>Usuarios nuevos</span>
+                </article>
             </div>
+        </section>
 
-            <div class="tables-grid">
+        <section class="dashboard-section print-section">
+            <h2 class="section-title">Usuarios</h2>
 
-                <div class="data-card">
+            <div class="reports-grid">
+                <article class="data-card report-card">
                     <div class="data-card-header">
                         <div>
-                            <h3>Jugadores por País</h3>
-                            <p>Distribución geográfica</p>
+                            <h3>Usuarios por país</h3>
+                            <p>Distribución geográfica según el filtro activo.</p>
                         </div>
-                        <span class="data-badge">Países</span>
+                        <span class="data-badge">Barras</span>
                     </div>
-                    <table class="data-table">
-                        <thead>
-                        <tr>
-                            <th>País</th>
-                            <th>Usuarios</th>
-                        </tr>
-                        </thead>
+                    <div class="chart-box"><canvas id="chartPais"></canvas></div>
+                    <table class="data-table printable-table">
+                        <thead><tr><th>País</th><th>Usuarios</th></tr></thead>
                         <tbody>
                         {{#jugadoresPorPais}}
                             <tr><td class="row-highlight">{{pais}}</td><td>{{cantidad}}</td></tr>
                         {{/jugadoresPorPais}}
+                        {{^jugadoresPorPais}}
+                            <tr><td colspan="2">Sin datos para el período seleccionado.</td></tr>
+                        {{/jugadoresPorPais}}
                         </tbody>
                     </table>
-                </div>
+                </article>
 
-                <div class="data-card">
+                <article class="data-card report-card">
                     <div class="data-card-header">
                         <div>
-                            <h3>Jugadores por Sexo</h3>
-                            <p>Identificación de género</p>
+                            <h3>Usuarios por sexo</h3>
+                            <p>Segmentación de usuarios registrados.</p>
                         </div>
-                        <span class="data-badge">Demografía</span>
+                        <span class="data-badge">Dona</span>
                     </div>
-                    <table class="data-table">
-                        <thead>
-                        <tr>
-                            <th>Sexo</th>
-                            <th>Usuarios</th>
-                        </tr>
-                        </thead>
+                    <div class="chart-box"><canvas id="chartSexo"></canvas></div>
+                    <table class="data-table printable-table">
+                        <thead><tr><th>Sexo</th><th>Usuarios</th></tr></thead>
                         <tbody>
                         {{#jugadoresPorSexo}}
                             <tr><td class="row-highlight">{{sexo}}</td><td>{{cantidad}}</td></tr>
                         {{/jugadoresPorSexo}}
+                        {{^jugadoresPorSexo}}
+                            <tr><td colspan="2">Sin datos para el período seleccionado.</td></tr>
+                        {{/jugadoresPorSexo}}
                         </tbody>
                     </table>
-                </div>
+                </article>
 
-                <div class="data-card">
+                <article class="data-card report-card">
                     <div class="data-card-header">
                         <div>
-                            <h3>Grupo de Edad</h3>
-                            <p>Segmentación por rangos</p>
+                            <h3>Usuarios por grupo de edad</h3>
+                            <p>Menores, medio y jubilados.</p>
                         </div>
-                        <span class="data-badge">Edades</span>
+                        <span class="data-badge">Barras</span>
                     </div>
-                    <table class="data-table">
-                        <thead>
-                        <tr>
-                            <th>Grupo</th>
-                            <th>Usuarios</th>
-                        </tr>
-                        </thead>
+                    <div class="chart-box"><canvas id="chartEdad"></canvas></div>
+                    <table class="data-table printable-table">
+                        <thead><tr><th>Grupo</th><th>Usuarios</th></tr></thead>
                         <tbody>
                         {{#jugadoresPorEdad}}
                             <tr><td class="row-highlight">{{rango}}</td><td>{{cantidad}}</td></tr>
                         {{/jugadoresPorEdad}}
+                        {{^jugadoresPorEdad}}
+                            <tr><td colspan="2">Sin datos para el período seleccionado.</td></tr>
+                        {{/jugadoresPorEdad}}
                         </tbody>
                     </table>
-                </div>
+                </article>
 
+                <article class="data-card report-card report-card-wide">
+                    <div class="data-card-header">
+                        <div>
+                            <h3>Respuestas correctas por usuario</h3>
+                            <p>Porcentaje calculado con partidas y preguntas respondidas.</p>
+                        </div>
+                        <span class="data-badge">Barras</span>
+                    </div>
+                    <div class="chart-box"><canvas id="chartCorrectas"></canvas></div>
+                    <table class="data-table printable-table">
+                        <thead><tr><th>Usuario</th><th>Correctas</th><th>Respondidas</th><th>Porcentaje</th></tr></thead>
+                        <tbody>
+                        {{#porcentajeCorrectasPorUsuario}}
+                            <tr>
+                                <td class="row-highlight">{{usuario}}</td>
+                                <td>{{correctas}}</td>
+                                <td>{{respondidas}}</td>
+                                <td>{{porcentaje}}%</td>
+                            </tr>
+                        {{/porcentajeCorrectasPorUsuario}}
+                        {{^porcentajeCorrectasPorUsuario}}
+                            <tr><td colspan="4">Sin datos para el período seleccionado.</td></tr>
+                        {{/porcentajeCorrectasPorUsuario}}
+                        </tbody>
+                    </table>
+                </article>
             </div>
         </section>
 
-        <section class="dashboard-section">
-            <h2 class="section-title">Partidas y Preguntas</h2>
+        <section class="dashboard-section print-section">
+            <h2 class="section-title">Actividad</h2>
 
-            <div class="metrics-summary">
-                <div class="metric-stat">
-                    <strong>{{partidasJugadas}}</strong>
-                    <span>🎮 Partidas Jugadas</span>
-                </div>
-                <div class="metric-stat">
-                    <strong>{{totalPreguntas}}</strong>
-                    <span>📚 Preguntas Activas</span>
-                </div>
-                <div class="metric-stat">
-                    <strong>{{totalPreguntasCreadas}}</strong>
-                    <span>✍️ Preguntas Creadas</span>
-                </div>
+            <div class="reports-grid">
+                <article class="data-card report-card">
+                    <div class="data-card-header">
+                        <div>
+                            <h3>Partidas jugadas según período</h3>
+                            <p>Evolución de partidas creadas.</p>
+                        </div>
+                        <span class="data-badge">Línea</span>
+                    </div>
+                    <div class="chart-box"><canvas id="chartPartidas"></canvas></div>
+                    <table class="data-table printable-table">
+                        <thead><tr><th>Período</th><th>Partidas</th></tr></thead>
+                        <tbody>
+                        {{#partidasPorPeriodo}}
+                            <tr><td class="row-highlight">{{periodo}}</td><td>{{cantidad}}</td></tr>
+                        {{/partidasPorPeriodo}}
+                        {{^partidasPorPeriodo}}
+                            <tr><td colspan="2">Sin datos para el período seleccionado.</td></tr>
+                        {{/partidasPorPeriodo}}
+                        </tbody>
+                    </table>
+                </article>
+
+                <article class="data-card report-card">
+                    <div class="data-card-header">
+                        <div>
+                            <h3>Preguntas creadas según período</h3>
+                            <p>Evolución de preguntas registradas.</p>
+                        </div>
+                        <span class="data-badge">Línea</span>
+                    </div>
+                    <div class="chart-box"><canvas id="chartPreguntas"></canvas></div>
+                    <table class="data-table printable-table">
+                        <thead><tr><th>Período</th><th>Preguntas</th></tr></thead>
+                        <tbody>
+                        {{#preguntasCreadasPorPeriodo}}
+                            <tr><td class="row-highlight">{{periodo}}</td><td>{{cantidad}}</td></tr>
+                        {{/preguntasCreadasPorPeriodo}}
+                        {{^preguntasCreadasPorPeriodo}}
+                            <tr><td colspan="2">Sin datos para el período seleccionado.</td></tr>
+                        {{/preguntasCreadasPorPeriodo}}
+                        </tbody>
+                    </table>
+                </article>
             </div>
         </section>
+    </section>
 
-    </div>
     <footer class="dashboard-footer">
-        <a href="/usuario/renderizarLobby" class="btn-back">
-            Volver al Lobby
-        </a>
+        <a href="/usuario/renderizarLobby" class="btn-back">Volver al Lobby</a>
     </footer>
-    </div>
 </main>
+
+<script>
+    const chartPalette = ["#6366f1", "#8b5cf6", "#38bdf8", "#60a5fa", "#a78bfa", "#c4b5fd", "#93c5fd"];
+    const chartGridColor = "rgba(148, 163, 184, 0.22)";
+
+    const chartData = {
+        pais: {{{jugadoresPorPaisJson}}},
+        sexo: {{{jugadoresPorSexoJson}}},
+        edad: {{{jugadoresPorEdadJson}}},
+        correctas: {{{porcentajeCorrectasPorUsuarioJson}}},
+        partidas: {{{partidasPorPeriodoJson}}},
+        preguntas: {{{preguntasCreadasPorPeriodoJson}}}
+    };
+
+    function hasData(data) {
+        return data && data.values && data.values.some(value => Number(value) > 0);
+    }
+
+    function createChart(canvasId, type, data, label, options = {}) {
+        const canvas = document.getElementById(canvasId);
+
+        if (!canvas || !hasData(data)) {
+            return;
+        }
+
+        new Chart(canvas, {
+            type,
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label,
+                    data: data.values,
+                    backgroundColor: type === "doughnut" ? chartPalette : "rgba(99, 102, 241, 0.72)",
+                    borderColor: options.line ? "#6366f1" : "rgba(99, 102, 241, 1)",
+                    borderWidth: 2,
+                    fill: Boolean(options.line),
+                    tension: 0.34
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: type === "doughnut", position: "bottom" },
+                    tooltip: { backgroundColor: "#0f172a", padding: 12 }
+                },
+                scales: type === "doughnut" ? {} : {
+                    x: { grid: { color: chartGridColor }, ticks: { color: "#64748b" } },
+                    y: { beginAtZero: true, grid: { color: chartGridColor }, ticks: { color: "#64748b" } }
+                }
+            }
+        });
+    }
+
+    createChart("chartPais", "bar", chartData.pais, "Usuarios");
+    createChart("chartSexo", "doughnut", chartData.sexo, "Usuarios");
+    createChart("chartEdad", "bar", chartData.edad, "Usuarios");
+    createChart("chartCorrectas", "bar", chartData.correctas, "Correctas (%)");
+    createChart("chartPartidas", "line", chartData.partidas, "Partidas", { line: true });
+    createChart("chartPreguntas", "line", chartData.preguntas, "Preguntas", { line: true });
+</script>

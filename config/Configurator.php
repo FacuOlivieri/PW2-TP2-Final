@@ -41,6 +41,16 @@ class Configurator {
         );
     }
 
+    public function getEditorController()
+    {
+        return new EditorController(
+            $this->getPreguntas(),
+            $this->getUsuarios(),
+            $this->getRenderer(),
+            new Request()
+        );
+    }
+
     public function getPartidaController()
     {
         return new PartidaController($this->getPartida(),

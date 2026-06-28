@@ -1,0 +1,80 @@
+{{>header}}
+<main class="container">
+    <h2 class="form-title">Preguntas Reportadas</h2>
+    <p class="form-help">Revisá reportes enviados por jugadores y aprobá o rechazá el reporte.</p>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Pregunta</th>
+            <th>Usuario</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#reportes}}
+            <tr>
+                <td>{{pregunta}}</td>
+                <td>{{usuario}}</td>
+                <td>{{motivo}}</td>
+                <td>{{fecha}}</td>
+                <td>
+                    <div class="proposal-actions">
+                        <form action="/editor/resolverReporte" method="POST">
+                            <input type="hidden" name="id" value="{{id}}">
+                            <input type="hidden" name="estado" value="aprobada">
+                            <button type="submit" class="btn-secondary btn-aprobar">Aprobar reporte</button>
+                        </form>
+                        <form action="/editor/resolverReporte" method="POST">
+                            <input type="hidden" name="id" value="{{id}}">
+                            <input type="hidden" name="estado" value="rechazada">
+                            <button type="submit" class="btn-secondary btn-rechazar">Rechazar reporte</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        {{/reportes}}
+
+        {{^reportes}}
+            <tr>
+                <td colspan="5">No hay reportes pendientes.</td>
+            </tr>
+        {{/reportes}}
+        </tbody>
+    </table>
+
+    <a href="/usuario/renderizarLobby" class="back-link">Volver al lobby</a>
+</main>
+
+<style>
+    .proposal-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .proposal-actions form {
+        margin: 0;
+    }
+
+    .proposal-actions button {
+        cursor: pointer;
+        font-size: 0.85rem;
+        padding: 8px 14px;
+    }
+
+    .btn-aprobar {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: var(--success);
+    }
+
+    .btn-rechazar {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: var(--danger);
+    }
+</style>
+{{>footer}}

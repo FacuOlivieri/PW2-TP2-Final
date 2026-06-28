@@ -105,6 +105,43 @@ class PreguntaModel
         $this->database->execute($sql, [$preguntaId]);
     }
 
+    public function obtenerReportesPendientes()
+    {
+        $sql = "SELECT pr.id,
+                       pr.pregunta_id,
+                       pr.usuario_id,
+                       pr.motivo,
+                       pr.fecha,
+                       p.texto AS pregunta,
+                       u.username AS usuario
+                FROM preguntas_reportadas pr
+                INNER JOIN preguntas p ON p.id = pr.pregunta_id
+                INNER JOIN usuarios u ON u.id = pr.usuario_id
+                WHERE pr.estado = 'pendiente'
+                ORDER BY pr.fecha DESC";
+
+        return $this->database->query($sql);
+    }
+
+    public function resolverReporte($reporteId, $estado)
+    {
+        $sql = "SELECT pregunta_id FROM preguntas_reportadas WHERE id = ?";
+        $resultado = $this->database->query($sql, [$reporteId]);
+
+        if (empty($resultado)) {
+            return;
+        }
+
+        $preguntaId = $resultado[0]["pregunta_id"];
+
+        $sql = "UPDATE preguntas_reportadas SET estado = ? WHERE id = ?";
+        $this->database->execute($sql, [$estado, $reporteId]);
+
+        $estadoPregunta = $estado === "aprobada" ? "rechazada" : "aprobada";
+        $sql = "UPDATE preguntas SET estado = ? WHERE id = ?";
+        $this->database->execute($sql, [$estadoPregunta, $preguntaId]);
+    }
+
 
 
     public function cantidadTotalPreguntas($filtroSeleccionado)
@@ -133,6 +170,21 @@ class PreguntaModel
         return $resultado[0]['cantidad'] ?? 0;
     }
 
+    public function preguntasCreadasPorPeriodo($filtroSeleccionado)
+    {
+        $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_creacion');
+        $formato = $this->obtenerFormatoPeriodo($filtroSeleccionado);
+
+        $sql = "SELECT DATE_FORMAT(fecha_creacion, '$formato') AS periodo,
+                       COUNT(*) AS cantidad
+                FROM preguntas
+                WHERE 1=1 $condicionFecha
+                GROUP BY periodo
+                ORDER BY MIN(fecha_creacion) ASC";
+
+        return $this->database->query($sql);
+    }
+
     private function obtenerCondicionFecha($filtro, $campoFecha)
     {
         switch ($filtro) {
@@ -140,10 +192,27 @@ class PreguntaModel
                 return " AND $campoFecha >= DATE(NOW())";
             case 'semana':
                 return " AND $campoFecha >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+            case 'mes':
+                return " AND $campoFecha >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";
             case 'anio':
                 return " AND YEAR($campoFecha) = YEAR(NOW())";
             default:
                 return "";
+        }
+    }
+
+    private function obtenerFormatoPeriodo($filtro)
+    {
+        switch ($filtro) {
+            case 'dia':
+                return '%H:00';
+            case 'semana':
+            case 'mes':
+                return '%d/%m';
+            case 'anio':
+                return '%m/%Y';
+            default:
+                return '%d/%m';
         }
     }
 }

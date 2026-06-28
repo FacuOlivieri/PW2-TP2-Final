@@ -79,6 +79,21 @@ class PartidaModel
         return $resultado[0]['cantidad'] ?? 0;
     }
 
+    public function partidasPorPeriodo($filtroSeleccionado)
+    {
+        $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_creacion');
+        $formato = $this->obtenerFormatoPeriodo($filtroSeleccionado);
+
+        $sql = "SELECT DATE_FORMAT(fecha_creacion, '$formato') AS periodo,
+                       COUNT(*) AS cantidad
+                FROM partidas
+                WHERE 1=1 $condicionFecha
+                GROUP BY periodo
+                ORDER BY MIN(fecha_creacion) ASC";
+
+        return $this->database->query($sql);
+    }
+
 
     private function obtenerCondicionFecha($filtro, $campoFecha)
     {
@@ -87,10 +102,27 @@ class PartidaModel
                 return " AND $campoFecha >= DATE(NOW())";
             case 'semana':
                 return " AND $campoFecha >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+            case 'mes':
+                return " AND $campoFecha >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";
             case 'anio':
                 return " AND YEAR($campoFecha) = YEAR(NOW())";
             default:
                 return "";
+        }
+    }
+
+    private function obtenerFormatoPeriodo($filtro)
+    {
+        switch ($filtro) {
+            case 'dia':
+                return '%H:00';
+            case 'semana':
+            case 'mes':
+                return '%d/%m';
+            case 'anio':
+                return '%m/%Y';
+            default:
+                return '%d/%m';
         }
     }
 }

@@ -147,7 +147,7 @@ class UsuarioModel
     public function requireEditor($username)
     {
         if (!$this->esEditor($username)) {
-            Redirect::to("/usuario/lobby");
+            Redirect::to("/usuario/renderizarLobby");
             exit();
         }
     }
@@ -163,7 +163,7 @@ class UsuarioModel
     public function requireAdministrador($username)
     {
         if (!$this->esAdministrador($username)) {
-            Redirect::to("/usuario/lobby");
+            Redirect::to("/usuario/renderizarLobby");
             exit();
         }
     }
@@ -172,7 +172,9 @@ class UsuarioModel
     public function cantidadJugadores($filtroSeleccionado)
     {
         $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_registro');
-        $sql = "SELECT COUNT(*) as cantidad FROM usuarios WHERE 1=1 $condicionFecha";
+        $sql = "SELECT COUNT(*) as cantidad
+                FROM usuarios
+                WHERE es_administrador = 0 AND es_editor = 0 $condicionFecha";
 
         $resultado = $this->database->query($sql);
         return $resultado[0]['cantidad'] ?? 0;
@@ -182,7 +184,9 @@ class UsuarioModel
     public function cantidadJugadoresNuevos($filtroSeleccionado)
     {
         $condicionFecha = $this->obtenerCondicionFecha($filtroSeleccionado, 'fecha_registro');
-        $sql = "SELECT COUNT(*) as cantidad FROM usuarios WHERE 1=1 $condicionFecha";
+        $sql = "SELECT COUNT(*) as cantidad
+                FROM usuarios
+                WHERE es_administrador = 0 AND es_editor = 0 $condicionFecha";
 
         $resultado = $this->database->query($sql);
         return $resultado[0]['cantidad'] ?? 0;
@@ -194,7 +198,7 @@ class UsuarioModel
 
         $sql = "SELECT pais, COUNT(*) as cantidad 
             FROM usuarios 
-            WHERE 1=1 $condicionFecha 
+            WHERE es_administrador = 0 AND es_editor = 0 $condicionFecha 
             GROUP BY pais 
             ORDER BY cantidad DESC";
 
@@ -207,7 +211,7 @@ class UsuarioModel
 
         $sql = "SELECT sexo, COUNT(*) as cantidad 
             FROM usuarios 
-            WHERE 1=1 $condicionFecha 
+            WHERE es_administrador = 0 AND es_editor = 0 $condicionFecha 
             GROUP BY sexo 
             ORDER BY cantidad DESC";
 
@@ -226,9 +230,34 @@ class UsuarioModel
                 END as rango,
                 COUNT(*) as cantidad
             FROM usuarios
-            WHERE 1=1 $condicionFecha
+            WHERE es_administrador = 0 AND es_editor = 0 $condicionFecha
             GROUP BY rango
             ORDER BY FIELD(rango, 'Menores (< 18)', 'Medio (18 - 65)', 'Jubilados (> 65)')";
+
+        return $this->database->query($sql);
+    }
+
+    public function porcentajeRespuestasCorrectasPorUsuario($filtroSeleccionado)
+    {
+        $condicionFecha = $this->obtenerCondicionFechaParaJoin($filtroSeleccionado, 'p.fecha_creacion');
+
+        $sql = "SELECT u.username AS usuario,
+                       COALESCE(SUM(p.puntaje_total), 0) AS correctas,
+                       COALESCE(SUM(pp.respondidas), 0) AS respondidas,
+                       CASE
+                           WHEN COALESCE(SUM(pp.respondidas), 0) = 0 THEN 0
+                           ELSE ROUND((COALESCE(SUM(p.puntaje_total), 0) / COALESCE(SUM(pp.respondidas), 0)) * 100, 2)
+                       END AS porcentaje
+                FROM usuarios u
+                LEFT JOIN partidas p ON p.usuario_id = u.id $condicionFecha
+                LEFT JOIN (
+                    SELECT partida_id, COUNT(*) AS respondidas
+                    FROM partida_preguntas
+                    GROUP BY partida_id
+                ) pp ON pp.partida_id = p.id
+                WHERE u.es_administrador = 0 AND u.es_editor = 0
+                GROUP BY u.id, u.username
+                ORDER BY porcentaje DESC, u.username ASC";
 
         return $this->database->query($sql);
     }
@@ -241,6 +270,24 @@ class UsuarioModel
                 return " AND $campoFecha >= DATE(NOW())";
             case 'semana':
                 return " AND $campoFecha >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+            case 'mes':
+                return " AND $campoFecha >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";
+            case 'anio':
+                return " AND YEAR($campoFecha) = YEAR(NOW())";
+            default:
+                return "";
+        }
+    }
+
+    private function obtenerCondicionFechaParaJoin($filtroSeleccionado, $campoFecha)
+    {
+        switch ($filtroSeleccionado) {
+            case 'dia':
+                return " AND $campoFecha >= DATE(NOW())";
+            case 'semana':
+                return " AND $campoFecha >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+            case 'mes':
+                return " AND $campoFecha >= DATE_SUB(NOW(), INTERVAL 1 MONTH)";
             case 'anio':
                 return " AND YEAR($campoFecha) = YEAR(NOW())";
             default:

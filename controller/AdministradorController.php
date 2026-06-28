@@ -37,19 +37,24 @@ class AdministradorController{
 
         $totalJugadores = $this->usuariosModel->cantidadJugadores($filtroSeleccionado);
         $totalJugadoresNuevos = $this->usuariosModel->cantidadJugadoresNuevos($filtroSeleccionado);
-        $jugadoresPorPais = $this->usuariosModel-> jugadoresPorPais($filtroSeleccionado);
+        $jugadoresPorPais = $this->usuariosModel->jugadoresPorPais($filtroSeleccionado);
         $jugadoresPorSexo = $this->usuariosModel->jugadoresPorSexo($filtroSeleccionado);
         $jugadoresPorEdad = $this->usuariosModel->jugadoresPorEdad($filtroSeleccionado);
         $partidasJugadas =  $this->partidaModel->cantidadTotalPartidas($filtroSeleccionado);
         $totalPreguntas = $this->preguntasModel->cantidadTotalPreguntas($filtroSeleccionado);
         $totalPreguntasCreadas = $this->preguntasModel->cantidadPreguntasCreadas($filtroSeleccionado);
+        $porcentajeCorrectasPorUsuario = $this->usuariosModel->porcentajeRespuestasCorrectasPorUsuario($filtroSeleccionado);
+        $partidasPorPeriodo = $this->partidaModel->partidasPorPeriodo($filtroSeleccionado);
+        $preguntasCreadasPorPeriodo = $this->preguntasModel->preguntasCreadasPorPeriodo($filtroSeleccionado);
 
 
 
         $this->renderer->render("administradorDashboardView", [
             "filtro_dia"     => ($filtroSeleccionado === 'dia'),
             "filtro_semana"  => ($filtroSeleccionado === 'semana'),
+            "filtro_mes"     => ($filtroSeleccionado === 'mes'),
             "filtro_anio"    => ($filtroSeleccionado === 'anio'),
+            "filtroSeleccionado" => ucfirst($filtroSeleccionado),
 
             "totalJugadores" => $totalJugadores,
             "jugadoresNuevos" => $totalJugadoresNuevos,
@@ -59,6 +64,15 @@ class AdministradorController{
             "partidasJugadas" => $partidasJugadas,
             "totalPreguntas" => $totalPreguntas,
             "totalPreguntasCreadas" => $totalPreguntasCreadas,
+            "porcentajeCorrectasPorUsuario" => $porcentajeCorrectasPorUsuario,
+            "partidasPorPeriodo" => $partidasPorPeriodo,
+            "preguntasCreadasPorPeriodo" => $preguntasCreadasPorPeriodo,
+            "jugadoresPorPaisJson" => $this->crearDatasetJson($jugadoresPorPais, "pais", "cantidad"),
+            "jugadoresPorSexoJson" => $this->crearDatasetJson($jugadoresPorSexo, "sexo", "cantidad"),
+            "jugadoresPorEdadJson" => $this->crearDatasetJson($jugadoresPorEdad, "rango", "cantidad"),
+            "porcentajeCorrectasPorUsuarioJson" => $this->crearDatasetJson($porcentajeCorrectasPorUsuario, "usuario", "porcentaje"),
+            "partidasPorPeriodoJson" => $this->crearDatasetJson($partidasPorPeriodo, "periodo", "cantidad"),
+            "preguntasCreadasPorPeriodoJson" => $this->crearDatasetJson($preguntasCreadasPorPeriodo, "periodo", "cantidad"),
 
         ]);
     }
@@ -66,11 +80,27 @@ class AdministradorController{
 
 
     private function validarFiltro($filtroSeleccionado){
-        $filtrosValidos = ['dia', 'semana', 'anio'];
+        $filtrosValidos = ['dia', 'semana', 'mes', 'anio'];
         if (!in_array($filtroSeleccionado, $filtrosValidos)) {
             $filtroSeleccionado = "dia";
         }
         return $filtroSeleccionado;
+    }
+
+    private function crearDatasetJson($filas, $labelKey, $valueKey)
+    {
+        $labels = [];
+        $values = [];
+
+        foreach ($filas as $fila) {
+            $labels[] = (string)($fila[$labelKey] ?? "");
+            $values[] = (float)($fila[$valueKey] ?? 0);
+        }
+
+        return json_encode([
+            "labels" => $labels,
+            "values" => $values
+        ]);
     }
 
 }

@@ -142,9 +142,10 @@ INSERT INTO usuarios (
     puntaje,
     nivel,
     es_editor,
-    es_administrador
+    es_administrador,
+    mail_verificado
 ) VALUES (
-             'Administrador',
+              'Administrador',
              2000,
              'Prefiero no cargarlo',
              'Argentina',
@@ -152,10 +153,43 @@ INSERT INTO usuarios (
              'admin@preguntados.com',
              '$2y$10$hErT8.D2zk2CdFK9Qi8EH.RYXtjIEVgsMne0YoBc0gHrY8ZEwNw.C',
              'admin',
+              NULL,
+              0,
+              'facil',
+              0,
+              1,
+              1
+          );
+
+INSERT INTO usuarios (
+    nombre_completo,
+    anio_nacimiento,
+    sexo,
+    pais,
+    ciudad,
+    mail,
+    password_hash,
+    username,
+    foto_perfil,
+    puntaje,
+    nivel,
+    es_editor,
+    es_administrador,
+    mail_verificado
+) VALUES (
+             'Editor',
+             2000,
+             'Prefiero no cargarlo',
+             'Argentina',
+             'Buenos Aires',
+             'editor@preguntados.com',
+             '$2y$10$Vxs18HMTlA3fGZnVBZuwheNnA2fvYy8agbmD.98U0DmdLQkaVNZGq',
+             'editor',
              NULL,
              0,
              'facil',
              1,
+             0,
              1
          );
 

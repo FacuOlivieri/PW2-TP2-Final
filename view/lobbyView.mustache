@@ -12,52 +12,65 @@
                 </h2>
             </div>
 
-            <a href="/partida/iniciarPartida" class="btn-add lobby-primary-action">
-                Crear nueva partida
-            </a>
+            {{#es_usuario_comun}}
+                <a href="/partida/iniciarPartida" class="btn-add lobby-primary-action">
+                    Crear nueva partida
+                </a>
+            {{/es_usuario_comun}}
         </div>
 
-        <div class="lobby-summary">
-            <article class="lobby-stat">
-                <strong>{{#puntajeRanking}}{{puntajeRanking}}{{/puntajeRanking}}{{^puntajeRanking}}0{{/puntajeRanking}}</strong>
-                <span>Puntos acumulados</span>
-            </article>
-            <article class="lobby-stat">
-                <strong>#{{#puestoRanking}}{{puestoRanking}}{{/puestoRanking}}{{^puestoRanking}}--{{/puestoRanking}}</strong>
-                <span>Posicion en ranking</span>
-            </article>
-            <article class="lobby-stat">
-                <strong>{{#partidasTotales}}{{partidasTotales}}{{/partidasTotales}}{{^partidasTotales}}0{{/partidasTotales}}</strong>
-                <span>Partidas jugadas</span>
-            </article>
-        </div>
+        {{#es_usuario_comun}}
+            <div class="lobby-summary">
+                <article class="lobby-stat">
+                    <strong>{{#puntajeRanking}}{{puntajeRanking}}{{/puntajeRanking}}{{^puntajeRanking}}0{{/puntajeRanking}}</strong>
+                    <span>Puntos acumulados</span>
+                </article>
+                <article class="lobby-stat">
+                    <strong>#{{#puestoRanking}}{{puestoRanking}}{{/puestoRanking}}{{^puestoRanking}}--{{/puestoRanking}}</strong>
+                    <span>Posicion en ranking</span>
+                </article>
+                <article class="lobby-stat">
+                    <strong>{{#partidasTotales}}{{partidasTotales}}{{/partidasTotales}}{{^partidasTotales}}0{{/partidasTotales}}</strong>
+                    <span>Partidas jugadas</span>
+                </article>
+            </div>
+        {{/es_usuario_comun}}
 
         <div class="lobby-actions">
-            <a href="/usuario/ranking" class="btn-secondary">
-                Ver ranking
-            </a>
-
-            <a href="/usuario/perfil" class="btn-secondary">
-                Mi perfil
-            </a>
-
-            <a href="/usuario/historial" class="btn-secondary">
-                Historial
-            </a>
-
-                <a href="/preguntaCreada/crear" class="btn-secondary">
-                     Crear Pregunta
+            {{#es_usuario_comun}}
+                <a href="/usuario/ranking" class="btn-secondary">
+                    Ver ranking
                 </a>
+
+                <a href="/usuario/perfil" class="btn-secondary">
+                    Mi perfil
+                </a>
+
+                <a href="/usuario/historial" class="btn-secondary">
+                    Historial
+                </a>
+            {{/es_usuario_comun}}
+
+                {{#puede_sugerir_pregunta}}
+                    <a href="/preguntaCreada/crear" class="btn-secondary">
+                         Crear Pregunta
+                    </a>
+                {{/puede_sugerir_pregunta}}
 
                 {{#es_admin}}
                 <a href="/administrador/verDashboard" class="btn-secondary">
                     Ver Analíticas
                 </a>
-
-                <a href="/preguntaCreada/propuestas" class="btn-secondary">
-                    Preguntas Propuestas
-                </a>
                 {{/es_admin}}
+
+                {{#es_editor}}
+                <a href="/preguntaCreada/propuestas" class="btn-secondary">
+                    Panel Editor
+                </a>
+                <a href="/editor/reportes" class="btn-secondary">
+                    Preguntas Reportadas
+                </a>
+                {{/es_editor}}
 
             <a href="/usuario/cerrarSesion" class="btn-secondary">
                 Cerrar sesión
@@ -65,6 +78,7 @@
         </div>
     </section>
 
+    {{#es_usuario_comun}}
     <section class="lobby-content">
         <article class="lobby-card">
             <div class="lobby-card-header">
@@ -152,5 +166,6 @@
             </table>
         </article>
     </section>
+    {{/es_usuario_comun}}
 </main>
 {{>footer}}

@@ -20,7 +20,8 @@ INSERT INTO usuarios (
     puntaje,
     nivel,
     es_editor,
-    es_administrador
+    es_administrador,
+    mail_verificado
 ) VALUES (
     'Administrador',
     2000,
@@ -33,6 +34,7 @@ INSERT INTO usuarios (
     NULL,
     0,
     'facil',
+    0,
     1,
     1
 );

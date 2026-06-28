@@ -5,47 +5,57 @@ class EditorController
     private $preguntaModel;
     private $usuarioModel;
     private $renderer;
+    private $request;
 
-    public function __construct($preguntaModel, $usuarioModel, $renderer)
+    public function __construct($preguntaModel, $usuarioModel, $renderer, $request)
     {
         $this->preguntaModel = $preguntaModel;
         $this->usuarioModel = $usuarioModel;
         $this->renderer = $renderer;
+        $this->request = $request;
     }
 
     private function verificarEditor()
     {
-        if (!$this->usuarioModel->esEditor($_SESSION["usuario"])) {
-            Redirect::to("/usuario/lobby");
-            exit();
+        if (!isset($_SESSION["usuario"]) || !$this->usuarioModel->esEditor($_SESSION["usuario"])) {
+            Redirect::to("/usuario/renderizarLobby");
+            return false;
         }
+
+        return true;
     }
 
     public function verReportes()
     {
-        $this->checkEditor();
+        if (!$this->verificarEditor()) {
+            return;
+        }
 
-        $sql = "SELECT * FROM preguntas_reportadas 
-            WHERE estado = 'pendiente' 
-        ";
+        $reportes = $this->preguntaModel->obtenerReportesPendientes();
 
-        $reportes = $this->preguntaModel->query($sql);
+        $this->renderer->render("reportesView", ["reportes" => $reportes]);
+    }
 
-        $this->renderer->render("reportesView", ["reportes"=>$reportes]);
+    public function reportes()
+    {
+        $this->verReportes();
     }
 
     public function resolverReporte()
     {
-        $this->checkEditor();
+        if (!$this->verificarEditor()) {
+            return;
+        }
 
-        $id = $_POST["id"];
-        $estado = $_POST["estado"];
+        $id = $this->request->post("id");
+        $estado = $this->request->post("estado");
 
-        $sql = "UPDATE preguntas_reportadas 
-            SET estado = ? 
-            WHERE id = ?";
-            
-        $this->preguntaModel->execute($sql, [$estado, $id]);
+        if (!in_array($estado, ["aprobada", "rechazada"], true)) {
+            Redirect::to("/editor/reportes");
+            return;
+        }
+
+        $this->preguntaModel->resolverReporte($id, $estado);
 
         Redirect::to("/editor/reportes");
     }

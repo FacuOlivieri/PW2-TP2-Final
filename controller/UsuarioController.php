@@ -77,6 +77,7 @@ class UsuarioController
 
         $codigoIngresado = trim($this->request->post("codigo", ""));
         $usuarioId = $_SESSION["usuario_id_pendiente"];
+        $mail = $_SESSION["mail_pendiente"];
 
         $codigo = $this->codigoModel->obtenerPendientePorUsuarioYCodigo($usuarioId, $codigoIngresado);
 
@@ -91,18 +92,16 @@ class UsuarioController
         $this->codigoModel->marcarComoUsado($codigo["id"]);
         $this->model->verificarMail($usuarioId);
 
-        unset($_SESSION["usuario_id_pendiente"]);
-        unset($_SESSION["mail_pendiente"]);
-
-        $usuario = $this->model->buscarUsuariosPorNombreDeUsuario($_SESSION["usuario"] ?? "");
+        $usuario = $this->model->buscarPorMail($mail);
 
         if ($usuario) {
+            unset($_SESSION["usuario_id_pendiente"]);
+            unset($_SESSION["mail_pendiente"]);
+
             $_SESSION["usuario"] = $usuario["username"];
             $_SESSION["usuario_id"] = $usuario["id"];
 
-            if ($usuario["es_administrador"] == 1) {
-                $_SESSION["rol"] = "administrador";
-            }
+            $_SESSION["rol"] = $this->determinarRol($usuario);
 
             Redirect::to("/usuario/renderizarLobby");
             return;
@@ -130,9 +129,7 @@ class UsuarioController
             return;
         }
 
-        $esAdministrador = isset($usuario["es_administrador"])
-            ? (int)$usuario["es_administrador"]
-            : 0;
+        $esAdministrador = isset($usuario["es_administrador"]) ? (int)$usuario["es_administrador"] : 0;
 
         $mailVerificado = isset($usuario["mail_verificado"])
             ? (int)$usuario["mail_verificado"]
@@ -149,11 +146,7 @@ class UsuarioController
             $_SESSION["usuario"] = $usuario["username"];
             $_SESSION["usuario_id"] = $usuario["id"];
 
-            if ($esAdministrador === 1) {
-                $_SESSION["rol"] = "administrador";
-            } else {
-                unset($_SESSION["rol"]);
-            }
+            $_SESSION["rol"] = $this->determinarRol($usuario);
 
             Redirect::to("/usuario/renderizarLobby");
             return;
@@ -196,8 +189,24 @@ class UsuarioController
             "partidas" => $partidas,
             "partidasJugadas" => $partidas,
             "partidasTotales" => count($partidas),
-            "es_admin" => ($rol === "administrador")
+            "es_admin" => ($rol === "administrador"),
+            "es_editor" => ($rol === "editor"),
+            "es_usuario_comun" => ($rol === "usuario"),
+            "puede_sugerir_pregunta" => ($rol !== "administrador")
         ]);
+    }
+
+    private function determinarRol($usuario)
+    {
+        if ((int)($usuario["es_administrador"] ?? 0) === 1) {
+            return "administrador";
+        }
+
+        if ((int)($usuario["es_editor"] ?? 0) === 1) {
+            return "editor";
+        }
+
+        return "usuario";
     }
 
     private function buscarPuestoEnRanking($ranking, $usuario)
@@ -331,8 +340,7 @@ class UsuarioController
 
     public function perfil()
     {
-        if (!isset($_SESSION["usuario"])) {
-            Redirect::to("/usuario/iniciarSesion");
+        if (!$this->requiereUsuarioComun()) {
             return;
         }
 
@@ -411,8 +419,7 @@ class UsuarioController
 
     public function ranking()
     {
-        if (!isset($_SESSION["usuario"])) {
-            Redirect::to("/usuario/iniciarSesion");
+        if (!$this->requiereUsuarioComun()) {
             return;
         }
 
@@ -426,8 +433,7 @@ class UsuarioController
 
     public function historial()
     {
-        if (!isset($_SESSION["usuario"])) {
-            Redirect::to("/usuario/iniciarSesion");
+        if (!$this->requiereUsuarioComun()) {
             return;
         }
 
@@ -446,6 +452,21 @@ class UsuarioController
             "historial" => $historial,
             "usuario" => $usuario
         ]);
+    }
+
+    private function requiereUsuarioComun()
+    {
+        if (!isset($_SESSION["usuario"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return false;
+        }
+
+        if (($_SESSION["rol"] ?? "usuario") !== "usuario") {
+            Redirect::to("/usuario/renderizarLobby");
+            return false;
+        }
+
+        return true;
     }
 
 }
