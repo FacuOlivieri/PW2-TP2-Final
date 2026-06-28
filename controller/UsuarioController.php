@@ -181,6 +181,11 @@ class UsuarioController
 
         $rol = $_SESSION["rol"] ?? null;
 
+        if ($rol === "editor") {
+            Redirect::to("/editor/preguntas");
+            return;
+        }
+
         $this->renderer->render("lobbyView", [
             "nombreUsuario" => $usuario,
             "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
@@ -192,7 +197,7 @@ class UsuarioController
             "es_admin" => ($rol === "administrador"),
             "es_editor" => ($rol === "editor"),
             "es_usuario_comun" => ($rol === "usuario"),
-            "puede_sugerir_pregunta" => ($rol !== "administrador")
+            "puede_sugerir_pregunta" => ($rol === "usuario")
         ]);
     }
 

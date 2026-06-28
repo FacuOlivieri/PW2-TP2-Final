@@ -45,6 +45,8 @@ class Configurator {
     {
         return new EditorController(
             $this->getPreguntas(),
+            $this->getCategoria(),
+            $this->getRespuestaModel(),
             $this->getUsuarios(),
             $this->getRenderer(),
             new Request()

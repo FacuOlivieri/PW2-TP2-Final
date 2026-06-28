@@ -39,6 +39,11 @@ class PreguntaCreadaController
             return;
         }
 
+        if ($this->esEditor()) {
+            Redirect::to("/editor/crear");
+            return;
+        }
+
         $this->renderer->render("crearPreguntaView", [
             "categorias" => $this->categoriaModel->obtenerTodas(),
             "exito" => $_SESSION["pregunta_creada_exito"] ?? null
@@ -55,6 +60,11 @@ class PreguntaCreadaController
 
         if ($this->esAdmin()) {
             Redirect::to("/administrador/verDashboard");
+            return;
+        }
+
+        if ($this->esEditor()) {
+            Redirect::to("/editor/crear");
             return;
         }
 
@@ -86,19 +96,6 @@ class PreguntaCreadaController
         $texto = $this->normalizarSignosPregunta($texto);
 
         $indiceCorrecta = (int)$correcta;
-
-        if ($this->esEditor()) {
-            $usuario = $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION["usuario"]);
-            $preguntaId = $this->preguntaModel->crear($texto, $categoriaId, $usuario["id"]);
-
-            foreach ($respuestas as $indice => $textoRespuesta) {
-                $this->respuestaModel->crear($preguntaId, $textoRespuesta, ($indice + 1) === $indiceCorrecta);
-            }
-
-            $_SESSION["pregunta_creada_exito"] = "Pregunta creada y aprobada correctamente.";
-            Redirect::to("/preguntaCreada/crear");
-            return;
-        }
 
         $usuario = $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION["usuario"]);
         $preguntaCreadaId = $this->preguntaCreadaModel->crear($texto, $categoriaId, $usuario["id"]);
@@ -145,12 +142,38 @@ class PreguntaCreadaController
         }
 
         $this->renderer->render("preguntasPropuestasView", [
-            "propuestas" => $this->preguntaCreadaModel->obtenerPorEstado($estado),
+            "propuestas" => $this->obtenerPropuestasParaEditor($estado),
             "estado" => $estado,
             "filtroPendiente" => $estado === "pendiente",
             "filtroAceptada" => $estado === "aceptada",
             "filtroRechazada" => $estado === "rechazada"
         ]);
+    }
+
+    private function obtenerPropuestasParaEditor($estado)
+    {
+        $propuestas = $this->preguntaCreadaModel->obtenerPorEstado($estado);
+
+        foreach ($propuestas as $indice => $propuesta) {
+            $propuestas[$indice]["origen"] = "Sugerida";
+            $propuestas[$indice]["detalle_url"] = "/preguntaCreada/ver?id=" . $propuesta["id"];
+        }
+
+        if (in_array($estado, ["pendiente", "rechazada"], true)) {
+            $preguntasDelJuego = $this->preguntaModel->buscarPreguntasEditorPorEstado($estado);
+
+            foreach ($preguntasDelJuego as $pregunta) {
+                $pregunta["origen"] = "Pregunta del juego";
+                $pregunta["detalle_url"] = "/editor/editar?id=" . $pregunta["id"];
+                $propuestas[] = $pregunta;
+            }
+        }
+
+        usort($propuestas, function ($a, $b) {
+            return strcmp($b["fecha_creacion"], $a["fecha_creacion"]);
+        });
+
+        return $propuestas;
     }
 
     public function ver()
@@ -288,6 +311,7 @@ class PreguntaCreadaController
 
     private function esEditor()
     {
-        return $this->usuarioModel->esEditor($_SESSION["usuario"]);
+        return !$this->usuarioModel->esAdministrador($_SESSION["usuario"])
+            && $this->usuarioModel->esEditor($_SESSION["usuario"]);
     }
 }

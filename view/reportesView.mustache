@@ -3,6 +3,12 @@
     <h2 class="form-title">Preguntas Reportadas</h2>
     <p class="form-help">Revisá reportes enviados por jugadores y aprobá o rechazá el reporte.</p>
 
+    <div class="proposal-filters editor-tabs-inline">
+        <a href="/editor/preguntas" class="btn-secondary">Preguntas del juego</a>
+        <a href="/preguntaCreada/propuestas" class="btn-secondary">Preguntas sugeridas</a>
+        <a href="/editor/reportes" class="btn-secondary filter-active">Preguntas reportadas</a>
+    </div>
+
     <table>
         <thead>
         <tr>
@@ -45,7 +51,7 @@
         </tbody>
     </table>
 
-    <a href="/usuario/renderizarLobby" class="back-link">Volver al lobby</a>
+    <a href="/editor/preguntas" class="back-link">Volver al panel editor</a>
 </main>
 
 <style>
@@ -53,6 +59,19 @@
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
+    }
+
+    .editor-tabs-inline {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .editor-tabs-inline .filter-active {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-color: transparent;
+        color: #ffffff;
     }
 
     .proposal-actions form {

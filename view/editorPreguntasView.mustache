@@ -1,0 +1,350 @@
+{{>header}}
+<main class="container editor-shell">
+    <section class="editor-hero-card">
+        <div>
+            <p class="lobby-kicker">Panel editor</p>
+            <h2 class="form-title">Administrar preguntas</h2>
+            <p class="form-help">Alta, baja y modificación de preguntas existentes del juego.</p>
+        </div>
+        <div class="editor-hero-actions">
+            <a href="/editor/crear" class="btn-add editor-primary-action">Crear nueva pregunta</a>
+        </div>
+    </section>
+
+    <nav class="editor-tabs" aria-label="Herramientas del editor">
+        <a href="/editor/preguntas" class="btn-secondary tab-active">Preguntas del juego</a>
+        <a href="/preguntaCreada/propuestas" class="btn-secondary">Preguntas sugeridas</a>
+        <a href="/editor/reportes" class="btn-secondary">Preguntas reportadas</a>
+        <a href="/usuario/cerrarSesion" class="btn-secondary editor-logout-action">Cerrar sesión</a>
+    </nav>
+
+    {{#mensaje}}
+        <p class="form-success">{{mensaje}}</p>
+    {{/mensaje}}
+
+    <section class="editor-filters-card">
+        <div class="form-group">
+            <label for="editorSearch">Buscar pregunta</label>
+            <input type="search" id="editorSearch" placeholder="Escribí parte del texto...">
+        </div>
+
+        <div class="form-group">
+            <label for="editorCategoryFilter">Categoría</label>
+            <select id="editorCategoryFilter">
+                <option value="">Todas</option>
+                {{#categorias}}
+                    <option value="{{nombre}}">{{nombre}}</option>
+                {{/categorias}}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="editorStatusFilter">Estado</label>
+            <select id="editorStatusFilter">
+                <option value="">Todos</option>
+                <option value="aprobada">Aprobada</option>
+            </select>
+        </div>
+    </section>
+
+    <section class="editor-table-card">
+        <div class="editor-table-scroll">
+            <table class="editor-table">
+                <thead>
+                <tr>
+                    <th>Pregunta</th>
+                    <th>Categoría</th>
+                    <th>Dificultad</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody id="editorQuestionsBody">
+            {{#preguntas}}
+                <tr class="editor-question-row" data-text="{{texto}}" data-category="{{categoria}}" data-status="{{estado}}">
+                    <td class="question-cell">{{texto}}</td>
+                    <td>{{categoria}}</td>
+                    <td><span class="pill pill-difficulty">{{dificultad}}</span></td>
+                    <td><span class="estado-badge estado-{{estado}}">{{estado}}</span></td>
+                    <td>{{fecha_creacion}}</td>
+                    <td>
+                        <div class="editor-actions">
+                            <a href="/editor/editar?id={{id}}" class="btn-secondary action-edit">Editar</a>
+                            <form action="/editor/baja" method="POST" onsubmit="return confirm('¿Dar de baja esta pregunta?');">
+                                <input type="hidden" name="id" value="{{id}}">
+                                <button type="submit" class="btn-secondary action-danger">Dar de baja</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {{/preguntas}}
+
+            {{^preguntas}}
+                <tr>
+                    <td colspan="6">No hay preguntas cargadas.</td>
+                </tr>
+            {{/preguntas}}
+                <tr id="editorNoResults" class="editor-no-results" style="display: none;">
+                    <td colspan="6">No hay preguntas que coincidan con los filtros.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</main>
+
+<style>
+    .editor-shell {
+        padding-top: 28px;
+    }
+
+    .editor-hero-card,
+    .editor-filters-card,
+    .editor-table-card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .editor-hero-card {
+        align-items: flex-start;
+        display: flex;
+        gap: 18px;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        padding: 28px;
+    }
+
+    .editor-hero-card .form-title,
+    .editor-hero-card .form-help {
+        margin-left: 0;
+        margin-right: 0;
+        text-align: left;
+    }
+
+    .editor-hero-actions {
+        align-items: flex-end;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .editor-primary-action,
+    .editor-logout-action {
+        white-space: nowrap;
+    }
+
+    .editor-logout-action {
+        align-items: center;
+        display: inline-flex;
+        min-height: 46px;
+    }
+
+    .editor-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .editor-tabs .tab-active {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-color: transparent;
+        color: #ffffff;
+    }
+
+    .form-success {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        border-radius: var(--radius-sm);
+        color: var(--success);
+        font-weight: 800;
+        margin: 0 0 18px;
+        padding: 13px 16px;
+    }
+
+    .editor-filters-card {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: 2fr 1fr 1fr;
+        margin-bottom: 18px;
+        padding: 18px;
+    }
+
+    .editor-filters-card .form-group {
+        margin: 0;
+    }
+
+    .editor-table-card {
+        overflow: hidden;
+    }
+
+    .editor-table-scroll {
+        max-height: 620px;
+        overflow: auto;
+    }
+
+    .editor-table {
+        border-collapse: collapse;
+        min-width: 860px;
+        width: 100%;
+    }
+
+    .editor-table th,
+    .editor-table td {
+        border-bottom: 1px solid var(--border);
+        padding: 14px 16px;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .editor-table th {
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        position: sticky;
+        top: 0;
+        text-transform: uppercase;
+        z-index: 1;
+    }
+
+    .question-cell {
+        color: var(--text);
+        font-weight: 700;
+        max-width: 360px;
+    }
+
+    .editor-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .editor-actions form {
+        margin: 0;
+    }
+
+    .editor-actions button,
+    .editor-actions a {
+        cursor: pointer;
+        font-size: 0.84rem;
+        padding: 8px 12px;
+        white-space: nowrap;
+    }
+
+    .action-edit {
+        background: #eef2ff;
+        border-color: #c7d2fe;
+        color: #4338ca;
+    }
+
+    .action-danger {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: var(--danger);
+    }
+
+    .pill,
+    .estado-badge {
+        border-radius: 999px;
+        display: inline-block;
+        font-size: 0.76rem;
+        font-weight: 900;
+        padding: 5px 11px;
+        text-transform: capitalize;
+        white-space: nowrap;
+    }
+
+    .pill-difficulty {
+        background: #f5f3ff;
+        border: 1px solid #ddd6fe;
+        color: var(--primary);
+    }
+
+    .estado-aprobada {
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        color: var(--success);
+    }
+
+    .estado-pendiente,
+    .estado-reportada {
+        background: var(--soft-amber);
+        border: 1px solid #fde68a;
+        color: #92400e;
+    }
+
+    .estado-rechazada {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: var(--danger);
+    }
+
+    @media (max-width: 760px) {
+        .editor-hero-card {
+            flex-direction: column;
+            padding: 22px;
+        }
+
+        .editor-hero-actions,
+        .editor-primary-action,
+        .editor-logout-action {
+            text-align: center;
+            width: 100%;
+        }
+
+        .editor-hero-actions {
+            align-items: stretch;
+        }
+
+        .editor-filters-card {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+<script>
+    const searchInput = document.getElementById("editorSearch");
+    const categoryFilter = document.getElementById("editorCategoryFilter");
+    const statusFilter = document.getElementById("editorStatusFilter");
+    const rows = Array.from(document.querySelectorAll(".editor-question-row"));
+    const noResults = document.getElementById("editorNoResults");
+
+    function normalize(value) {
+        return (value || "").toString().toLowerCase().trim();
+    }
+
+    function applyEditorFilters() {
+        const search = normalize(searchInput.value);
+        const category = normalize(categoryFilter.value);
+        const status = normalize(statusFilter.value);
+        let visibleRows = 0;
+
+        rows.forEach(row => {
+            const matchesText = normalize(row.dataset.text).includes(search);
+            const matchesCategory = category === "" || normalize(row.dataset.category) === category;
+            const matchesStatus = status === "" || normalize(row.dataset.status) === status;
+            const visible = matchesText && matchesCategory && matchesStatus;
+
+            row.style.display = visible ? "" : "none";
+            if (visible) {
+                visibleRows++;
+            }
+        });
+
+        if (noResults) {
+            noResults.style.display = visibleRows === 0 && rows.length > 0 ? "" : "none";
+        }
+    }
+
+    [searchInput, categoryFilter, statusFilter].forEach(control => {
+        control.addEventListener("input", applyEditorFilters);
+        control.addEventListener("change", applyEditorFilters);
+    });
+</script>
+{{>footer}}

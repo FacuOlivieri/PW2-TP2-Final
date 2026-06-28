@@ -1,0 +1,192 @@
+{{>header}}
+<main class="container">
+    <section class="editor-form-card">
+        <p class="lobby-kicker">Panel editor</p>
+        <h2 class="form-title">{{titulo}}</h2>
+        {{#esCrear}}
+            <p class="form-help">Completá la pregunta y sus respuestas. Quedará activa automáticamente con dificultad inicial fácil.</p>
+        {{/esCrear}}
+        {{#esEditar}}
+            <p class="form-help">Modificá la pregunta, sus respuestas, dificultad y estado dentro del juego.</p>
+        {{/esEditar}}
+
+        {{#error}}
+            <p class="form-error">{{error}}</p>
+        {{/error}}
+
+        <form action="{{accion}}" method="POST">
+            {{#esEditar}}
+                <input type="hidden" name="id" value="{{id}}">
+            {{/esEditar}}
+
+            <div class="form-group">
+                <label>Texto de la pregunta</label>
+                <textarea name="texto" rows="3" required>{{texto}}</textarea>
+            </div>
+
+            <div class="editor-form-grid {{#esCrear}}editor-form-grid-single{{/esCrear}}">
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select name="categoria_id" required>
+                        <option value="">Seleccionar categoría</option>
+                        {{#categorias}}
+                            <option value="{{id}}" {{#seleccionada}}selected{{/seleccionada}}>{{nombre}}</option>
+                        {{/categorias}}
+                    </select>
+                </div>
+
+                {{#esEditar}}
+                    <div class="form-group">
+                        <label>Dificultad</label>
+                        <select name="dificultad" required>
+                            {{#dificultades}}
+                                <option value="{{valor}}" {{#seleccionada}}selected{{/seleccionada}}>{{label}}</option>
+                            {{/dificultades}}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select name="estado" required>
+                            {{#estados}}
+                                <option value="{{valor}}" {{#seleccionada}}selected{{/seleccionada}}>{{label}}</option>
+                            {{/estados}}
+                        </select>
+                    </div>
+                {{/esEditar}}
+            </div>
+
+            <p class="form-help proposal-answers-help">Escribí las 4 respuestas y marcá cuál es la correcta.</p>
+
+            <div class="form-group">
+                <label>Respuesta 1</label>
+                <div class="answer-row">
+                    <input type="radio" name="respuesta_correcta" value="1" required {{#correcta_1}}checked{{/correcta_1}}>
+                    <input type="text" name="respuesta_1" value="{{respuesta_1}}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Respuesta 2</label>
+                <div class="answer-row">
+                    <input type="radio" name="respuesta_correcta" value="2" {{#correcta_2}}checked{{/correcta_2}}>
+                    <input type="text" name="respuesta_2" value="{{respuesta_2}}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Respuesta 3</label>
+                <div class="answer-row">
+                    <input type="radio" name="respuesta_correcta" value="3" {{#correcta_3}}checked{{/correcta_3}}>
+                    <input type="text" name="respuesta_3" value="{{respuesta_3}}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Respuesta 4</label>
+                <div class="answer-row">
+                    <input type="radio" name="respuesta_correcta" value="4" {{#correcta_4}}checked{{/correcta_4}}>
+                    <input type="text" name="respuesta_4" value="{{respuesta_4}}" required>
+                </div>
+            </div>
+
+            <div class="editor-form-actions">
+                <button type="submit" class="btn-submit">Guardar pregunta</button>
+                <a href="/editor/preguntas" class="back-link">Volver al listado</a>
+            </div>
+        </form>
+    </section>
+</main>
+
+<style>
+    .editor-form-card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-soft);
+        margin: 0 auto;
+        max-width: 880px;
+        padding: 30px;
+    }
+
+    .editor-form-card .form-title,
+    .editor-form-card .form-help {
+        margin-left: 0;
+        margin-right: 0;
+        text-align: left;
+    }
+
+    .editor-form-grid {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .editor-form-grid-single {
+        grid-template-columns: 1fr;
+    }
+
+    .form-group textarea {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 11px 14px;
+        resize: vertical;
+        transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+        width: 100%;
+    }
+
+    .form-group textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.12);
+        outline: none;
+        transform: translateY(-1px);
+    }
+
+    .proposal-answers-help {
+        margin-bottom: 12px;
+    }
+
+    .answer-row {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+    }
+
+    .answer-row input[type="radio"] {
+        accent-color: var(--primary);
+        flex: 0 0 auto;
+        height: 20px;
+        width: 20px;
+    }
+
+    .answer-row input[type="text"] {
+        flex: 1 1 auto;
+    }
+
+    .editor-form-actions {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .editor-form-actions .back-link {
+        margin-top: 0;
+    }
+
+    @media (max-width: 760px) {
+        .editor-form-card {
+            padding: 22px;
+        }
+
+        .editor-form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{{>footer}}

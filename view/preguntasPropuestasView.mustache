@@ -4,6 +4,12 @@
     <p class="form-help">Revisá las preguntas enviadas por los usuarios y aprobalas o rechazalas.</p>
 
     <div class="proposal-filters">
+        <a href="/editor/preguntas" class="btn-secondary">Preguntas del juego</a>
+        <a href="/preguntaCreada/propuestas" class="btn-secondary filter-active">Preguntas sugeridas</a>
+        <a href="/editor/reportes" class="btn-secondary">Preguntas reportadas</a>
+    </div>
+
+    <div class="proposal-filters">
         <a href="/preguntaCreada/propuestas?estado=pendiente"
            class="btn-secondary {{#filtroPendiente}}filter-active{{/filtroPendiente}}">
             Pendientes
@@ -24,6 +30,7 @@
             <th>Pregunta</th>
             <th>Categoría</th>
             <th>Usuario</th>
+            <th>Origen</th>
             <th>Fecha</th>
             <th>Estado</th>
             <th>Acciones</th>
@@ -35,10 +42,11 @@
                 <td>{{texto}}</td>
                 <td>{{categoria}}</td>
                 <td>{{usuario}}</td>
+                <td><span class="origin-badge">{{origen}}</span></td>
                 <td>{{fecha_creacion}}</td>
                 <td><span class="estado-badge estado-{{estado}}">{{estado}}</span></td>
                 <td>
-                    <a href="/preguntaCreada/ver?id={{id}}" class="btn-secondary proposal-view-button">
+                    <a href="{{detalle_url}}" class="btn-secondary proposal-view-button">
                         Ver pregunta
                     </a>
                 </td>
@@ -47,13 +55,13 @@
 
         {{^propuestas}}
             <tr>
-                <td colspan="6">No hay preguntas en este estado.</td>
+                <td colspan="7">No hay preguntas en este estado.</td>
             </tr>
         {{/propuestas}}
         </tbody>
     </table>
 
-    <a href="/usuario/renderizarLobby" class="back-link">Volver al lobby</a>
+    <a href="/editor/preguntas" class="back-link">Volver al panel editor</a>
 </main>
 
 <style>
@@ -110,6 +118,18 @@
         font-weight: 800;
         padding: 5px 12px;
         text-transform: capitalize;
+    }
+
+    .origin-badge {
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
+        border-radius: 999px;
+        color: #4338ca;
+        display: inline-block;
+        font-size: 0.76rem;
+        font-weight: 800;
+        padding: 5px 11px;
+        white-space: nowrap;
     }
 
     .estado-pendiente {

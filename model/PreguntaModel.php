@@ -11,8 +11,40 @@ class PreguntaModel
 
     public function buscarTodasLasPreguntas()
     {
-        $sql = "SELECT * FROM preguntas";
+        $sql = "SELECT p.*, c.nombre AS categoria
+                FROM preguntas p
+                INNER JOIN categorias c ON c.id = p.categoria_id
+                WHERE p.estado = 'aprobada'
+                ORDER BY p.fecha_creacion DESC, p.id DESC";
         return $this->database->query($sql);
+    }
+
+    public function buscarPreguntasEditorPorEstado($estado)
+    {
+        $sql = "SELECT p.id,
+                       p.texto,
+                       p.estado,
+                       p.fecha_creacion,
+                       c.nombre AS categoria,
+                       COALESCE(u.username, 'Editor') AS usuario
+                FROM preguntas p
+                INNER JOIN categorias c ON c.id = p.categoria_id
+                LEFT JOIN usuarios u ON u.id = p.creada_por
+                WHERE p.estado = ?
+                ORDER BY p.fecha_creacion DESC, p.id DESC";
+
+        return $this->database->query($sql, [$estado]);
+    }
+
+    public function buscarDetallePregunta($idPregunta)
+    {
+        $sql = "SELECT p.*, c.nombre AS categoria
+                FROM preguntas p
+                INNER JOIN categorias c ON c.id = p.categoria_id
+                WHERE p.id = ?";
+
+        $resultado = $this->database->query($sql, [$idPregunta]);
+        return $resultado[0] ?? null;
     }
 
     public function buscarPreguntaSegunId($idPregunta)
@@ -37,6 +69,31 @@ class PreguntaModel
         $this->database->execute($sql, [$texto, $categoriaId, $creadaPor]);
 
         return $this->database->lastInsertId();
+    }
+
+    public function crearCompleta($texto, $categoriaId, $dificultad, $estado, $creadaPor = null)
+    {
+        $sql = "INSERT INTO preguntas (texto, categoria_id, dificultad, estado, creada_por)
+                VALUES (?, ?, ?, ?, ?)";
+
+        $this->database->execute($sql, [$texto, $categoriaId, $dificultad, $estado, $creadaPor]);
+
+        return $this->database->lastInsertId();
+    }
+
+    public function actualizarCompleta($idPregunta, $texto, $categoriaId, $dificultad, $estado)
+    {
+        $sql = "UPDATE preguntas
+                SET texto = ?, categoria_id = ?, dificultad = ?, estado = ?
+                WHERE id = ?";
+
+        $this->database->execute($sql, [$texto, $categoriaId, $dificultad, $estado, $idPregunta]);
+    }
+
+    public function darDeBaja($idPregunta)
+    {
+        $sql = "UPDATE preguntas SET estado = 'rechazada' WHERE id = ?";
+        $this->database->execute($sql, [$idPregunta]);
     }
 
     public function sumarPreguntasEntregadas($idPregunta)

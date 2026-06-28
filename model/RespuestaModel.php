@@ -50,4 +50,24 @@ class RespuestaModel
 
         $this->database->execute($sql, [$preguntaId, $texto, $esCorrecta ? 1 : 0]);
     }
+
+    public function buscarRespuestasPorPregunta($preguntaId)
+    {
+        $sql = "SELECT *
+                FROM respuestas
+                WHERE pregunta_id = ?
+                ORDER BY id ASC";
+
+        return $this->database->query($sql, [$preguntaId]);
+    }
+
+    public function reemplazarRespuestas($preguntaId, $respuestas, $indiceCorrecta)
+    {
+        $sql = "DELETE FROM respuestas WHERE pregunta_id = ?";
+        $this->database->execute($sql, [$preguntaId]);
+
+        foreach ($respuestas as $indice => $texto) {
+            $this->crear($preguntaId, $texto, ($indice + 1) === $indiceCorrecta);
+        }
+    }
 }
