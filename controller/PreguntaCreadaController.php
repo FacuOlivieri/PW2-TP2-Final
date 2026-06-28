@@ -40,8 +40,11 @@ class PreguntaCreadaController
         }
 
         $this->renderer->render("crearPreguntaView", [
-            "categorias" => $this->categoriaModel->obtenerTodas()
+            "categorias" => $this->categoriaModel->obtenerTodas(),
+            "exito" => $_SESSION["pregunta_creada_exito"] ?? null
         ]);
+
+        unset($_SESSION["pregunta_creada_exito"]);
     }
 
     public function guardar()
@@ -96,10 +99,9 @@ class PreguntaCreadaController
             );
         }
 
-        $this->renderer->render("crearPreguntaView", [
-            "categorias" => $this->categoriaModel->obtenerTodas(),
-            "exito" => "Tu pregunta fue enviada y quedó pendiente de revisión. ¡Gracias por colaborar!"
-        ]);
+        $_SESSION["pregunta_creada_exito"] = "Tu pregunta fue enviada y quedó pendiente de revisión. ¡Gracias por colaborar!";
+        Redirect::to("/preguntaCreada/crear");
+        return;
     }
 
     private function normalizarSignosPregunta($texto)

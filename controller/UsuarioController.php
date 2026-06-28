@@ -104,7 +104,7 @@ class UsuarioController
                 $_SESSION["rol"] = "administrador";
             }
 
-            $this->renderizarLobby();
+            Redirect::to("/usuario/renderizarLobby");
             return;
         }
 
@@ -155,7 +155,7 @@ class UsuarioController
                 unset($_SESSION["rol"]);
             }
 
-            $this->renderizarLobby();
+            Redirect::to("/usuario/renderizarLobby");
             return;
         }
 

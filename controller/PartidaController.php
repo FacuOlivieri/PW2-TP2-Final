@@ -55,8 +55,10 @@ class PartidaController
         $_SESSION['numero_pregunta'] = 1;
         $_SESSION['puntaje'] = 0;
         $_SESSION['preguntas_respondidas'] = [];
+        unset($_SESSION['resultado_partida']);
 
-        $this->mostrarRuleta();
+        Redirect::to("/partida/mostrarRuleta");
+        return;
     }
 
     public function mostrarRuleta()
@@ -120,7 +122,8 @@ class PartidaController
 
         shuffle($_SESSION['lista_preguntas']);
 
-        $this->mostrarPregunta();
+        Redirect::to("/partida/mostrarPregunta");
+        return;
     }
 
     public function mostrarPregunta()
@@ -267,14 +270,32 @@ class PartidaController
             }
         }
 
-        $this->renderer->render("partidaTerminadaView", [
+        $_SESSION['resultado_partida'] = [
             'usuarioNombre' => $usuario,
             'usuarioPuntaje' => $puntajeFinal,
             'pregunta' => $_SESSION['pregunta_actual'] ?? "",
             'respuestaCorrecta' => $_SESSION['respuesta_correcta'] ?? "",
-        ]);
+        ];
 
         $this->limpiarSesionPartida();
+
+        Redirect::to("/partida/resultado");
+        return;
+    }
+
+    public function resultado()
+    {
+        if (!isset($_SESSION['usuario'])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        if (!isset($_SESSION['resultado_partida'])) {
+            Redirect::to("/usuario/mostrarUsuarioLobby");
+            return;
+        }
+
+        $this->renderer->render("partidaTerminadaView", $_SESSION['resultado_partida']);
     }
 
     private function limpiarSesionPartida()
