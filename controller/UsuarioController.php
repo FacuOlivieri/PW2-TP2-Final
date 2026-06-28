@@ -130,8 +130,16 @@ class UsuarioController
             return;
         }
 
+        $esAdministrador = isset($usuario["es_administrador"])
+            ? (int)$usuario["es_administrador"]
+            : 0;
+
+        $mailVerificado = isset($usuario["mail_verificado"])
+            ? (int)$usuario["mail_verificado"]
+            : 1;
+
         if (password_verify($passwordIngresada, $usuario["password_hash"])) {
-            if (isset($usuario["mail_verificado"]) && (int)$usuario["mail_verificado"] === 0 && (int)$usuario["es_administrador"] !== 1) {
+            if ($mailVerificado === 0 && $esAdministrador !== 1) {
                 $this->renderer->render("loginView", [
                     "mensaje" => "Usuario no verificado"
                 ]);
@@ -141,9 +149,10 @@ class UsuarioController
             $_SESSION["usuario"] = $usuario["username"];
             $_SESSION["usuario_id"] = $usuario["id"];
 
-
-            if ($usuario["es_administrador"] == 1) {
+            if ($esAdministrador === 1) {
                 $_SESSION["rol"] = "administrador";
+            } else {
+                unset($_SESSION["rol"]);
             }
 
             $this->renderizarLobby();

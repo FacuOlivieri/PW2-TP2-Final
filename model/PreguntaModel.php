@@ -25,7 +25,7 @@ class PreguntaModel
 
     public function buscarPreguntasPorCategoria($categoriaId)
     {
-        $sql = "SELECT * FROM preguntas WHERE categoria_id = ?";
+        $sql = "SELECT * FROM preguntas WHERE categoria_id = ? AND estado = 'aprobada'";
         return $this->database->query($sql, [$categoriaId]);
     }
 
@@ -95,6 +95,16 @@ class PreguntaModel
         return $this->database->query($sql, [$dificultad]);
     }
 
+    public function reportarPregunta($usuarioId, $preguntaId, $motivo)
+    {
+        $sql = "INSERT INTO preguntas_reportadas (pregunta_id, usuario_id, motivo)
+                VALUES (?, ?, ?)";
+        $this->database->execute($sql, [$preguntaId, $usuarioId, $motivo]);
+
+        $sql = "UPDATE preguntas SET estado = 'reportada' WHERE id = ?";
+        $this->database->execute($sql, [$preguntaId]);
+    }
+
 
 
     public function cantidadTotalPreguntas($filtroSeleccionado)
@@ -103,7 +113,7 @@ class PreguntaModel
 
         $sql = "SELECT COUNT(*) as cantidad 
                 FROM preguntas 
-                WHERE estado IN ('activa', 'aprobada') $condicionFecha";
+                WHERE estado = 'aprobada' $condicionFecha";
 
         $resultado = $this->database->query($sql);
         return $resultado[0]['cantidad'] ?? 0;

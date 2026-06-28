@@ -23,6 +23,12 @@ class Configurator {
             $mailHelper
         );
     }
+
+    public function getUsuarioController()
+    {
+        return $this->getUsuariosController();
+    }
+
     public function getAdministradorController()
     {
         return new AdministradorController(

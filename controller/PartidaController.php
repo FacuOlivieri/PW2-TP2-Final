@@ -67,8 +67,11 @@ class PartidaController
         }
 
         $this->renderer->render("ruletaView", [
-            "categorias" => $this->categoriaModel->obtenerTodas()
+            "categorias" => $this->categoriaModel->obtenerTodas(),
+            "mensajeRuleta" => $_SESSION['mensaje_ruleta'] ?? null
         ]);
+
+        unset($_SESSION['mensaje_ruleta']);
     }
 
     public function jugarCategoria()
@@ -92,23 +95,27 @@ class PartidaController
         $preguntas = $this->preguntaModel->buscarPreguntasPorCategoria($categoria['id']);
         $preguntasRespondidas = $_SESSION['preguntas_respondidas'] ?? [];
 
-        $_SESSION['lista_preguntas'] = array_values(array_filter($preguntas, function ($pregunta) use ($preguntasRespondidas) {
+        $preguntasDisponibles = array_values(array_filter($preguntas, function ($pregunta) use ($preguntasRespondidas) {
             return !in_array((int)$pregunta['id'], $preguntasRespondidas, true);
         }));
 
         $dificultad = $this->obtenerDificultadJugador();
 
         $_SESSION['lista_preguntas'] = array_values(array_filter(
-            $_SESSION['lista_preguntas'],
+            $preguntasDisponibles,
             function ($pregunta) use ($dificultad) {
                 return !isset($pregunta['dificultad']) || $pregunta['dificultad'] === $dificultad;
             }
         ));
 
         if (empty($_SESSION['lista_preguntas'])) {
-            $_SESSION['lista_preguntas'] = array_values(array_filter($preguntas, function ($pregunta) use ($preguntasRespondidas) {
-                return !in_array((int)$pregunta['id'], $preguntasRespondidas, true);
-            }));
+            $_SESSION['lista_preguntas'] = $preguntasDisponibles;
+        }
+
+        if (empty($_SESSION['lista_preguntas'])) {
+            $_SESSION['mensaje_ruleta'] = "No hay preguntas disponibles para " . $categoria['nombre'] . ". Probá con otra categoría.";
+            Redirect::to("/partida/mostrarRuleta");
+            return;
         }
 
         shuffle($_SESSION['lista_preguntas']);
@@ -189,7 +196,7 @@ class PartidaController
 
     public function responder()
     {
-        if (!isset($_SESSION["inicio_pregunta"])) {
+        if (!isset($_SESSION["id_partida"]) || !isset($_SESSION["id_pregunta_actual"]) || !isset($_SESSION["inicio_pregunta"])) {
             Redirect::to("/partida/partidaTerminada");
             return;
         }
@@ -267,7 +274,23 @@ class PartidaController
             'respuestaCorrecta' => $_SESSION['respuesta_correcta'] ?? "",
         ]);
 
-        session_unset();
+        $this->limpiarSesionPartida();
+    }
+
+    private function limpiarSesionPartida()
+    {
+        unset($_SESSION["id_partida"]);
+        unset($_SESSION["puntaje"]);
+        unset($_SESSION["numero_pregunta"]);
+        unset($_SESSION["id_pregunta_actual"]);
+        unset($_SESSION["lista_preguntas"]);
+        unset($_SESSION["pregunta_actual"]);
+        unset($_SESSION["respuesta_correcta"]);
+        unset($_SESSION["categoria_id"]);
+        unset($_SESSION["categoria_nombre"]);
+        unset($_SESSION["preguntas_respondidas"]);
+        unset($_SESSION["inicio_pregunta"]);
+        unset($_SESSION["mensaje_ruleta"]);
     }
 
     private function manejoDeRespuestas($preguntaId): array
@@ -298,6 +321,16 @@ class PartidaController
 
     public function timeout()
     {
+        if (!isset($_SESSION['usuario'])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        if (!isset($_SESSION['id_partida'])) {
+            Redirect::to("/usuario/mostrarUsuarioLobby");
+            return;
+        }
+
         Redirect::to("/partida/partidaTerminada");
     }
 
@@ -341,6 +374,16 @@ class PartidaController
 
     public function reportar()
     {
+        if (!isset($_SESSION["usuario_id"])) {
+            Redirect::to("/usuario/iniciarSesion");
+            return;
+        }
+
+        if (!isset($_SESSION["id_pregunta_actual"])) {
+            Redirect::to("/partida/partidaTerminada");
+            return;
+        }
+
         $usuario = $_SESSION["usuario_id"];
         $preguntaId = $_SESSION["id_pregunta_actual"];
         $motivo = $this->request->post("motivo");

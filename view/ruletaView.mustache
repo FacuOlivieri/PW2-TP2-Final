@@ -8,6 +8,10 @@
             La categor&iacute;a en la que caiga la ruleta definir&aacute; las preguntas de tu partida.
         </p>
 
+        {{#mensajeRuleta}}
+            <p class="ruleta-warning">{{mensajeRuleta}}</p>
+        {{/mensajeRuleta}}
+
         <div class="ruleta-wrapper">
             <div class="ruleta-pointer"></div>
             <canvas id="ruletaCanvas" class="ruleta-canvas" width="420" height="420"></canvas>

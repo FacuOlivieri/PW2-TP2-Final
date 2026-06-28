@@ -47,10 +47,6 @@ CREATE TABLE usuarios (
         FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
     );
 
-    ALTER TABLE usuarios
-    ADD mail_verificado TINYINT(1) NOT NULL DEFAULT 0;
-
-
 CREATE TABLE categorias (
                             id INT AUTO_INCREMENT PRIMARY KEY,
                             nombre VARCHAR(100) NOT NULL,
@@ -133,29 +129,6 @@ CREATE TABLE respuestas_creadas (
     es_correcta BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (pregunta_creada_id) REFERENCES preguntas_creadas(id)
 );
-
-
-
-ALTER TABLE preguntas
-ADD veces_entregada INT NOT NULL DEFAULT 0,
-ADD veces_correcta INT NOT NULL DEFAULT 0,
-ADD dificultad ENUM('facil','medio','dificil') DEFAULT 'medio';
-
-ALTER TABLE usuarios 
-ADD nivel ENUM('facil','medio','dificil') DEFAULT 'facil',
-ADD es_editor TINYINT(1) NOT NULL DEFAULT 0,
-ADD es_administrador TINYINT(1) NOT NULL DEFAULT 0;
-
-ALTER TABLE preguntas
-ADD estado ENUM('activa','pendiente','rechazada') DEFAULT 'activa',
-ADD creada_por INT NULL;
-
-ALTER TABLE usuarios
-    ADD mail_verificado TINYINT(1) NOT NULL DEFAULT 0;
-
-
-
-USE preguntados;
 INSERT INTO usuarios (
     nombre_completo,
     anio_nacimiento,

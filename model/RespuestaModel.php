@@ -43,15 +43,6 @@ class RespuestaModel
         return $resultado[0] ?? null;
     }
 
-    public function buscarRespuestasPorPregunta($idPregunta)
-    {
-        $sql = "SELECT *
-                FROM respuestas
-                WHERE pregunta_id = ?";
-
-        return $this->database->query($sql, [$idPregunta]);
-    }
-
     public function crear($preguntaId, $texto, $esCorrecta)
     {
         $sql = "INSERT INTO respuestas (pregunta_id, texto, es_correcta)
