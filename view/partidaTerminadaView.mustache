@@ -37,6 +37,21 @@
                     ✔ {{respuestaCorrecta}}
                 </div>
 
+                {{#reporteMensaje}}
+                    <p class="report-message report-success">{{reporteMensaje}}</p>
+                {{/reporteMensaje}}
+
+                {{#reporteError}}
+                    <p class="report-message report-error">{{reporteError}}</p>
+                {{/reporteError}}
+
+                {{#preguntaId}}
+                    <form class="report-question-form" action="/partida/prepararReporte" method="post">
+                        <input type="hidden" name="pregunta_id" value="{{preguntaId}}">
+                        <button type="submit" class="report-link-button">Reportar pregunta</button>
+                    </form>
+                {{/preguntaId}}
+
             </div>
 
             <div class="action-buttons">

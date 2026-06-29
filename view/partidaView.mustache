@@ -25,6 +25,10 @@
                 {{/respuestas}}
             </form>
 
+            <form class="report-question-form" action="/partida/prepararReporte" method="post">
+                <button type="submit" class="report-link-button">Reportar</button>
+            </form>
+
 
             <div class="game-footer">
                 <span class="score-preview">Puntaje: {{usuarioPuntaje}}</span>
@@ -47,6 +51,7 @@
             window.location.href = "/partida/timeout";
         }
     }, 1000);
+
 </script>
 
 {{>footer}}

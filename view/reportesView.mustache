@@ -28,15 +28,16 @@
                 <td>{{fecha}}</td>
                 <td>
                     <div class="proposal-actions">
-                        <form action="/editor/resolverReporte" method="POST">
-                            <input type="hidden" name="id" value="{{id}}">
-                            <input type="hidden" name="estado" value="aprobada">
-                            <button type="submit" class="btn-secondary btn-aprobar">Aprobar reporte</button>
-                        </form>
+                        <a href="/editor/verReporte?id={{id}}" class="btn-secondary proposal-view-button">Ver pregunta</a>
                         <form action="/editor/resolverReporte" method="POST">
                             <input type="hidden" name="id" value="{{id}}">
                             <input type="hidden" name="estado" value="rechazada">
-                            <button type="submit" class="btn-secondary btn-rechazar">Rechazar reporte</button>
+                            <button type="submit" class="btn-secondary btn-aprobar">Mantener pregunta</button>
+                        </form>
+                        <form action="/editor/resolverReporte" method="POST">
+                            <input type="hidden" name="id" value="{{id}}">
+                            <input type="hidden" name="estado" value="aprobada">
+                            <button type="submit" class="btn-secondary btn-rechazar">Dar de baja</button>
                         </form>
                     </div>
                 </td>
@@ -82,6 +83,13 @@
         cursor: pointer;
         font-size: 0.85rem;
         padding: 8px 14px;
+    }
+
+    .proposal-view-button {
+        display: inline-flex;
+        font-size: 0.85rem;
+        padding: 8px 14px;
+        white-space: nowrap;
     }
 
     .btn-aprobar {

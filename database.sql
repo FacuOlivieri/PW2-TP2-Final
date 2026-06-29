@@ -96,8 +96,10 @@ CREATE TABLE preguntas_reportadas (
     pregunta_id INT,
     usuario_id INT,
     motivo TEXT,
+    comentario TEXT,
     estado ENUM('pendiente','aprobada','rechazada') DEFAULT 'pendiente',
-    fecha DATETIME DEFAULT NOW()
+    fecha DATETIME DEFAULT NOW(),
+    fecha_reporte DATETIME DEFAULT NOW()
 );
 
 CREATE TABLE preguntas_sugeridas (

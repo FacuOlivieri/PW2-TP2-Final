@@ -194,6 +194,33 @@ class EditorController
         Redirect::to("/editor/reportes");
     }
 
+    public function verReporte()
+    {
+        if (!$this->verificarEditor()) {
+            return;
+        }
+
+        $id = $this->request->get("id");
+        $reporte = $this->preguntaModel->obtenerReporteDetalle($id);
+
+        if ($reporte === null) {
+            Redirect::to("/editor/reportes");
+            return;
+        }
+
+        $respuestas = $this->respuestaModel->buscarRespuestasPorPregunta($reporte["pregunta_id"]);
+
+        foreach ($respuestas as $indice => $respuesta) {
+            $respuestas[$indice]["es_correcta_bool"] = (int)$respuesta["es_correcta"] === 1;
+        }
+
+        $this->renderer->render("reporteDetalleView", [
+            "reporte" => $reporte,
+            "respuestas" => $respuestas,
+            "esPendiente" => $reporte["estado_reporte"] === "pendiente"
+        ]);
+    }
+
     private function renderizarFormularioPregunta($modo, $datos = [], $error = null)
     {
         $esEditar = $modo === "editar";

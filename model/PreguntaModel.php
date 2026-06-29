@@ -152,14 +152,23 @@ class PreguntaModel
         return $this->database->query($sql, [$dificultad]);
     }
 
-    public function reportarPregunta($usuarioId, $preguntaId, $motivo)
+    public function reportarPregunta($usuarioId, $preguntaId, $motivo, $comentario = "")
     {
-        $sql = "INSERT INTO preguntas_reportadas (pregunta_id, usuario_id, motivo)
-                VALUES (?, ?, ?)";
-        $this->database->execute($sql, [$preguntaId, $usuarioId, $motivo]);
+        $sql = "SELECT id FROM preguntas_reportadas WHERE pregunta_id = ? AND usuario_id = ? LIMIT 1";
+        $existente = $this->database->query($sql, [$preguntaId, $usuarioId]);
+
+        if (!empty($existente)) {
+            return false;
+        }
+
+        $sql = "INSERT INTO preguntas_reportadas (pregunta_id, usuario_id, motivo, comentario, estado, fecha_reporte)
+                VALUES (?, ?, ?, ?, 'pendiente', NOW())";
+        $this->database->execute($sql, [$preguntaId, $usuarioId, $motivo, $comentario]);
 
         $sql = "UPDATE preguntas SET estado = 'reportada' WHERE id = ?";
         $this->database->execute($sql, [$preguntaId]);
+
+        return true;
     }
 
     public function obtenerReportesPendientes()
@@ -168,7 +177,8 @@ class PreguntaModel
                        pr.pregunta_id,
                        pr.usuario_id,
                        pr.motivo,
-                       pr.fecha,
+                       pr.comentario,
+                       pr.fecha_reporte AS fecha,
                        p.texto AS pregunta,
                        u.username AS usuario
                 FROM preguntas_reportadas pr
@@ -178,6 +188,30 @@ class PreguntaModel
                 ORDER BY pr.fecha DESC";
 
         return $this->database->query($sql);
+    }
+
+    public function obtenerReporteDetalle($reporteId)
+    {
+        $sql = "SELECT pr.id,
+                       pr.pregunta_id,
+                       pr.usuario_id,
+                       pr.motivo,
+                       pr.comentario,
+                       pr.estado AS estado_reporte,
+                       pr.fecha_reporte AS fecha,
+                       p.texto AS pregunta,
+                       p.estado AS estado_pregunta,
+                       p.dificultad,
+                       c.nombre AS categoria,
+                       u.username AS usuario
+                FROM preguntas_reportadas pr
+                INNER JOIN preguntas p ON p.id = pr.pregunta_id
+                INNER JOIN categorias c ON c.id = p.categoria_id
+                INNER JOIN usuarios u ON u.id = pr.usuario_id
+                WHERE pr.id = ?";
+
+        $resultado = $this->database->query($sql, [$reporteId]);
+        return $resultado[0] ?? null;
     }
 
     public function resolverReporte($reporteId, $estado)

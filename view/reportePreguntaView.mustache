@@ -1,0 +1,154 @@
+{{>header}}
+<main class="container report-shell">
+    <section class="report-card">
+        <div class="report-header">
+            <p class="lobby-kicker">Reporte de pregunta</p>
+            <h2 class="form-title">Reportar pregunta inválida</h2>
+            <p class="form-help">La partida fue detenida. Revisá la pregunta y seleccioná el motivo del reporte.</p>
+        </div>
+
+        {{#error}}
+            <p class="form-error">{{error}}</p>
+        {{/error}}
+
+        {{#pregunta}}
+            <article class="reported-question-card">
+                <span class="category-pill">{{categoria}}</span>
+                <h3>{{texto}}</h3>
+            </article>
+        {{/pregunta}}
+
+        <section class="reported-answers">
+            <h3>Respuestas</h3>
+            <div class="reported-answer-grid">
+                {{#respuestas}}
+                    <article class="reported-answer {{#es_correcta_bool}}correct-answer{{/es_correcta_bool}}">
+                        <span>{{texto}}</span>
+                        {{#es_correcta_bool}}<strong>Respuesta correcta</strong>{{/es_correcta_bool}}
+                    </article>
+                {{/respuestas}}
+            </div>
+        </section>
+
+        <form action="/partida/enviarReporte" method="POST" class="report-form">
+            <div class="form-group">
+                <label>Motivo</label>
+                <select name="motivo" required>
+                    <option value="">Seleccionar motivo</option>
+                    <option value="Pregunta mal redactada">Pregunta mal redactada</option>
+                    <option value="Respuesta correcta incorrecta">Respuesta correcta incorrecta</option>
+                    <option value="Pregunta ofensiva">Pregunta ofensiva</option>
+                    <option value="Pregunta repetida">Pregunta repetida</option>
+                    <option value="Otro">Otro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Comentario opcional</label>
+                <textarea name="comentario" rows="4" placeholder="Agregá información para el editor si hace falta"></textarea>
+            </div>
+
+            <div class="report-actions">
+                <button type="submit" class="btn-submit">Enviar reporte</button>
+                <a href="/partida/cancelarReporte" class="back-link">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</main>
+
+<style>
+    .report-card {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-soft);
+        margin: 0 auto;
+        max-width: 900px;
+        padding: 30px;
+    }
+
+    .report-header .form-title,
+    .report-header .form-help {
+        margin-left: 0;
+        margin-right: 0;
+        text-align: left;
+    }
+
+    .reported-question-card {
+        background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-bottom: 24px;
+        padding: 22px;
+    }
+
+    .reported-question-card h3 {
+        color: var(--text);
+        font-size: clamp(1.35rem, 3vw, 2rem);
+        margin: 14px 0 0;
+    }
+
+    .reported-answers h3 {
+        margin: 0 0 12px;
+    }
+
+    .reported-answer-grid {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-bottom: 24px;
+    }
+
+    .reported-answer {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--muted);
+        padding: 14px;
+    }
+
+    .reported-answer.correct-answer {
+        background: #ecfdf5;
+        border-color: #a7f3d0;
+        color: var(--success);
+        font-weight: 800;
+    }
+
+    .reported-answer strong {
+        display: block;
+        font-size: 0.74rem;
+        letter-spacing: 0.06em;
+        margin-top: 6px;
+        text-transform: uppercase;
+    }
+
+    .report-form textarea {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 1rem;
+        padding: 11px 14px;
+        resize: vertical;
+        width: 100%;
+    }
+
+    .report-actions {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .report-actions .back-link {
+        margin-top: 0;
+    }
+
+    @media (max-width: 760px) {
+        .reported-answer-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{{>footer}}

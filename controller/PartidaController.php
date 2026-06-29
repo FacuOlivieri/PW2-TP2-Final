@@ -292,6 +292,7 @@ class PartidaController
         $_SESSION['resultado_partida'] = [
             'usuarioNombre' => $usuario,
             'usuarioPuntaje' => $puntajeFinal,
+            'preguntaId' => $_SESSION['id_pregunta_actual'] ?? null,
             'pregunta' => $_SESSION['pregunta_actual'] ?? "",
             'respuestaCorrecta' => $_SESSION['respuesta_correcta'] ?? "",
         ];
@@ -313,7 +314,14 @@ class PartidaController
             return;
         }
 
-        $this->renderer->render("partidaTerminadaView", $_SESSION['resultado_partida']);
+        $resultado = $_SESSION['resultado_partida'];
+        $resultado["reporteMensaje"] = $_SESSION["reporte_mensaje"] ?? null;
+        $resultado["reporteError"] = $_SESSION["reporte_error"] ?? null;
+
+        unset($_SESSION["reporte_mensaje"]);
+        unset($_SESSION["reporte_error"]);
+
+        $this->renderer->render("partidaTerminadaView", $resultado);
     }
 
     private function limpiarSesionPartida()
@@ -412,27 +420,123 @@ class PartidaController
 
     public function reportar()
     {
+        $this->prepararReporte();
+    }
+
+    public function prepararReporte()
+    {
         if (!$this->requiereUsuarioComun()) {
             return;
         }
 
-        if (!isset($_SESSION["usuario_id"])) {
-            Redirect::to("/usuario/iniciarSesion");
-            return;
-        }
+        $preguntaId = $this->request->post("pregunta_id", $_SESSION["id_pregunta_actual"] ?? null);
 
-        if (!isset($_SESSION["id_pregunta_actual"])) {
+        if ($preguntaId === null || $preguntaId === "") {
             Redirect::to("/partida/partidaTerminada");
             return;
         }
 
-        $usuario = $_SESSION["usuario_id"];
-        $preguntaId = $_SESSION["id_pregunta_actual"];
-        $motivo = $this->request->post("motivo");
+        $_SESSION["reporte_pregunta_id"] = $preguntaId;
+        $_SESSION["reporte_resultado"] = $_SESSION["resultado_partida"] ?? [
+            "usuarioNombre" => $_SESSION["usuario"] ?? "Jugador",
+            "usuarioPuntaje" => $_SESSION["puntaje"] ?? 0,
+            "preguntaId" => $preguntaId,
+            "pregunta" => $_SESSION["pregunta_actual"] ?? "",
+            "respuestaCorrecta" => $_SESSION["respuesta_correcta"] ?? ""
+        ];
 
-        $this->preguntaModel->reportarPregunta($usuario, $preguntaId, $motivo);
+        if (isset($_SESSION["id_partida"])) {
+            $this->partidaModel->finalizarPartida($_SESSION["id_partida"], $_SESSION["puntaje"] ?? 0);
+        }
 
-        Redirect::to("/partida/mostrarPregunta");
+        $this->limpiarSesionPartida();
+
+        Redirect::to("/partida/reportePregunta");
+    }
+
+    public function reportePregunta()
+    {
+        if (!$this->requiereUsuarioComun()) {
+            return;
+        }
+
+        $preguntaId = $_SESSION["reporte_pregunta_id"] ?? null;
+
+        if ($preguntaId === null) {
+            Redirect::to("/usuario/renderizarLobby");
+            return;
+        }
+
+        $pregunta = $this->preguntaModel->buscarDetallePregunta($preguntaId);
+
+        if ($pregunta === null) {
+            Redirect::to("/usuario/renderizarLobby");
+            return;
+        }
+
+        $respuestas = $this->respuestasModel->buscarRespuestasPorPregunta($preguntaId);
+
+        foreach ($respuestas as $indice => $respuesta) {
+            $respuestas[$indice]["es_correcta_bool"] = (int)$respuesta["es_correcta"] === 1;
+        }
+
+        $this->renderer->render("reportePreguntaView", [
+            "pregunta" => $pregunta,
+            "respuestas" => $respuestas,
+            "error" => $_SESSION["reporte_error"] ?? null
+        ]);
+
+        unset($_SESSION["reporte_error"]);
+    }
+
+    public function enviarReporte()
+    {
+        if (!$this->requiereUsuarioComun()) {
+            return;
+        }
+
+        $preguntaId = $_SESSION["reporte_pregunta_id"] ?? null;
+
+        if ($preguntaId === null) {
+            Redirect::to("/usuario/renderizarLobby");
+            return;
+        }
+
+        $motivo = trim($this->request->post("motivo", ""));
+        $comentario = trim($this->request->post("comentario", ""));
+
+        if ($motivo === "") {
+            $_SESSION["reporte_error"] = "Seleccioná un motivo para reportar la pregunta.";
+            Redirect::to("/partida/reportePregunta");
+            return;
+        }
+
+        $reportado = $this->preguntaModel->reportarPregunta($_SESSION["usuario_id"], $preguntaId, $motivo, $comentario);
+
+        $_SESSION["resultado_partida"] = $_SESSION["reporte_resultado"] ?? [
+            "usuarioNombre" => $_SESSION["usuario"] ?? "Jugador",
+            "usuarioPuntaje" => 0,
+            "preguntaId" => $preguntaId,
+            "pregunta" => "",
+            "respuestaCorrecta" => ""
+        ];
+        $_SESSION["reporte_mensaje"] = $reportado
+            ? "Pregunta reportada correctamente."
+            : "Ya reportaste esta pregunta anteriormente.";
+
+        unset($_SESSION["reporte_pregunta_id"]);
+        unset($_SESSION["reporte_resultado"]);
+
+        Redirect::to("/partida/resultado");
+    }
+
+    public function cancelarReporte()
+    {
+        unset($_SESSION["reporte_pregunta_id"]);
+        unset($_SESSION["reporte_resultado"]);
+        unset($_SESSION["reporte_error"]);
+
+        Redirect::to("/usuario/renderizarLobby");
     }
 
     private function requiereUsuarioComun()
