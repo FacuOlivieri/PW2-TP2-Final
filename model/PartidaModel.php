@@ -94,6 +94,28 @@ class PartidaModel
         return $this->database->query($sql);
     }
 
+    public function obtenerRatioCorrectasUsuario($usuarioId)
+    {
+        $sql = "SELECT COALESCE(SUM(p.puntaje_total), 0) AS correctas,
+                       COALESCE(SUM(pp.respondidas), 0) AS respondidas
+                FROM partidas p
+                LEFT JOIN (
+                    SELECT partida_id, COUNT(*) AS respondidas
+                    FROM partida_preguntas
+                    GROUP BY partida_id
+                ) pp ON pp.partida_id = p.id
+                WHERE p.usuario_id = ?";
+
+        $resultado = $this->database->query($sql, [$usuarioId]);
+        $fila = $resultado[0] ?? null;
+
+        if ($fila === null || (int)$fila["respondidas"] === 0) {
+            return null;
+        }
+
+        return ((int)$fila["correctas"] / (int)$fila["respondidas"]) * 100;
+    }
+
 
     private function obtenerCondicionFecha($filtro, $campoFecha)
     {

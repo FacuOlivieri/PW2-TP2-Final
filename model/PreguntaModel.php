@@ -61,6 +61,56 @@ class PreguntaModel
         return $this->database->query($sql, [$categoriaId]);
     }
 
+    public function buscarPreguntasParaJuego($categoriaId, $dificultad = null, $usuarioId = null, $excluirVistas = true, $preguntasExcluidas = [])
+    {
+        $params = [$categoriaId];
+        $condicionDificultad = "";
+        $condicionVistas = "";
+        $condicionExcluidas = "";
+
+        if ($dificultad !== null) {
+            $condicionDificultad = " AND p.dificultad = ?";
+            $params[] = $dificultad;
+        }
+
+        if ($excluirVistas && $usuarioId !== null) {
+            $condicionVistas = " AND NOT EXISTS (
+                    SELECT 1
+                    FROM usuario_preguntas_vistas upv
+                    WHERE upv.usuario_id = ? AND upv.pregunta_id = p.id
+                )";
+            $params[] = $usuarioId;
+        }
+
+        if (!empty($preguntasExcluidas)) {
+            $placeholders = implode(",", array_fill(0, count($preguntasExcluidas), "?"));
+            $condicionExcluidas = " AND p.id NOT IN ($placeholders)";
+
+            foreach ($preguntasExcluidas as $preguntaId) {
+                $params[] = $preguntaId;
+            }
+        }
+
+        $sql = "SELECT p.*
+                FROM preguntas p
+                WHERE p.categoria_id = ?
+                  AND p.estado = 'aprobada'
+                  $condicionDificultad
+                  $condicionVistas
+                  $condicionExcluidas
+                ORDER BY RAND()";
+
+        return $this->database->query($sql, $params);
+    }
+
+    public function registrarPreguntaVista($usuarioId, $preguntaId)
+    {
+        $sql = "INSERT IGNORE INTO usuario_preguntas_vistas (usuario_id, pregunta_id)
+                VALUES (?, ?)";
+
+        $this->database->execute($sql, [$usuarioId, $preguntaId]);
+    }
+
     public function crear($texto, $categoriaId, $creadaPor = null)
     {
         $sql = "INSERT INTO preguntas (texto, categoria_id, estado, creada_por)

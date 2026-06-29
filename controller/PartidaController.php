@@ -101,25 +101,9 @@ class PartidaController
         $_SESSION['categoria_id'] = $categoria['id'];
         $_SESSION['categoria_nombre'] = $categoria['nombre'];
 
-        $preguntas = $this->preguntaModel->buscarPreguntasPorCategoria($categoria['id']);
-        $preguntasRespondidas = $_SESSION['preguntas_respondidas'] ?? [];
-
-        $preguntasDisponibles = array_values(array_filter($preguntas, function ($pregunta) use ($preguntasRespondidas) {
-            return !in_array((int)$pregunta['id'], $preguntasRespondidas, true);
-        }));
-
         $dificultad = $this->obtenerDificultadJugador();
-
-        $_SESSION['lista_preguntas'] = array_values(array_filter(
-            $preguntasDisponibles,
-            function ($pregunta) use ($dificultad) {
-                return !isset($pregunta['dificultad']) || $pregunta['dificultad'] === $dificultad;
-            }
-        ));
-
-        if (empty($_SESSION['lista_preguntas'])) {
-            $_SESSION['lista_preguntas'] = $preguntasDisponibles;
-        }
+        $usuarioId = $_SESSION['usuario_id'];
+        $_SESSION['lista_preguntas'] = $this->obtenerPreguntasParaCategoria($categoria['id'], $dificultad, $usuarioId);
 
         if (empty($_SESSION['lista_preguntas'])) {
             $_SESSION['mensaje_ruleta'] = "No hay preguntas disponibles para " . $categoria['nombre'] . ". Probá con otra categoría.";
@@ -149,8 +133,10 @@ class PartidaController
         $_SESSION['id_pregunta_actual'] = $preguntaActual['id'];
         $_SESSION['pregunta_actual'] = $preguntaActual['texto'];
         $_SESSION['inicio_pregunta'] = time();
+        $this->registrarPreguntaMostradaEnSesion($preguntaActual['id']);
 
         $this->preguntaModel->sumarPreguntasEntregadas($preguntaActual['id']);
+        $this->preguntaModel->registrarPreguntaVista($_SESSION['usuario_id'], $preguntaActual['id']);
 
         $this->estadoPartidaModel->cargarPreguntaPartidaActualALaBD(
             $_SESSION['id_partida'],
@@ -160,7 +146,6 @@ class PartidaController
         $respuestas = $this->manejoDeRespuestas($preguntaActual['id']);
 
         if (count($respuestas) < 4) {
-            $_SESSION['preguntas_respondidas'][] = (int)$preguntaActual['id'];
             array_shift($_SESSION['lista_preguntas']);
             Redirect::to("/partida/mostrarRuleta");
             return;
@@ -246,7 +231,6 @@ class PartidaController
 
             $_SESSION['numero_pregunta']++;
             $_SESSION['puntaje']++;
-            $_SESSION['preguntas_respondidas'][] = (int)$_SESSION["id_pregunta_actual"];
             array_shift($_SESSION['lista_preguntas']);
 
             Redirect::to("/partida/mostrarRuleta");
@@ -270,6 +254,10 @@ class PartidaController
             $this->partidaModel->finalizarPartida($idPartida, $puntajeFinal);
         }
 
+        if (isset($_SESSION["id_pregunta_actual"])) {
+            $this->preguntaModel->calcularDificultad($_SESSION["id_pregunta_actual"]);
+        }
+
         if ($usuario !== null) {
 
             if ($puntajeFinal > 0) {
@@ -280,10 +268,7 @@ class PartidaController
                 $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($usuario);
 
             if ($usuarioData) {
-                $totalPuntaje =
-                    ($usuarioData["puntaje"] ?? 0) + $puntajeFinal;
-
-                $nivelActual = $this->calcularNivelGlobal($totalPuntaje);
+                $nivelActual = $this->obtenerDificultadJugador();
 
                 $this->usuarioModel->actualizarNivel($usuario, $nivelActual);
             }
@@ -382,40 +367,69 @@ class PartidaController
 
     private function obtenerDificultadJugador()
     {
-        if (!isset($_SESSION['usuario'])) {
+        if (!isset($_SESSION['usuario_id'])) {
             return "facil";
         }
 
-        $usuario =
-            $this->usuarioModel->buscarUsuariosPorNombreDeUsuario($_SESSION['usuario']);
+        $ratio = $this->partidaModel->obtenerRatioCorrectasUsuario($_SESSION['usuario_id']);
 
-        if (!$usuario) {
+        if ($ratio === null) {
             return "facil";
         }
 
-        $base = $usuario["nivel"] ?? "facil";
-        $puntaje = $_SESSION["puntaje"] ?? 0;
-
-        if ($base === "facil" && $puntaje >= 5) {
-            return "medio";
-        }
-
-        if ($base === "medio" && $puntaje >= 8) {
+        if ($ratio >= 70) {
             return "dificil";
         }
 
-        return $base;
-    }
-
-    private function calcularNivelGlobal($puntajeTotal)
-    {
-        if ($puntajeTotal < 10) {
-            return "facil";
-        }
-        if ($puntajeTotal < 25) {
+        if ($ratio >= 30) {
             return "medio";
         }
-        return "dificil";
+
+        return "facil";
+    }
+
+    private function obtenerPreguntasParaCategoria($categoriaId, $dificultad, $usuarioId)
+    {
+        $preguntasMostradasEnPartida = $_SESSION['preguntas_respondidas'] ?? [];
+        $intentos = [
+            [$dificultad, true, $preguntasMostradasEnPartida],
+            [$dificultad, false, $preguntasMostradasEnPartida],
+            [null, true, $preguntasMostradasEnPartida],
+            [null, false, $preguntasMostradasEnPartida],
+            [null, false, []]
+        ];
+
+        foreach ($intentos as $intento) {
+            $dificultadBuscada = $intento[0];
+            $excluirVistas = $intento[1];
+            $excluirPartida = $intento[2];
+            $preguntas = $this->preguntaModel->buscarPreguntasParaJuego(
+                $categoriaId,
+                $dificultadBuscada,
+                $usuarioId,
+                $excluirVistas,
+                $excluirPartida
+            );
+
+            if (!empty($preguntas)) {
+                return $preguntas;
+            }
+        }
+
+        return [];
+    }
+
+    private function registrarPreguntaMostradaEnSesion($preguntaId)
+    {
+        if (!isset($_SESSION['preguntas_respondidas']) || !is_array($_SESSION['preguntas_respondidas'])) {
+            $_SESSION['preguntas_respondidas'] = [];
+        }
+
+        $preguntaId = (int)$preguntaId;
+
+        if (!in_array($preguntaId, $_SESSION['preguntas_respondidas'], true)) {
+            $_SESSION['preguntas_respondidas'][] = $preguntaId;
+        }
     }
 
     public function reportar()

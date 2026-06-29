@@ -91,6 +91,16 @@ CREATE TABLE partida_preguntas (
                                    FOREIGN KEY (pregunta_id) REFERENCES preguntas(id)
 );
 
+CREATE TABLE usuario_preguntas_vistas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    pregunta_id INT NOT NULL,
+    fecha_vista TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY usuario_pregunta_unica (usuario_id, pregunta_id),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+    FOREIGN KEY (pregunta_id) REFERENCES preguntas(id)
+);
+
 CREATE TABLE preguntas_reportadas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     pregunta_id INT,
