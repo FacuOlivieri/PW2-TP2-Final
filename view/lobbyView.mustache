@@ -123,47 +123,49 @@
                 <span class="lobby-badge">Top jugadores</span>
             </div>
 
-            <table class="ranking-table">
-                <thead>
-                <tr>
-                    <th>Pos.</th>
-                    <th>Jugador</th>
-                    <th>Total</th>
-                </tr>
-                </thead>
-                <tbody>
-                {{#ranking}}
+            <div class="ranking-table-scroll">
+                <table class="ranking-table">
+                    <thead>
                     <tr>
-                        <td class="ranking-position">#{{puesto}}</td>
-                        <td>{{nombre}}</td>
-                        <td>{{puntajeTotal}}</td>
+                        <th>Pos.</th>
+                        <th>Jugador</th>
+                        <th>Total</th>
                     </tr>
-                {{/ranking}}
+                    </thead>
+                    <tbody>
+                    {{#ranking}}
+                        <tr>
+                            <td class="ranking-position">#{{puesto}}</td>
+                            <td>{{nombre}}</td>
+                            <td>{{puntajeTotal}}</td>
+                        </tr>
+                    {{/ranking}}
 
-                {{^ranking}}
-                    <tr>
-                        <td class="ranking-position">#1</td>
-                        <td>Valentina</td>
-                        <td>2.430</td>
-                    </tr>
-                    <tr>
-                        <td class="ranking-position">#2</td>
-                        <td>Mateo</td>
-                        <td>2.110</td>
-                    </tr>
-                    <tr>
-                        <td class="ranking-position">#3</td>
-                        <td>Sofia</td>
-                        <td>1.980</td>
-                    </tr>
-                    <tr>
-                        <td class="ranking-position">#4</td>
-                        <td>Jugador</td>
-                        <td>0</td>
-                    </tr>
-                {{/ranking}}
-                </tbody>
-            </table>
+                    {{^ranking}}
+                        <tr>
+                            <td class="ranking-position">#1</td>
+                            <td>Valentina</td>
+                            <td>2.430</td>
+                        </tr>
+                        <tr>
+                            <td class="ranking-position">#2</td>
+                            <td>Mateo</td>
+                            <td>2.110</td>
+                        </tr>
+                        <tr>
+                            <td class="ranking-position">#3</td>
+                            <td>Sofia</td>
+                            <td>1.980</td>
+                        </tr>
+                        <tr>
+                            <td class="ranking-position">#4</td>
+                            <td>Jugador</td>
+                            <td>0</td>
+                        </tr>
+                    {{/ranking}}
+                    </tbody>
+                </table>
+            </div>
         </article>
     </section>
     {{/es_usuario_comun}}

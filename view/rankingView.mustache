@@ -7,24 +7,6 @@
         <p> Los jugadores con mayor sabiduría del reino </p>
     </div>
 
-    <table>
-        <tr>
-            <th>Puesto</th>
-            <th>Jugador</th>
-            <th>Puntaje</th>
-        </tr>
-
-        {{#ranking}}
-        <tr>
-            <td>#{{puesto}}</td>
-            <td><a class="table-link" href="/usuario/perfil?username={{nombre}}">{{nombre}}</a></td>
-            <td>{{puntajeTotal}}</td>
-        </tr>
-        {{/ranking}}
-    </table>
-
-    <br>
-
     <div class="home-actions">
 
         <a href="/usuario/perfil" class="btn-add">
@@ -35,6 +17,51 @@
             Volver al Lobby
         </a>
     </div>
+
+    <div class="ranking-scroll table-scroll-panel">
+        <table>
+            <thead>
+                <tr>
+                    <th>Puesto</th>
+                    <th>Jugador</th>
+                    <th>Puntaje</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {{#ranking}}
+                <tr>
+                    <td>#{{puesto}}</td>
+                    <td><a class="table-link" href="/usuario/perfil?username={{nombre}}">{{nombre}}</a></td>
+                    <td>{{puntajeTotal}}</td>
+                </tr>
+                {{/ranking}}
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<style>
+    .table-scroll-panel {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-top: 22px;
+        max-height: 560px;
+        overflow: auto;
+        scrollbar-width: thin;
+    }
+
+    .table-scroll-panel table {
+        display: table;
+        margin: 0;
+        white-space: normal;
+    }
+
+    .table-scroll-panel th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+</style>
 
 {{>footer}}

@@ -7,26 +7,6 @@
         <p> Revisá todas tus partidas jugadas </p>
     </div>
 
-    <table>
-        <tr>
-            <th>Partida</th>
-            <th>Preguntas Respondidas</th>
-            <th>Puntaje</th>
-            <th>Estado</th>
-        </tr>
-
-        {{#historial}}
-        <tr>
-            <td>#{{id}}</td>
-            <td>{{preguntas_jugadas}}</td>
-            <td>{{puntaje_total}}</td>
-            <td>Finalizada</td>
-        </tr>
-        {{/historial}}
-    </table>
-
-    <br>
-
     <div class="home-actions">
 
         <a href="/usuario/perfil" class="btn-add">
@@ -37,6 +17,53 @@
             Volver al Lobby
         </a>
     </div>
+
+    <div class="historial-scroll table-scroll-panel">
+        <table>
+            <thead>
+                <tr>
+                    <th>Partida</th>
+                    <th>Preguntas Respondidas</th>
+                    <th>Puntaje</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {{#historial}}
+                <tr>
+                    <td>#{{id}}</td>
+                    <td>{{preguntas_jugadas}}</td>
+                    <td>{{puntaje_total}}</td>
+                    <td>Finalizada</td>
+                </tr>
+                {{/historial}}
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<style>
+    .table-scroll-panel {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        margin-top: 22px;
+        max-height: 560px;
+        overflow: auto;
+        scrollbar-width: thin;
+    }
+
+    .table-scroll-panel table {
+        display: table;
+        margin: 0;
+        white-space: normal;
+    }
+
+    .table-scroll-panel th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+</style>
 
 {{>footer}}

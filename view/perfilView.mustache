@@ -7,6 +7,21 @@
         <p>Consultá su desempeño, ubicación y partidas jugadas.</p>
     </div>
 
+    <div class="home-actions profile-top-actions">
+
+        <a href="/usuario/historial" class="btn-add">
+            Historial de Partidas
+        </a>
+
+        <a href="/usuario/ranking" class="btn-secondary">
+            Ranking
+        </a>
+
+        <a href="/usuario/mostrarUsuarioLobby" class="btn-secondary">
+            Volver al Lobby
+        </a>
+    </div>
+
     <section class="profile-public-grid">
         <article class="profile-summary-card">
             {{#tieneFotoPerfil}}
@@ -92,7 +107,7 @@
             <p>Resumen de partidas jugadas por {{usuario.username}}.</p>
         </div>
 
-        <div class="profile-match-list">
+        <div class="profile-match-list profile-match-scroll">
             {{#partidas}}
                 <article class="profile-match-item">
                     <div>
@@ -117,22 +132,19 @@
         </div>
     </section>
 
-    <br>
-
-    <div class="home-actions">
-
-        <a href="/usuario/historial" class="btn-add">
-            Historial de Partidas
-        </a>
-
-        <a href="/usuario/ranking" class="btn-secondary">
-            Ranking
-        </a>
-
-        <a href="/usuario/mostrarUsuarioLobby" class="btn-secondary">
-            Volver al Lobby
-        </a>
-    </div>
 </div>
+
+<style>
+    .profile-top-actions {
+        margin-bottom: 24px;
+    }
+
+    .profile-match-scroll {
+        max-height: 480px;
+        overflow-y: auto;
+        padding-right: 4px;
+        scrollbar-width: thin;
+    }
+</style>
 
 {{>footer}}
