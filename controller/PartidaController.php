@@ -130,9 +130,49 @@ class PartidaController
 
         $preguntaActual = $_SESSION['lista_preguntas'][0];
 
+        if ($this->esPreguntaNueva($preguntaActual['id'])) {
+            $this->inicializarPreguntaEnSesion($preguntaActual);
+
+            $respuestas = $this->manejoDeRespuestas($preguntaActual['id']);
+
+            if (count($respuestas) < 4) {
+                $this->limpiarRespuestasPreguntaActual();
+                array_shift($_SESSION['lista_preguntas']);
+                Redirect::to("/partida/mostrarRuleta");
+                return;
+            }
+
+            $this->guardarOrdenRespuestasEnSesion($respuestas);
+        }
+
+        $tiempoRestante = $this->calcularTiempoRestante();
+
+        if ($tiempoRestante <= 0) {
+            Redirect::to("/partida/partidaTerminada");
+            return;
+        }
+
+        $this->renderer->render("partidaView", [
+            "pregunta" => $preguntaActual["texto"],
+            "categoria" => $_SESSION['categoria_nombre'] ?? "",
+            "dificultad" => $this->formatearDificultadPregunta($preguntaActual["dificultad"] ?? "media"),
+            "dificultadClase" => $this->crearClaseDificultadPregunta($preguntaActual["dificultad"] ?? "media"),
+            "respuestas" => $_SESSION['respuestas_pregunta_actual'],
+            "puntaje" => $_SESSION['puntaje'],
+            "usuarioPuntaje" => $_SESSION['puntaje'],
+            "numeroPregunta" => $_SESSION['numero_pregunta'],
+            "tiempoRestante" => $tiempoRestante
+        ]);
+    }
+
+    private function esPreguntaNueva($preguntaId) {
+        return ($_SESSION['id_pregunta_actual'] ?? null) !== $preguntaId;
+    }
+
+    private function inicializarPreguntaEnSesion($preguntaActual) {
         $_SESSION['id_pregunta_actual'] = $preguntaActual['id'];
         $_SESSION['pregunta_actual'] = $preguntaActual['texto'];
-        $_SESSION['inicio_pregunta'] = time();
+        $_SESSION['tiempo_inicio_pregunta'] = time();
         $this->registrarPreguntaMostradaEnSesion($preguntaActual['id']);
 
         $this->preguntaModel->sumarPreguntasEntregadas($preguntaActual['id']);
@@ -142,25 +182,21 @@ class PartidaController
             $_SESSION['id_partida'],
             $_SESSION['id_pregunta_actual']
         );
+    }
 
-        $respuestas = $this->manejoDeRespuestas($preguntaActual['id']);
+    private function guardarOrdenRespuestasEnSesion($respuestas) {
+        $_SESSION['respuestas_pregunta_actual'] = $respuestas;
+    }
 
-        if (count($respuestas) < 4) {
-            array_shift($_SESSION['lista_preguntas']);
-            Redirect::to("/partida/mostrarRuleta");
-            return;
-        }
+    private function limpiarRespuestasPreguntaActual() {
+        unset($_SESSION['respuestas_pregunta_actual']);
+    }
 
-        $this->renderer->render("partidaView", [
-            "pregunta" => $preguntaActual["texto"],
-            "categoria" => $_SESSION['categoria_nombre'] ?? "",
-            "dificultad" => $this->formatearDificultadPregunta($preguntaActual["dificultad"] ?? "media"),
-            "dificultadClase" => $this->crearClaseDificultadPregunta($preguntaActual["dificultad"] ?? "media"),
-            "respuestas" => $respuestas,
-            "puntaje" => $_SESSION['puntaje'],
-            "usuarioPuntaje" => $_SESSION['puntaje'],
-            "numeroPregunta" => $_SESSION['numero_pregunta']
-        ]);
+    private function calcularTiempoRestante() {
+        $tiempoLimite = 15;
+        $tiempoActual = time();
+        $tiempoGeneradoAlCrearLaPregunta = $_SESSION['tiempo_inicio_pregunta'];
+        return max(0, $tiempoLimite - ($tiempoActual - $tiempoGeneradoAlCrearLaPregunta));
     }
 
     private function formatearDificultadPregunta($dificultad)
@@ -199,7 +235,9 @@ class PartidaController
             return;
         }
 
-        if (!isset($_SESSION["id_partida"]) || !isset($_SESSION["id_pregunta_actual"]) || !isset($_SESSION["inicio_pregunta"])) {
+        if (!isset($_SESSION["id_partida"]) ||
+            !isset($_SESSION["id_pregunta_actual"]) ||
+            !isset($_SESSION["inicio_pregunta"])) {
             Redirect::to("/partida/partidaTerminada");
             return;
         }
@@ -232,6 +270,7 @@ class PartidaController
             $_SESSION['numero_pregunta']++;
             $_SESSION['puntaje']++;
             array_shift($_SESSION['lista_preguntas']);
+            $this->limpiarRespuestasPreguntaActual();
 
             Redirect::to("/partida/mostrarRuleta");
             return;
@@ -323,6 +362,7 @@ class PartidaController
         unset($_SESSION["preguntas_respondidas"]);
         unset($_SESSION["inicio_pregunta"]);
         unset($_SESSION["mensaje_ruleta"]);
+        unset($_SESSION["respuestas_pregunta_actual"]);
     }
 
     private function manejoDeRespuestas($preguntaId): array
