@@ -130,7 +130,7 @@ class PreguntaCreadaController
 
     public function propuestas()
     {
-        if (!$this->requiereEditor()) {
+        if (!$this->requiereEditorOAdmin()) {
             return;
         }
 
@@ -178,7 +178,7 @@ class PreguntaCreadaController
 
     public function ver()
     {
-        if (!$this->requiereEditor()) {
+        if (!$this->requiereEditorOAdmin()) {
             return;
         }
 
@@ -205,7 +205,7 @@ class PreguntaCreadaController
 
     public function aprobar()
     {
-        if (!$this->requiereEditor()) {
+        if (!$this->requiereEditorOAdmin()) {
             return;
         }
 
@@ -240,7 +240,7 @@ class PreguntaCreadaController
 
     public function rechazar()
     {
-        if (!$this->requiereEditor()) {
+        if (!$this->requiereEditorOAdmin()) {
             return;
         }
 
@@ -297,6 +297,20 @@ class PreguntaCreadaController
         }
 
         if (!$this->esEditor()) {
+            Redirect::to("/usuario/renderizarLobby");
+            return false;
+        }
+
+        return true;
+    }
+
+    private function requiereEditorOAdmin()
+    {
+        if (!$this->requiereLogin()) {
+            return false;
+        }
+
+        if (!$this->esAdmin() && !$this->usuarioModel->esEditor($_SESSION["usuario"])) {
             Redirect::to("/usuario/renderizarLobby");
             return false;
         }

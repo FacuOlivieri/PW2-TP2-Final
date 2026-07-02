@@ -8,8 +8,9 @@ class UsuarioController
     private $partidaModel;
     private $codigoModel;
     private $mailHelper;
+    private $preguntaCreadaModel;
 
-    public function __construct($model, $renderer, $request, $partidaModel, $codigoModel, $mailHelper = null)
+    public function __construct($model, $renderer, $request, $partidaModel, $codigoModel, $mailHelper = null, $preguntaCreadaModel = null)
     {
         $this->model = $model;
         $this->renderer = $renderer;
@@ -17,6 +18,7 @@ class UsuarioController
         $this->partidaModel = $partidaModel;
         $this->codigoModel = $codigoModel;
         $this->mailHelper = $mailHelper;
+        $this->preguntaCreadaModel = $preguntaCreadaModel;
     }
 
     public function inicio()
@@ -186,6 +188,11 @@ class UsuarioController
             return;
         }
 
+        $pendientes = 0;
+        if ($this->preguntaCreadaModel && ($rol === "administrador" || $this->model->esEditor($usuario))) {
+            $pendientes = $this->preguntaCreadaModel->contarPendientes();
+        }
+
         $this->renderer->render("lobbyView", [
             "nombreUsuario" => $usuario,
             "puntajeRanking" => $this->model->mostrarPuntaje($usuario),
@@ -197,7 +204,8 @@ class UsuarioController
             "es_admin" => ($rol === "administrador"),
             "es_editor" => ($rol === "editor"),
             "es_usuario_comun" => ($rol === "usuario"),
-            "puede_sugerir_pregunta" => ($rol === "usuario")
+            "puede_sugerir_pregunta" => ($rol === "usuario"),
+            "pendientes_preguntas" => $pendientes
         ]);
     }
 

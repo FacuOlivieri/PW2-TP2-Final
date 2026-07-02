@@ -20,7 +20,8 @@ class Configurator {
             new Request(),
             $this->getPartida(),
             $this->getCodigo(),
-            $mailHelper
+            $mailHelper,
+            $this->getPreguntaCreada()
         );
     }
 

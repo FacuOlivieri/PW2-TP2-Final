@@ -88,4 +88,13 @@ class PreguntaCreadaModel
         $sql = "UPDATE preguntas_creadas SET estado = ? WHERE id = ?";
         $this->database->execute($sql, [$estado, $id]);
     }
+
+    public function contarPendientes()
+    {
+        $sql = "SELECT COUNT(*) as cantidad
+                FROM preguntas_creadas
+                WHERE estado = 'pendiente'";
+        $resultado = $this->database->query($sql);
+        return $resultado[0]['cantidad'] ?? 0;
+    }
 }
