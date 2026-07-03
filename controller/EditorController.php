@@ -6,15 +6,17 @@ class EditorController
     private $categoriaModel;
     private $respuestaModel;
     private $usuarioModel;
+    private $preguntaCreadaModel;
     private $renderer;
     private $request;
 
-    public function __construct($preguntaModel, $categoriaModel, $respuestaModel, $usuarioModel, $renderer, $request)
+    public function __construct($preguntaModel, $categoriaModel, $respuestaModel, $usuarioModel, $preguntaCreadaModel, $renderer, $request)
     {
         $this->preguntaModel = $preguntaModel;
         $this->categoriaModel = $categoriaModel;
         $this->respuestaModel = $respuestaModel;
         $this->usuarioModel = $usuarioModel;
+        $this->preguntaCreadaModel = $preguntaCreadaModel;
         $this->renderer = $renderer;
         $this->request = $request;
     }
@@ -25,10 +27,16 @@ class EditorController
             return;
         }
 
+        $pendientes = 0;
+        if ($this->preguntaCreadaModel) {
+            $pendientes = $this->preguntaCreadaModel->contarPendientes();
+        }
+
         $this->renderer->render("editorPreguntasView", [
             "preguntas" => $this->preguntaModel->buscarTodasLasPreguntas(),
             "categorias" => $this->categoriaModel->obtenerTodas(),
-            "mensaje" => $_SESSION["editor_mensaje"] ?? null
+            "mensaje" => $_SESSION["editor_mensaje"] ?? null,
+            "pendientes_preguntas" => $pendientes
         ]);
 
         unset($_SESSION["editor_mensaje"]);
@@ -165,9 +173,17 @@ class EditorController
             return;
         }
 
+        $pendientes = 0;
+        if ($this->preguntaCreadaModel) {
+            $pendientes = $this->preguntaCreadaModel->contarPendientes();
+        }
+
         $reportes = $this->preguntaModel->obtenerReportesPendientes();
 
-        $this->renderer->render("reportesView", ["reportes" => $reportes]);
+        $this->renderer->render("reportesView", [
+            "reportes" => $reportes,
+            "pendientes_preguntas" => $pendientes
+        ]);
     }
 
     public function reportes()

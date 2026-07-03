@@ -313,7 +313,7 @@ class UsuarioController
         file_put_contents(__DIR__ . '/../log/email_debug.log', $logMensaje, FILE_APPEND);
 
         if ($this->mailHelper) {
-            $enviado = $this->mailHelper->enviarCodigoVerificacion($mail, $codigo);
+            $enviado = $this->mailHelper->enviarCodigoVerificacion($mail, $codigo, $username);
             $logResultado = "[" . date('Y-m-d H:i:s') . "] Email enviado a $mail: " . ($enviado ? 'EXITOSO' : 'FALLÓ') . "\n";
             file_put_contents(__DIR__ . '/../log/email_debug.log', $logResultado, FILE_APPEND);
         } else {

@@ -72,7 +72,7 @@ class PartidaController
         }
 
         $this->renderer->render("ruletaView", [
-            "categorias" => $this->categoriaModel->obtenerTodas(),
+            "categorias" => $this->categoriaModel->obtenerJugables(),
             "mensajeRuleta" => $_SESSION['mensaje_ruleta'] ?? null
         ]);
 
@@ -98,18 +98,37 @@ class PartidaController
             return;
         }
 
-        $_SESSION['categoria_id'] = $categoria['id'];
-        $_SESSION['categoria_nombre'] = $categoria['nombre'];
-
         $dificultad = $this->obtenerDificultadJugador();
         $usuarioId = $_SESSION['usuario_id'];
-        $_SESSION['lista_preguntas'] = $this->obtenerPreguntasParaCategoria($categoria['id'], $dificultad, $usuarioId);
+        $preguntas = $this->obtenerPreguntasParaCategoria($categoria['id'], $dificultad, $usuarioId);
 
-        if (empty($_SESSION['lista_preguntas'])) {
-            $_SESSION['mensaje_ruleta'] = "No hay preguntas disponibles para " . $categoria['nombre'] . ". Probá con otra categoría.";
+        if (empty($preguntas)) {
+            $categoriasJugables = $this->categoriaModel->obtenerJugables();
+            shuffle($categoriasJugables);
+
+            foreach ($categoriasJugables as $alternativa) {
+                if ((int)$alternativa['id'] === (int)$categoria['id']) {
+                    continue;
+                }
+
+                $preguntas = $this->obtenerPreguntasParaCategoria($alternativa['id'], $dificultad, $usuarioId);
+
+                if (!empty($preguntas)) {
+                    $categoria = $alternativa;
+                    break;
+                }
+            }
+        }
+
+        if (empty($preguntas)) {
+            $_SESSION['mensaje_ruleta'] = "No hay preguntas disponibles en este momento. Probá de nuevo más tarde.";
             Redirect::to("/partida/mostrarRuleta");
             return;
         }
+
+        $_SESSION['categoria_id'] = $categoria['id'];
+        $_SESSION['categoria_nombre'] = $categoria['nombre'];
+        $_SESSION['lista_preguntas'] = $preguntas;
 
         shuffle($_SESSION['lista_preguntas']);
 
@@ -138,6 +157,7 @@ class PartidaController
             if (count($respuestas) < 4) {
                 $this->limpiarRespuestasPreguntaActual();
                 array_shift($_SESSION['lista_preguntas']);
+                $_SESSION['mensaje_ruleta'] = "La pregunta anterior no estaba completa, girá de nuevo para continuar.";
                 Redirect::to("/partida/mostrarRuleta");
                 return;
             }
@@ -237,14 +257,14 @@ class PartidaController
 
         if (!isset($_SESSION["id_partida"]) ||
             !isset($_SESSION["id_pregunta_actual"]) ||
-            !isset($_SESSION["inicio_pregunta"])) {
+            !isset($_SESSION["tiempo_inicio_pregunta"])) {
             Redirect::to("/partida/partidaTerminada");
             return;
         }
 
         $tiempoLimite = 15;
 
-        if (time() - $_SESSION["inicio_pregunta"] > $tiempoLimite) {
+        if (time() - $_SESSION["tiempo_inicio_pregunta"] > $tiempoLimite) {
             Redirect::to("/partida/partidaTerminada");
             return;
         }
@@ -360,7 +380,7 @@ class PartidaController
         unset($_SESSION["categoria_id"]);
         unset($_SESSION["categoria_nombre"]);
         unset($_SESSION["preguntas_respondidas"]);
-        unset($_SESSION["inicio_pregunta"]);
+        unset($_SESSION["tiempo_inicio_pregunta"]);
         unset($_SESSION["mensaje_ruleta"]);
         unset($_SESSION["respuestas_pregunta_actual"]);
     }

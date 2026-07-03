@@ -215,6 +215,13 @@
     .chart-box {
         height: 290px;
         padding: 8px 22px 18px;
+        position: relative;
+    }
+
+    .chart-box canvas {
+        display: block;
+        height: 100% !important;
+        width: 100% !important;
     }
 
     .data-table {
@@ -311,6 +318,10 @@
         }
     }
 
+    .print-chart-image {
+        display: none;
+    }
+
     @media print {
         @page {
             margin: 14mm;
@@ -326,9 +337,28 @@
         .btn-print,
         .btn-back,
         .dashboard-footer,
-        .chart-box,
         .data-badge {
             display: none !important;
+        }
+
+        .chart-box {
+            display: block !important;
+            height: auto !important;
+            min-height: 180px !important;
+            padding: 8px 14px 12px !important;
+        }
+
+        .chart-box canvas {
+            display: none !important;
+        }
+
+        .print-chart-image {
+            display: block !important;
+            height: auto;
+            max-height: 230px;
+            max-width: 100%;
+            object-fit: contain;
+            width: 100%;
         }
 
         .dashboard-hero {

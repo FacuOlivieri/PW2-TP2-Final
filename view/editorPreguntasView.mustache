@@ -13,7 +13,12 @@
 
     <nav class="editor-tabs" aria-label="Herramientas del editor">
         <a href="/editor/preguntas" class="btn-secondary tab-active">Preguntas del juego</a>
-        <a href="/preguntaCreada/propuestas" class="btn-secondary">Preguntas sugeridas</a>
+        <a href="/preguntaCreada/propuestas" class="btn-secondary" style="position: relative;">
+            Preguntas sugeridas
+            {{#pendientes_preguntas}}
+                <span style="position: absolute; top: -8px; right: -8px; background: #e74c3c; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">{{pendientes_preguntas}}</span>
+            {{/pendientes_preguntas}}
+        </a>
         <a href="/editor/reportes" class="btn-secondary">Preguntas reportadas</a>
         <a href="/usuario/cerrarSesion" class="btn-secondary editor-logout-action">Cerrar sesión</a>
     </nav>

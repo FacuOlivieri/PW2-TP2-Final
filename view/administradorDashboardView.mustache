@@ -12,7 +12,7 @@
                 </h1>
             </div>
 
-            <button class="btn-print" onclick="window.print()">
+            <button class="btn-print" onclick="prepararGraficosParaImprimir(); window.print()">
                 Imprimir reportes
             </button>
         </div>
@@ -225,6 +225,8 @@
         return data && data.values && data.values.some(value => Number(value) > 0);
     }
 
+    const dashboardCharts = [];
+
     function createChart(canvasId, type, data, label, options = {}) {
         const canvas = document.getElementById(canvasId);
 
@@ -232,7 +234,7 @@
             return;
         }
 
-        new Chart(canvas, {
+        const chart = new Chart(canvas, {
             type,
             data: {
                 labels: data.labels,
@@ -249,6 +251,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: false,
                 plugins: {
                     legend: { display: type === "doughnut", position: "bottom" },
                     tooltip: { backgroundColor: "#0f172a", padding: 12 }
@@ -259,6 +262,40 @@
                 }
             }
         });
+
+        dashboardCharts.push({ canvasId, chart });
+        syncPrintableChartImage(canvasId, chart);
+    }
+
+    function syncPrintableChartImage(canvasId, chart) {
+        const canvas = document.getElementById(canvasId);
+
+        if (!canvas || !chart) {
+            return;
+        }
+
+        const chartBox = canvas.closest(".chart-box");
+
+        if (!chartBox) {
+            return;
+        }
+
+        let image = chartBox.querySelector(".print-chart-image");
+
+        if (!image) {
+            image = document.createElement("img");
+            image.className = "print-chart-image";
+            image.alt = "Gráfico del reporte";
+            chartBox.appendChild(image);
+        }
+
+        image.src = chart.toBase64Image();
+    }
+
+    function prepararGraficosParaImprimir() {
+        dashboardCharts.forEach(function (item) {
+            syncPrintableChartImage(item.canvasId, item.chart);
+        });
     }
 
     createChart("chartPais", "bar", chartData.pais, "Usuarios");
@@ -267,4 +304,10 @@
     createChart("chartCorrectas", "bar", chartData.correctas, "Correctas (%)");
     createChart("chartPartidas", "line", chartData.partidas, "Partidas", { line: true });
     createChart("chartPreguntas", "line", chartData.preguntas, "Preguntas", { line: true });
+
+    setTimeout(prepararGraficosParaImprimir, 250);
+    window.addEventListener("beforeprint", prepararGraficosParaImprimir);
+    window.addEventListener("load", function () {
+        setTimeout(prepararGraficosParaImprimir, 500);
+    });
 </script>

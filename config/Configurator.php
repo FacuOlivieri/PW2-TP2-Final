@@ -49,6 +49,7 @@ class Configurator {
             $this->getCategoria(),
             $this->getRespuestaModel(),
             $this->getUsuarios(),
+            $this->getPreguntaCreada(),
             $this->getRenderer(),
             new Request()
         );
